@@ -22,3 +22,12 @@ def matrix_inv(x_values, y_values):
     beta = np.linalg.inv(x_values.T @ x_values) @ x_values.T @ y_values
     ytilde = x_values @ beta
     return ytilde
+
+def generate_data():
+    """
+    Generates x and y values with normal distributed noise. 
+    """
+    np.random.seed(4155)
+    x = np.random.rand(100,1)
+    y = 2.0+5*x*x+0.1*np.random.randn(100,1)
+    return x, y
