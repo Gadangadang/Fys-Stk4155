@@ -47,3 +47,4 @@ if __name__ == "__main__":
     # Prediction
     ztilde = X_train @ beta
     zpredict = X_test @ beta
+    

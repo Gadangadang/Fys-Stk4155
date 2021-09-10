@@ -1,13 +1,11 @@
 import numpy as np
 
 
-
 def R2(y_data, y_model):
     """
     Evluated the square error of the data.
     """
     return 1 - np.sum((y_data - y_model)**2) / np.sum((y_data - np.mean(y_data)) ** 2)
-
 
 def MSE(y_data,y_model):
     """
@@ -15,7 +13,6 @@ def MSE(y_data,y_model):
     """
     n = np.size(y_model)
     return np.sum((y_data-y_model)**2)/n
-
 
 def FrankeFunction(x,y):
     """
@@ -50,9 +47,6 @@ def generate_2D_mesh_grid(N):
     x, y = np.meshgrid(x,y)
     return x, y
 
-
-
-
 def create_X(x, y, n ):
     """
     Creates design matrix X
@@ -72,3 +66,10 @@ def create_X(x, y, n ):
     	for k in range(i+1):
     		X[:,q+k] = (x**(i-k))*(y**k)
     return X
+def standard_scale(z):
+    """
+    Returns the standard scaling of z using
+    the mean of z and the standard deviation.
+    """
+    z_scaled = (z-np.mean(z))/np.std(z)
+    return z_scaled
