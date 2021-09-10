@@ -5,15 +5,15 @@ from sklearn.preprocessing import StandardScaler
 
 from Functions import *
 
-def create_data(N, z_noise):
+def generate_data(N, z_noise):
     """
+    Generates x,y mesh grid and
+    corresponding z-values from FrankeFunction
     """
     N = 100
     x,y = generate_2D_mesh_grid(N)
-
     z = FrankeFunction(x, y) + z_noise*np.random.randn(N,N)
-    z = z.reshape(N**2) #Flatten
-
+    z = z.reshape(N**2) # flatten
     return x, y, z
 
 
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     n = 5               # Highest order of polynomial for X
 
     # Create data and set up design matrix
-    x, y, z = create_data(N, z_noise)
+    x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
     # Split data into train and test data
@@ -47,6 +47,3 @@ if __name__ == "__main__":
     # Prediction
     ztilde = X_train @ beta
     zpredict = X_test @ beta
-
-
-    # beta, ztilde, zpredict = MSE_regression(X_train, X_test, z_train, z_test)
