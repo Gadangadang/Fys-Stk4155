@@ -28,19 +28,27 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     R2_train =  R2(z_train,ztilde)
     R2_test =   R2(z_test,zpredict)
 
-    # alpha% confidential interval (standard normal distribution)
-    alpha = 95
+    # alpha-% confidential interval (standard normal distribution)
+    alpha = 0.95
     from scipy.stats import norm
-    norm.cdf(1.96)
-    # sample_mean = np.mean(z_train, z_test)
-    # std = np.std(z_test)
-    # SE = std/np.sqrt(len(z_test))
-    # confidential_interval = [sample_mean - SE ]
+    Z = norm.ppf(alpha + (1-alpha)/2)
+    diff = z_test-zpredict
+    sample_mean = np.mean(diff)
+    SE = np.std(diff)/np.sqrt(len(diff))
+    confidence_intervals = [sample_mean - Z*SE, sample_mean + Z*SE]
 
     #--- print result ---#
-    print("      train  |  test")
-    print(f"MSE: {MSE_train:2.5f} | {MSE_test:2.5f}")
-    print(f"R2 : {R2_train:2.5f} | {R2_test:2.5f}")
+    print_results = True
+    if print_results:
+        print("#----- Error -----#")
+        print("      train  |  test")
+        print(f"MSE: {MSE_train:2.5f} | {MSE_test:2.5f}")
+        print(f"R2 : {R2_train:2.5f} | {R2_test:2.5f}")
+
+        print(f"\n#----- {alpha}% confidence intervals -----#")
+        print(f"[{confidence_intervals[0]:.2e}, {confidence_intervals[1]:.2e}]")
+
+
 
 
 
