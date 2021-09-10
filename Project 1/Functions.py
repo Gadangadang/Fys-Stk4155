@@ -24,6 +24,21 @@ def matrix_inv(x_values, y_values):
     return ytilde
 
 
+def generate_2D_mesh_grid(N):
+    """
+    Generates 2D mesh grid (x,y)
+    N: Number of uniform points
+    """
+
+    np.random.seed(4155) # Random seed
+    x = np.linspace(0,1, N)
+    y = np.linspace(0,1, N)
+    x, y = np.meshgrid(x,y)
+    return x, y
+
+
+
+
 def create_X(x, y, n ):
     """
     Creates design matrix X

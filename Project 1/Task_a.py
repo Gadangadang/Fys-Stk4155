@@ -5,7 +5,16 @@ from sklearn.linear_model import LinearRegression
 
 
 
-def linalg_approx():
-    beta = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ y_train
-    ytilde = X_train @ beta
-    ypredict = X_test @ beta
+
+
+if __name__ == "__main__":
+    from Functions import *
+    x,y = generate_2D_mesh_grid()
+
+
+    exit()
+    noise = 0.1*np.random.randn(N,N)
+
+    z = FrankeFunction(x, y) + 0.1*np.random.randn(N,N)
+    z = z.reshape(N**2) #Flatten
+    X = create_X(x, y, n=n)
