@@ -16,6 +16,35 @@ def generate_data(N, z_noise):
     z = z.reshape(N**2) # flatten
     return x, y, z
 
+def evaluate_regression(beta, X_train, X_test, z_train, z_test):
+    """
+    """
+    # Prediction
+    ztilde = X_train @ beta
+    zpredict = X_test @ beta
+
+    MSE_train = MSE(z_train, ztilde)
+    MSE_test =  MSE(z_test,zpredict)
+    R2_train =  R2(z_train,ztilde)
+    R2_test =   R2(z_test,zpredict)
+
+    # alpha% confidential interval (standard normal distribution)
+    alpha = 95
+    from scipy.stats import norm
+    norm.cdf(1.96)
+    # sample_mean = np.mean(z_train, z_test)
+    # std = np.std(z_test)
+    # SE = std/np.sqrt(len(z_test))
+    # confidential_interval = [sample_mean - SE ]
+
+    #--- print result ---#
+    print("      train  |  test")
+    print(f"MSE: {MSE_train:2.5f} | {MSE_test:2.5f}")
+    print(f"R2 : {R2_train:2.5f} | {R2_test:2.5f}")
+
+
+
+
 
 
 
@@ -46,8 +75,4 @@ if __name__ == "__main__":
 
     #OLS regression
     beta_OLS = OLS_regression(X_train, X_test, z_train, z_test)
-
-    # Prediction
-    ztilde = X_train @ beta
-    zpredict = X_test @ beta
-    
+    evaluate_regression(beta_OLS, X_train, X_test, z_train, z_test)
