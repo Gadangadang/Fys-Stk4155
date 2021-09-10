@@ -1,6 +1,7 @@
 import numpy as np
 
 
+
 def R2(y_data, y_model):
     """
     Evluated the square error of the data.
@@ -26,23 +27,15 @@ def FrankeFunction(x,y):
     term4 = -0.2*np.exp(-(9*x-4)**2 - (9*y-7)**2)
     return term1 + term2 + term3 + term4
 
-def OLS_regression(X_train, X_test, z_train, z_test):
-    # Matrix inversion to find beta
-    beta = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ z_train
-
-    # Prediction
-    ztilde = X_train @ beta
-    zpredict = X_test @ beta
-
-    MSE_train = MSE(z_train,ztilde)
-    MSE_test = MSE(z_test,zpredict)
-    print(f"train MSE {MSE_train:g}")
-    print(f"test MSE {MSE_test:g}")
-
-    return beta, ytilde, ypredict
-
-
-
+def OLS_regression(X_train, X_test, y_train, y_test):
+    """
+    Ordinary Least Squares
+    Matrix inversion to find beta
+    X (train/test): Design matrix
+    y: (train/test) data output
+    """
+    beta = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ y_train
+    return beta
 
 
 def generate_2D_mesh_grid(N):

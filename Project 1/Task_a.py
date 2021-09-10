@@ -1,12 +1,13 @@
 import numpy as np
 from random import random, seed
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+
+from Functions import *
 
 def create_data(N, z_noise):
     """
     """
-    from Functions import *
     N = 100
     x,y = generate_2D_mesh_grid(N)
 
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     n = 5               # Highest order of polynomial for X
 
     # Create data and set up design matrix
-    x, y, z = make_data()
+    x, y, z = create_data(N, z_noise)
     X = create_X(x, y, n)
 
     # Split data into train and test data
@@ -38,6 +39,14 @@ if __name__ == "__main__":
     scaler.fit(X_train)
     X_train_scaled = scaler.transform(X_train)
     X_test_scaled = scaler.transform(X_test)
+
+
+    #OLS regression
+    beta = OLS_regression(X_train, X_test, z_train, z_test)
+
+    # Prediction
+    ztilde = X_train @ beta
+    zpredict = X_test @ beta
 
 
     # beta, ztilde, zpredict = MSE_regression(X_train, X_test, z_train, z_test)
