@@ -26,15 +26,23 @@ def FrankeFunction(x,y):
     term4 = -0.2*np.exp(-(9*x-4)**2 - (9*y-7)**2)
     return term1 + term2 + term3 + term4
 
-#Matrix inversion method.
-def matrix_inv(x_values, y_values):
-    """
-    Preformes a matrix inversion on a set of
-    x and y values.
-    """
-    beta = np.linalg.inv(x_values.T @ x_values) @ x_values.T @ y_values
-    ytilde = x_values @ beta
-    return ytilde
+def OLS_regression(X_train, X_test, z_train, z_test):
+    # Matrix inversion to find beta
+    beta = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ z_train
+
+    # Prediction
+    ztilde = X_train @ beta
+    zpredict = X_test @ beta
+
+    MSE_train = MSE(z_train,ztilde)
+    MSE_test = MSE(z_test,zpredict)
+    print(f"train MSE {MSE_train:g}")
+    print(f"test MSE {MSE_test:g}")
+
+    return beta, ytilde, ypredict
+
+
+
 
 
 def generate_2D_mesh_grid(N):
