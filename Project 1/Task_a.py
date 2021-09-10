@@ -39,6 +39,10 @@ if __name__ == "__main__":
     X_train_scaled = scaler.transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
+    # Force first column back to 1
+    X_train_scaled[:,0] = 1.
+    X_test_scaled[:,0] = 1.
+
 
     #OLS regression
     beta = OLS_regression(X_train, X_test, z_train, z_test)
