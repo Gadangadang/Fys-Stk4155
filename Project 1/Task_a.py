@@ -19,7 +19,6 @@ def generate_data(N, z_noise):
 
 
 
-
 if __name__ == "__main__":
 
     #--- settings ---#
