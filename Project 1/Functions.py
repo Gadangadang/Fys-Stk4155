@@ -24,7 +24,6 @@ def matrix_inv(x_values, y_values):
     return ytilde
 
 
-
 def create_X(x, y, n ):
     """
     Creates design matrix X
@@ -44,5 +43,3 @@ def create_X(x, y, n ):
     	for k in range(i+1):
     		X[:,q+k] = (x**(i-k))*(y**k)
     return X
-
-    
