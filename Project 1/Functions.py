@@ -16,3 +16,9 @@ def FrankeFunction(x,y):
     term3 = 0.5*np.exp(-(9*x-7)**2/4.0 - 0.25*((9*y-3)**2))
     term4 = -0.2*np.exp(-(9*x-4)**2 - (9*y-7)**2)
     return term1 + term2 + term3 + term4
+
+#Matrix inversion method.
+def matrix_inv(x_values, y_values):
+    beta = np.linalg.inv(x_values.T @ x_values) @ x_values.T @ y_values
+    ytilde = x_values @ beta
+    return ytilde
