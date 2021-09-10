@@ -22,3 +22,27 @@ def matrix_inv(x_values, y_values):
     beta = np.linalg.inv(x_values.T @ x_values) @ x_values.T @ y_values
     ytilde = x_values @ beta
     return ytilde
+
+
+
+def create_X(x, y, n ):
+    """
+    Creates design matrix X
+    for polynomials in 2D up to order n as:
+    [x, y, x^2, xy, y^2, ... x^n, .. y^n]
+    """
+    if len(x.shape) > 1:
+        x = x.reshape(x.shape[0]*x.shape[1]) # flattens x
+        y = y.reshape(y.shape[0]*y.shape[1]) # flattens y
+
+    N = len(x)
+    l = int((n+1)*(n+2)/2)		# Number of elements in beta
+    X = np.ones((N,l))
+
+    for i in range(1,n+1):
+    	q = int((i)*(i+1)/2)
+    	for k in range(i+1):
+    		X[:,q+k] = (x**(i-k))*(y**k)
+    return X
+
+    
