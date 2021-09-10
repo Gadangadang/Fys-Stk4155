@@ -19,7 +19,6 @@ def generate_data(N, z_noise):
 
 
 
-
 if __name__ == "__main__":
 
     #--- settings ---#
@@ -39,6 +38,10 @@ if __name__ == "__main__":
     scaler.fit(X_train)
     X_train_scaled = scaler.transform(X_train)
     X_test_scaled = scaler.transform(X_test)
+
+    # Force first column back to 1
+    X_train_scaled[:,0] = 1.
+    X_test_scaled[:,0] = 1.
 
 
     #OLS regression
