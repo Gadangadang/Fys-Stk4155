@@ -24,14 +24,14 @@ def FrankeFunction(x,y):
     term4 = -0.2*np.exp(-(9*x-4)**2 - (9*y-7)**2)
     return term1 + term2 + term3 + term4
 
-def OLS_regression(X_train, X_test, y_train, y_test):
+def OLS_regression(X, y):
     """
     Ordinary Least Squares
     Matrix inversion to find beta
     X (train/test): Design matrix
     y: (train/test) data output
     """
-    beta = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ y_train
+    beta = np.linalg.inv(X.T @ X) @ X.T @ y
     return beta
 
 
@@ -66,6 +66,7 @@ def create_X(x, y, n ):
     	for k in range(i+1):
     		X[:,q+k] = (x**(i-k))*(y**k)
     return X
+
 def standard_scale(z):
     """
     Returns the standard scaling of z using
@@ -73,3 +74,13 @@ def standard_scale(z):
     """
     z_scaled = (z-np.mean(z))/np.std(z)
     return z_scaled
+
+def generate_data(N, z_noise):
+    """
+    Generates x,y mesh grid and
+    corresponding z-values from FrankeFunction
+    """
+    x,y = generate_2D_mesh_grid(N)
+    z = FrankeFunction(x, y) + z_noise*np.random.randn(N,N)
+    z = z.reshape(N**2) # flatten
+    return x, y, z

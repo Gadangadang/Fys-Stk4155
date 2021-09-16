@@ -5,17 +5,12 @@ from sklearn.preprocessing import StandardScaler
 from scipy.stats import norm
 from Functions import *
 
-def generate_data(N, z_noise):
-    """
-    Generates x,y mesh grid and
-    corresponding z-values from FrankeFunction
-    """
-    N = 100
-    x,y = generate_2D_mesh_grid(N)
-    z = FrankeFunction(x, y) + z_noise*np.random.randn(N,N)
-    z = z.reshape(N**2) # flatten
-    return x, y, z
+
 def confidence_interval(beta_i,X):
+    """
+    Calculates the confidence interval for a
+    given beta_i.
+    """
     alpha = 0.95
     Z = norm.ppf(alpha + (1-alpha)/2) #Calculate Z
 
@@ -80,5 +75,5 @@ if __name__ == "__main__":
 
 
     #OLS regression
-    beta_OLS = OLS_regression(X_train, X_test, z_train, z_test)
+    beta_OLS = OLS_regression(X_train, z_train)
     evaluate_regression(beta_OLS, X_train, X_test, z_train, z_test)
