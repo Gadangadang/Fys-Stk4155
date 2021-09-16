@@ -2,7 +2,7 @@ import numpy as np
 from random import random, seed
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
+from scipy.stats import norm
 from Functions import *
 
 def generate_data(N, z_noise):
@@ -15,6 +15,13 @@ def generate_data(N, z_noise):
     z = FrankeFunction(x, y) + z_noise*np.random.randn(N,N)
     z = z.reshape(N**2) # flatten
     return x, y, z
+def confidence_interval(beta_i,X):
+    alpha = 0.95
+    Z = norm.ppf(alpha + (1-alpha)/2) #Calculate Z
+
+    SE_i = np.linalg.inv(X.T @ X).diagonal() #Find the variance
+    conf_int = np.dstack((beta_i - Z*SE_i, beta_i + Z*SE_i))[0] #Zip the interval.
+    return conf_int
 
 def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     """
@@ -31,12 +38,8 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     # alpha-% confidential interval (standard normal distribution)
     alpha = 0.95
     from scipy.stats import norm
-    Z = norm.ppf(alpha + (1-alpha)/2)
-    diff = z_test-zpredict
-    sample_mean = np.mean(diff)
-    SE = np.std(diff)/np.sqrt(len(diff))
-    confidence_intervals = [sample_mean - Z*SE, sample_mean + Z*SE]
-
+    conf_int_train = confidence_interval(beta, X_train)
+    conf_int_test = confidence_interval(beta, X_test)
     #--- print result ---#
     print_results = True
     if print_results:
@@ -46,15 +49,10 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
         print(f"R2 : {R2_train:2.5f} | {R2_test:2.5f}")
 
         print(f"\n#----- {alpha}% confidence intervals -----#")
-        print(f"[{confidence_intervals[0]:.2e}, {confidence_intervals[1]:.2e}]")
-
-
-
-
-
-
-
-
+        print(f"\n Training-set")
+        print(conf_int_train)
+        print(f"\n Test-set")
+        print(conf_int_test)
 
 if __name__ == "__main__":
 
