@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # Create data and set up design matrix
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
-
+    
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 

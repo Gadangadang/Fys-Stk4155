@@ -31,7 +31,7 @@ def OLS_regression(X, y):
     X (train/test): Design matrix
     y: (train/test) data output
     """
-    beta = np.linalg.inv(X.T @ X) @ X.T @ y
+    beta = np.linalg.pinv(X.T @ X) @ X.T @ y
     return beta
 
 
