@@ -9,7 +9,7 @@ def Error_Complexity(N, z_noise, n, plot = True, Return = False):
     error_test, error_train = np.zeros(n+1), np.zeros(n+1)
     x, y, z = generate_data(N, z_noise)
     z = standard_scale(z)
-    for i in range(0,n):
+    for i in range(0,n+1):
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
@@ -39,8 +39,8 @@ def Error_Complexity(N, z_noise, n, plot = True, Return = False):
 
 
 if __name__ == "__main__":
-    N = 400             # Number of points in each dimension
-    z_noise = 1      # Added noise to the z-value
-    n = 30              # Highest order of polynomial for X
+    N = 80             # Number of points in each dimension
+    z_noise = 0.6        # Added noise to the z-value
+    n = 27              # Highest order of polynomial for X
 
     Error_Complexity(N, z_noise,n)
