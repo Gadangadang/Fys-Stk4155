@@ -6,19 +6,23 @@ from scipy.stats import norm
 from Functions import *
 
 def Error_Complexity(N, z_noise, n, plot = True, Return = False):
-    error_test, error_train = np.zeros(n+1), np.zeros(n+1)
+    """
+    Calculates the MSE for a given degree of polynomial
+    for both training- and testset.
+    """
+    error_test, error_train = np.zeros(n+1), np.zeros(n+1) #MSE error for train and test
     x, y, z = generate_data(N, z_noise)
     z = standard_scale(z)
     for i in range(0,n+1):
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
-        scaler = StandardScaler()
+        scaler = StandardScaler() #Scale x_train and x_test.
         scaler.fit(X_train)
         X_train = scaler.transform(X_train)
         X_test = scaler.transform(X_test)
 
-        beta_OLS = OLS_regression(X_train, z_train)
+        beta_OLS = OLS_regression(X_train, z_train) #Preform OLS regression.
 
         ztilde = X_train @ beta_OLS
         zpredict = X_test @ beta_OLS
