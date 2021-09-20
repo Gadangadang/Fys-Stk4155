@@ -20,7 +20,6 @@ def confidence_interval(beta,X):
     uncertainty_print = f"Beta    Uncertainty \n"
     for i in range(len(beta)):
         uncertainty_print += f"{beta[i]:4.2g} +- {uncertainty[i]:2.1g}\n"
-        #test
     return conf_int, uncertainty_print
 
 def evaluate_regression(beta, X_train, X_test, z_train, z_test):
