@@ -41,7 +41,7 @@ def generate_2D_mesh_grid(N):
     N: Number of uniform points
     """
 
-    np.random.seed(4155) # Random seed
+
     x = np.linspace(0,1, N)
     y = np.linspace(0,1, N)
     x, y = np.meshgrid(x,y)
@@ -75,11 +75,15 @@ def standard_scale(z):
     z_scaled = (z-np.mean(z))/np.std(z)
     return z_scaled
 
-def generate_data(N, z_noise):
+def generate_data(N, z_noise, seed = 4155):
     """
     Generates x,y mesh grid and
     corresponding z-values from FrankeFunction
     """
+    if seed != None:
+        np.random.seed(seed) # Random seed
+
+
     x,y = generate_2D_mesh_grid(N)
     z = FrankeFunction(x, y) + z_noise*np.random.randn(N,N)
     z = z.reshape(N**2) # flatten

@@ -72,6 +72,7 @@ if __name__ == "__main__":
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
     # Scale data
+    
     scaler = StandardScaler()
     scaler.fit(X_train)
     X_train_scaled = scaler.transform(X_train)
