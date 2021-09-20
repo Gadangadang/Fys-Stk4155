@@ -6,17 +6,22 @@ from scipy.stats import norm
 from Functions import *
 
 
-def confidence_interval(beta_i,X):
+def confidence_interval(beta,X):
     """
     Calculates the confidence interval for a
-    given beta_i.
+    given beta.
     """
     alpha = 0.95
     Z = norm.ppf(alpha + (1-alpha)/2) #Calculate Z
 
     SE_i = np.linalg.inv(X.T @ X).diagonal() #Find the variance
-    conf_int = np.dstack((beta_i - Z*SE_i, beta_i + Z*SE_i))[0] #Zip the interval.
-    return conf_int
+    conf_int = np.dstack((beta - Z*SE_i, beta + Z*SE_i))[0] #Zip the interval.
+    uncertainty = Z*SE_i
+    uncertainty_print = f"Beta    Uncertainty \n"
+    for i in range(len(beta)):
+        uncertainty_print += f"{beta[i]:4.2g} +- {uncertainty[i]:2.1g}\n"
+
+    return conf_int, uncertainty_print
 
 def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     """
@@ -33,8 +38,8 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     # alpha-% confidential interval (standard normal distribution)
     alpha = 0.95
     from scipy.stats import norm
-    conf_int_train = confidence_interval(beta, X_train)
-    conf_int_test = confidence_interval(beta, X_test)
+    conf_int_train, beta_uncertainty_print_train = confidence_interval(beta, X_train)
+    conf_int_test, beta_uncertainty_print_test = confidence_interval(beta, X_test)
     #--- print result ---#
     print_results = True
     if print_results:
@@ -44,10 +49,14 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
         print(f"R2 : {R2_train:2.5f} | {R2_test:2.5f}")
 
         print(f"\n#----- {alpha}% confidence intervals -----#")
-        print(f"\n Training-set")
-        print(conf_int_train)
-        print(f"\n Test-set")
-        print(conf_int_test)
+
+        print(f"\n__Training-set__")
+        # print(conf_int_train)
+        print(beta_uncertainty_print_train)
+        print(f"\n__Test-set__")
+        # print(conf_int_test)
+        print(beta_uncertainty_print_test)
+
 
 if __name__ == "__main__":
 
@@ -59,7 +68,7 @@ if __name__ == "__main__":
     # Create data and set up design matrix
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
-    
+
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
