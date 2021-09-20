@@ -25,7 +25,6 @@ def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
         X_train[:,0] = 1.
         X_test[:,0] = 1.
 
-
         beta_OLS = OLS_regression(X_train, z_train)
 
         ztilde = X_train @ beta_OLS
@@ -77,22 +76,14 @@ def multiple_avg(N, z_noise, n, numRuns):
     plt.ylabel(r"MSE", fontsize=14)
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/Complexity_MSE.pdf", bbox_inches="tight")
+    plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
     plt.show()
 
 
 
-
-
-
 if __name__ == "__main__":
-    # N = 80            # Number of points in each dimension
-    # z_noise = 0.6     # Added noise to the z-value
-    # n = 27            # Highest order of polynomial for X
-
     N = 50              # Number of points in each dimension
     z_noise = 0.8       # Added noise to the z-value
     n = 20              # Highest order of polynomial for X
 
-    multiple_avg(N, z_noise, n, numRuns = 100)
-    # Error_Complexity(N, z_noise,n)
+    multiple_avg(N, z_noise, n, numRuns = 10)
