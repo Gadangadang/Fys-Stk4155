@@ -69,7 +69,7 @@ def multiple_avg(N, z_noise, n, numRuns):
     plt.ylabel(r"MSE", fontsize=14)
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
+    # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
     plt.show()
 
 
