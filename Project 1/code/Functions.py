@@ -75,6 +75,21 @@ def standard_scale(z):
     z_scaled = (z-np.mean(z))/np.std(z)
     return z_scaled
 
+def scale_design_matrix(X_train, X_test):
+    """
+    Scales the desing matrix
+    """
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    # Force first column of X back to 1
+    X_train[:,0] = 1.
+    X_test[:,0] = 1.
+
+    return X_train, X_test
+
 def generate_data(N, z_noise, seed = 4155):
     """
     Generates x,y mesh grid and
