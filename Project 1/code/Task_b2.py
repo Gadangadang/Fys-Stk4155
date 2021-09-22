@@ -19,7 +19,8 @@ def bootstrap(X_train, X_test, z_train, z_test, B):
     """
     info
     """
-    z_pred = np.zeros((z_test, B))
+
+    z_pred = np.zeros((len(z_test), B))
 
     for i in range(B):
         beta_OLS = OLS_regression(X_train, z_train)
@@ -32,66 +33,31 @@ def bootstrap(X_train, X_test, z_train, z_test, B):
 
 
 def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
+    """
+    write info
+    """
+    x, y, z = generate_data(N, z_noise, seed=None)
+    bias = np.zeros(n+1)
+    variance = np.zeros(n+1)
 
+    for i in range(0,n+1): #For increasing complexity
 
-
-    for i in range(0,n+1):
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
-        scaler = StandardScaler()
-        scaler.fit(X_train)
-        X_train = scaler.transform(X_train)
-        X_test = scaler.transform(X_test)
 
-        # Force first column of X back to 1
-        X_train[:,0] = 1.
-        X_test[:,0] = 1.
+        X_train, X_test = scale_design_matrix(X_train, X_test)
+        z_pred = bootstrap(X_train, X_test, z_train, z_test, B)
 
-        beta_OLS = OLS_regression(X_train, z_train)
-
-        ztilde = X_train @ beta_OLS
-        zpredict = X_test @ beta_OLS
-
-        bias_array[i] = bias(z_train, ztilde)
-        variance_array[i] = variance(ztilde)
-        n_arr = np.linspace(0,n,n+1)
+        bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1))**2) # axis = 1 => columns
+        variance[i] = np.mean(np.var(z_pred, axis=1, keepdims = True))
 
 
-
-    # bias_array, variance_array = np.zeros(n+1), np.zeros(n+1)
-    # x, y, z = generate_data(N, z_noise)
-    # z = standard_scale(z)
-    #
-    #
-    # for i in range(0,n+1):
-    #     X = create_X(x, y, i)
-    #     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-    #
-    #     scaler = StandardScaler()
-    #     scaler.fit(X_train)
-    #     X_train = scaler.transform(X_train)
-    #     X_test = scaler.transform(X_test)
-    #
-    #     # Force first column of X back to 1
-    #     X_train[:,0] = 1.
-    #     X_test[:,0] = 1.
-    #
-    #     beta_OLS = OLS_regression(X_train, z_train)
-    #
-    #     ztilde = X_train @ beta_OLS
-    #     zpredict = X_test @ beta_OLS
-    #
-    #     bias_array[i] = bias(z_train, ztilde)
-    #     variance_array[i] = variance(ztilde)
-    #     n_arr = np.linspace(0,n,n+1)
-
-
-
+    n_arr = np.linspace(0,n,n+1)
     if plot:
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-        plt.plot(n_arr, bias_array, label = "Bias")
-        plt.plot(n_arr, variance_array, label = "Variance")
+        plt.plot(n_arr, bias, label = "Bias")
+        plt.plot(n_arr, variance, label = "Variance")
         ax = plt.gca()
         ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
         plt.xlabel(r"$n$", fontsize=14)
@@ -112,6 +78,6 @@ if __name__ == "__main__":
     N = 50             # Number of points in each dimension
     z_noise = 0.5     # Added noise to the z-value
     n = 20                 # Highest order of polynomial for X
+    B = 50
 
-
-    # bias_variance_tradeoff(N, z_noise, n)
+    bias_variance_tradeoff(N, z_noise, n, B, plot = True)
