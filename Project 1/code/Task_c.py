@@ -7,4 +7,9 @@ from Functions import *
 
 
 def cross_validation(X_train, X_test, z_train, z_test, k_fold_number):
-    ...
+
+
+
+if __name__ == "__main__":
+
+    cross_validation(X_train, X_test, z_train, z_test, k_fold_number)
