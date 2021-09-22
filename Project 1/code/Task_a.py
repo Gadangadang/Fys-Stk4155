@@ -71,17 +71,7 @@ if __name__ == "__main__":
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
-    # Scale data
-    
-    scaler = StandardScaler()
-    scaler.fit(X_train)
-    X_train_scaled = scaler.transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
-
-    # Force first column of X back to 1
-    X_train_scaled[:,0] = 1.
-    X_test_scaled[:,0] = 1.
-
+    X_train, X_test = scale_design_matrix(X_train, X_test) #Scales X_train and X_test
 
     #OLS regression
     beta_OLS = OLS_regression(X_train, z_train)

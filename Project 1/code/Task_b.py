@@ -16,14 +16,7 @@ def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
-        scaler = StandardScaler()
-        scaler.fit(X_train)
-        X_train = scaler.transform(X_train)
-        X_test = scaler.transform(X_test)
-
-        # Force first column of X back to 1
-        X_train[:,0] = 1.
-        X_test[:,0] = 1.
+        X_train, X_test = scale_design_matrix(X_train, X_test) #Scales X_train and X_test
 
         beta_OLS = OLS_regression(X_train, z_train)
 

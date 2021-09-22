@@ -1,5 +1,5 @@
 import numpy as np
-
+from sklearn.preprocessing import StandardScaler
 
 def R2(y_data, y_model):
     """
@@ -77,7 +77,8 @@ def standard_scale(z):
 
 def scale_design_matrix(X_train, X_test):
     """
-    Scales the desing matrix
+    Scales the desing matrix with sklearns standard StandardScaler
+    with the X_train set.
     """
     scaler = StandardScaler()
     scaler.fit(X_train)
