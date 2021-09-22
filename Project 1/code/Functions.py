@@ -102,5 +102,5 @@ def generate_data(N, z_noise, seed = 4155):
 
     x,y = generate_2D_mesh_grid(N)
     z = FrankeFunction(x, y) + z_noise*np.random.randn(N,N)
-    z = z.reshape(N**2) # flatten
+    z = z.reshape(N**2,1) # flatten
     return x, y, z
