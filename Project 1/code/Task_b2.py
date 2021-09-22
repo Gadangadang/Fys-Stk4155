@@ -23,8 +23,9 @@ def bootstrap(X_train, X_test, z_train, z_test, B):
     z_pred = np.zeros((len(z_test), B))
 
     for i in range(B):
-        beta_OLS = OLS_regression(X_train, z_train)
-        z_pred[:,i] = X_test @ beta_OLS
+        x_res, y_res = resample(X_train, z_train)
+        beta_OLS = OLS_regression(x_res, y_res)
+        z_pred[:,i] = (X_test @ beta_OLS)
 
     return z_pred
 
@@ -45,13 +46,14 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
-
         X_train, X_test = scale_design_matrix(X_train, X_test)
         z_pred = bootstrap(X_train, X_test, z_train, z_test, B)
-
         bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1))**2) # axis = 1 => columns
-        variance[i] = np.mean(np.var(z_pred, axis=1, keepdims = True))
-
+        variance[i] = np.mean(np.var(z_pred, axis=1))
+        #var = np.zeros(len(z_pred[:,]))
+        #for j in range(B):
+        #    var += (z_pred[:,j] - np.mean(z_pred, axis = 1))**2
+        #variance[i] = np.mean(var)
 
     n_arr = np.linspace(0,n,n+1)
     if plot:
@@ -75,9 +77,9 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
 
 if __name__ == "__main__":
     #--- settings ---#
-    N = 50             # Number of points in each dimension
+    N = 40             # Number of points in each dimension
     z_noise = 0.5     # Added noise to the z-value
-    n = 20                 # Highest order of polynomial for X
-    B = 50
+    n = 15                 # Highest order of polynomial for X
+    B = 100
 
     bias_variance_tradeoff(N, z_noise, n, B, plot = True)
