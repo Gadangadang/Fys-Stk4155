@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./Project 1/code"
+    ]
+}
