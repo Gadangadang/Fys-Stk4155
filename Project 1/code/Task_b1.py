@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from random import random, seed
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -28,11 +29,22 @@ def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
 
 
     if plot:
-        import matplotlib.pyplot as plt
+        #---Plotting---#
         n_arr = np.linspace(0,n,n+1)
+
+        plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
         plt.plot(n_arr, error_test, label = "Test")
         plt.plot(n_arr, error_train, label = "Train")
-        plt.legend()
+        plt.xlabel(r"$n$", fontsize=14)
+        plt.ylabel(r"MSE", fontsize=14)
+        ax = plt.gca()
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
+        plt.legend(fontsize = 13)
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
+
+
+
         plt.show()
 
     return error_test, error_train
@@ -61,8 +73,8 @@ def multiple_avg(N, z_noise, n, numRuns):
     #---Plotting---#
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.title(f"Avg. MSE for {numRuns} runs with {N} datapoints (noise =  {z_noise}" + r" $\times$ $N(0,1)$)")
-    plt.plot(n_arr, avg[0], label = "Test")
-    plt.plot(n_arr, avg[1], label = "Train")
+    plt.plot(n_arr[1:], avg[0][1:], label = "Test")
+    plt.plot(n_arr[1:], avg[1][1:], label = "Train")
     ax = plt.gca()
     ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
     plt.xlabel(r"$n$", fontsize=14)
@@ -75,8 +87,10 @@ def multiple_avg(N, z_noise, n, numRuns):
 
 
 if __name__ == "__main__":
-    N = 50              # Number of points in each dimension
-    z_noise = 0.8       # Added noise to the z-value
-    n = 20              # Highest order of polynomial for X
+    N = 25              # Number of points in each dimension
+    z_noise = 0.2       # Added noise to the z-value
+    n = 25              # Highest order of polynomial for X
 
-    multiple_avg(N, z_noise, n, numRuns = 10)
+    Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
+
+    # multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)

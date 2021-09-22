@@ -4,6 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import norm
 from Functions import *
+from plot_set import *
+from matplotlib.ticker import MaxNLocator
 
 
 def confidence_interval(beta,X):
@@ -20,14 +22,53 @@ def confidence_interval(beta,X):
     uncertainty_print = f"Beta    Uncertainty \n"
     for i in range(len(beta)):
         uncertainty_print += f"{beta[i]:4.2g} +- {uncertainty[i]:2.1g}\n"
+
+
     return conf_int, uncertainty_print
+
+
+def confidence_plot(conf_int_train, conf_int_test):
+    """
+    Plot confidence interval
+    """
+    beta_train = np.mean(conf_int_train, axis = 1)
+    train_error = np.abs(conf_int_train[:,0]-conf_int_train[:,1])/2
+    beta_test = np.mean(conf_int_test, axis = 1)
+    test_error = np.abs(conf_int_test[:,0]-conf_int_test[:,1])/2
+
+
+    plt.figure(num=0, figsize = (8,6), facecolor='w', edgecolor='k')
+    b_arr = np.linspace(0,len(beta_train)-1,len(beta_train))
+
+    plt.subplot(2,1,1)
+    plt.errorbar(b_arr, beta_train, yerr=train_error, color = color_cycle(0), fmt='o', label = "train")
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
+    plt.xlabel(r"$i$", fontsize=14)
+    plt.ylabel(r"$\beta_i$", fontsize=14)
+    plt.legend(fontsize = 13)
+
+    plt.subplot(2,1,2)
+    plt.errorbar(b_arr, beta_test, yerr=test_error, color = color_cycle(1), fmt='o', label = "test")
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
+    plt.xlabel(r"i", fontsize=14)
+    plt.ylabel(r"$\beta_i$", fontsize=14)
+    plt.legend(fontsize = 13)
+
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.subplots_adjust(hspace = 0.3)
+    plt.savefig("../article/figures/confidence_interval.pdf", bbox_inches="tight")
+
+
+    plt.show()
 
 def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     """
     """
     # Prediction
-    ztilde = X_train @ beta
-    zpredict = X_test @ beta
+    ztilde = (X_train @ beta).ravel()
+    zpredict = (X_test @ beta).ravel()
 
     MSE_train = MSE(z_train, ztilde)
     MSE_test =  MSE(z_test,zpredict)
@@ -39,13 +80,14 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     from scipy.stats import norm
     conf_int_train, beta_uncertainty_print_train = confidence_interval(beta, X_train)
     conf_int_test, beta_uncertainty_print_test = confidence_interval(beta, X_test)
+    confidence_plot(conf_int_train, conf_int_test)
     #--- print result ---#
     print_results = True
     if print_results:
         print("#----- Error -----#")
         print("      train  |  test")
-        print(f"MSE: {MSE_train:2.5f} | {MSE_test:2.5f}")
-        print(f"R2 : {R2_train:2.5f} | {R2_test:2.5f}")
+        print(f"MSE: {MSE_train:2.3f} | {MSE_test:2.3f}")
+        print(f"R2 : {R2_train:2.3f} | {R2_test:2.3f}")
 
         print(f"\n#----- {alpha}% confidence intervals -----#")
 
@@ -60,8 +102,8 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
 if __name__ == "__main__":
 
     #--- settings ---#
-    N = 100             # Number of points in each dimension
-    z_noise = 0.1       # Added noise to the z-value
+    N = 25             # Number of points in each dimension
+    z_noise = 0.2       # Added noise to the z-value
     n = 5               # Highest order of polynomial for X
 
     # Create data and set up design matrix

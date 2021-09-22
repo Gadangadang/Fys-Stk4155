@@ -37,25 +37,27 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
     """
     write info
     """
-    x, y, z = generate_data(N, z_noise, seed=2018)
+    x, y, z = generate_data(N, z_noise, seed=None)
     bias = np.zeros(n+1)
     variance = np.zeros(n+1)
     error = np.zeros(n+1)
 
+    # Print process
+    info_string = "Bias-variance analysis, #n: "
+    print(f"\r{info_string}0/{n}", end = "")
+
+
     for i in range(0,n+1): #For increasing complexity
+        print(f"\r{info_string}{i}/{n}", end = "")
 
         X = create_X(x, y, i)
-
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-        # print(np.shape(X_train), np.shape(X_test), np.shape(z_train), np.shape(z_test))
-
         X_train, X_test = scale_design_matrix(X_train, X_test)
-
         z_pred = bootstrap(X_train, X_test, z_train, z_test, B)
         bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
         variance[i] = np.mean(np.var(z_pred, axis = 1))
         error[i] = np.mean(np.mean( (z_test-z_pred)**2, axis = 1, keepdims = True  ))
-
+    print(" (done)")
     n_arr = np.linspace(0,n,n+1)
     if plot:
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -72,6 +74,8 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
         # plt.savefig(f"../article/figures/bias_variance_tradeoff.pdf", bbox_inches="tight")
         plt.show()
 
+    return bias, variance, error
+
 
 
 
@@ -80,8 +84,8 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
 
 if __name__ == "__main__":
     #--- settings ---#
-    N = 100            # Number of points in each dimension
-    z_noise = 0.1     # Added noise to the z-value
+    N =  22          # Number of points in each dimension
+    z_noise = 0.2     # Added noise to the z-value
     n = 14                 # Highest order of polynomial for X
     B = 100
 

@@ -10,6 +10,12 @@ matplotlib.rc('ytick', labelsize=14)
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
+def color_cycle(num_color):
+    """ get color from matplotlib
+        color cycle
+        use as: color = color_cycle(3) """
+    color = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    return color[num_color]
 
 # plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
 # plt.xlabel(r"$x$", fontsize=14)
