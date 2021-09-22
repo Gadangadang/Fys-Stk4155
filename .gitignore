@@ -1,4 +1,5 @@
 #Mac files
 *.DS_Store
-Project 1/code/__pycache__/Functions.cpython-37.pyc
-Project 1/code/__pycache__/plot_set.cpython-37.pyc
+
+#Folders
+__pycache__/
