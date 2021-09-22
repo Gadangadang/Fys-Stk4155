@@ -1,5 +1,5 @@
 import numpy as np
-
+from sklearn.preprocessing import StandardScaler
 
 def R2(y_data, y_model):
     """
@@ -75,6 +75,22 @@ def standard_scale(z):
     z_scaled = (z-np.mean(z))/np.std(z)
     return z_scaled
 
+def scale_design_matrix(X_train, X_test):
+    """
+    Scales the desing matrix with sklearns standard StandardScaler
+    with the X_train set.
+    """
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    # Force first column of X back to 1
+    X_train[:,0] = 1.
+    X_test[:,0] = 1.
+
+    return X_train, X_test
+
 def generate_data(N, z_noise, seed = 4155):
     """
     Generates x,y mesh grid and
@@ -86,5 +102,5 @@ def generate_data(N, z_noise, seed = 4155):
 
     x,y = generate_2D_mesh_grid(N)
     z = FrankeFunction(x, y) + z_noise*np.random.randn(N,N)
-    z = z.reshape(N**2) # flatten
+    z = z.reshape(N**2,1) # flatten
     return x, y, z
