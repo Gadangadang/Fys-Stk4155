@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from random import random, seed
-from sklearn.model_selection import train_test_split, KFold
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import norm
 from Functions import *
@@ -39,7 +40,8 @@ def compaire_CV_B(N, z_noise,n, B, k_fold_number):
     x, y, z = generate_data(N, z_noise, seed=2018)
     error_CV = np.zeros(n+1)
     error_B = np.zeros(n+1)
-
+    error_sklearn = np.zeros(n+1)
+    ols = LinearRegression()
     for i in range(0,n+1): #For increasing complexity
         X = create_X(x, y, i)
 
@@ -51,12 +53,14 @@ def compaire_CV_B(N, z_noise,n, B, k_fold_number):
 
         error_CV[i] = cross_validation(X, z, k_fold_number, returnError = True)
         error_B[i] = np.mean(np.mean( (z_test-z_pred_B)**2, axis = 1, keepdims = True  ))
+        error_sklearn[i] = np.mean(-cross_val_score(ols, X, z, scoring='neg_mean_squared_error', cv= k_fold_number))
 
     n_arr = np.linspace(0,n,n+1)
 
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.plot(n_arr, error_CV, label = "Cross validation")
     plt.plot(n_arr, error_B, label = "Bootstrap")
+    plt.plot(n_arr, error_sklearn, label = "sklearn")
 
     ax = plt.gca()
     ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
@@ -69,7 +73,8 @@ def compaire_CV_B(N, z_noise,n, B, k_fold_number):
 
 
 if __name__ == "__main__":
-    N = 30
+    np.random.seed(2018)
+    N = 40
     z_noise = 0.2
     n = 10
     B = 100
