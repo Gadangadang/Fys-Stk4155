@@ -47,7 +47,6 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
         X = create_X(x, y, i)
 
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-        # print(np.shape(X_train), np.shape(X_test), np.shape(z_train), np.shape(z_test))
 
         X_train, X_test = scale_design_matrix(X_train, X_test)
 

@@ -1,34 +1,77 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from random import random, seed
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import norm
 from Functions import *
+from Task_b2 import bootstrap
+from matplotlib.ticker import MaxNLocator
 
 
-def cross_validation(N, z_noise, k_fold_number, n):
-    """
-    
-    """
-    x, y, z = generate_data(N, z_noise, seed=2018)
-    X = create_X(x, y, n)
+
+def cross_validation(X, z, k_fold_number, returnError = False):
     kfold = KFold(n_splits = k_fold_number)
     j = 0
-    MSE_array = np.zeros(k_fold)
-
+    z_pred_arr = np.zeros((int(np.shape(X)[0]/k_fold_number), k_fold_number))
+    MSE_arr = np.zeros(k_fold_number)
     for train_indx, test_indx in kfold.split(X):
-        X_train = X[train_inds]
-        z_train = z[train_inds]
+        X_train = X[train_indx]
+        z_train = z[train_indx]
 
-        X_test = x[test_inds]
-        z_test = z[test_inds]
+        X_test = X[test_indx]
+        z_test = z[test_indx]
+
+        X_train, X_test = scale_design_matrix(X_train, X_test)
 
         beta_OLS = OLS_regression(X_train, z_train)
-        z_pred = (X_test @ beta_OLS).ravel()
-        MSE_array[j] = MSE(z_test, z_pred)
 
+        z_pred = (X_test @ beta_OLS).ravel()
+        z_pred_arr[:, j] = z_pred
+
+        MSE_arr[j] = MSE(z_test.ravel(), z_pred)
+        j += 1
+    if returnError:
+        return np.mean(MSE_arr)
+    return z_pred_arr
+
+def compaire_CV_B(N, z_noise,n, B, k_fold_number):
+    x, y, z = generate_data(N, z_noise, seed=2018)
+    error_CV = np.zeros(n+1)
+    error_B = np.zeros(n+1)
+
+    for i in range(0,n+1): #For increasing complexity
+        X = create_X(x, y, i)
+
+        X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
+
+        X_train, X_test = scale_design_matrix(X_train, X_test)
+
+        z_pred_B = bootstrap(X_train, X_test, z_train, z_test, B)
+
+        error_CV[i] = cross_validation(X, z, k_fold_number, returnError = True)
+        error_B[i] = np.mean(np.mean( (z_test-z_pred_B)**2, axis = 1, keepdims = True  ))
+
+    n_arr = np.linspace(0,n,n+1)
+
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.plot(n_arr, error_CV, label = "Cross validation")
+    plt.plot(n_arr, error_B, label = "Bootstrap")
+
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
+    plt.xlabel(r"$n [complexity]$", fontsize=14)
+    plt.ylabel(r"MSE", fontsize=14)
+    plt.title(r"Bootstrap iterations: {}, K-folds: {}".format(B, k_fold_number), fontsize = 16)
+    plt.legend(fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.show()
 
 
 if __name__ == "__main__":
-
-    cross_validation(N, z_noise, k_fold_number)
+    N = 30
+    z_noise = 0.2
+    n = 10
+    B = 100
+    k_fold_number = 10
+    compaire_CV_B(N, z_noise,n, B, k_fold_number)
