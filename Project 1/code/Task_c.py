@@ -38,10 +38,11 @@ def cross_validation(X, z, k_fold_number, returnError = False):
 
 def compaire_CV_B(N, z_noise,n, B, k_fold_number):
     x, y, z = generate_data(N, z_noise, seed=2018)
+
     error_CV = np.zeros(n+1)
     error_B = np.zeros(n+1)
     error_sklearn = np.zeros(n+1)
-    ols = LinearRegression()
+    ols = LinearRegression(fit_intercept=False)
     for i in range(0,n+1): #For increasing complexity
         X = create_X(x, y, i)
 
@@ -73,9 +74,8 @@ def compaire_CV_B(N, z_noise,n, B, k_fold_number):
 
 
 if __name__ == "__main__":
-    np.random.seed(2018)
-    N = 40
-    z_noise = 0.2
+    N = 30
+    z_noise = 0.1
     n = 10
     B = 100
     k_fold_number = 10
