@@ -34,6 +34,18 @@ def OLS_regression(X, y):
     beta = np.linalg.pinv(X.T @ X) @ X.T @ y
     return beta
 
+def RIDGE_regression(X, y, lamda):
+    """
+    Rigde
+    Matrix inversion to find beta
+    X (train/test): Design matrix
+    y: (train/test) data output
+    lamda: parameter to avoid singular matrix
+    """
+    dim = X.shape[1]
+    beta = np.linalg.pinv(X.T @ X + lamda*np.eye(dim)) @ X.T @ y
+    return beta
+
 
 def generate_2D_mesh_grid(N):
     """
