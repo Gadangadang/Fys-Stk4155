@@ -48,7 +48,7 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot = True):
 
             X_train, X_test = scale_design_matrix(X_train, X_test)
 
-            z_pred = bootstrap(X_train, X_test, z_train, z_test, B, lamda)
+            z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B, lamda)
             bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
             variance[i] = np.mean(np.var(z_pred, axis = 1))
             error[i] = np.mean(np.mean( (z_test-z_pred)**2, axis = 1, keepdims = True  ))
@@ -118,6 +118,13 @@ def MSE_Ridge_bootstrap(N, z_noise, n, lamda_values):
 
 
 
+
+
+
+
+
+
+
 if __name__ == "__main__":
     #--- settings ---#
     N = 25            # Number of points in each dimension
@@ -127,11 +134,11 @@ if __name__ == "__main__":
 
     ### Bootstrap analysis with Ridge
     lamda_values = np.logspace(-3,2,4)
-    
+
     MSE_Ridge_bootstrap(N, z_noise, n, lamda_values)
 
     ### Cross-validation with Ridge
 
     ### Bias-variance tradeoff with Ridge
 
-    #bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot = True)
+    bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot = True)
