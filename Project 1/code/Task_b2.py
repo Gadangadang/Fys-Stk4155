@@ -15,7 +15,7 @@ from plot_set import * # Specifies plotting settings
 # def variance(ztilde):
 #     return np.mean( (ztilde - np.mean(ztilde))**2 )
 
-def bootstrap(X_train, X_test, z_train, z_test, B):
+def bootstrap(X_train, X_test, z_train, z_test, B, method, lambda = 0):
     """
     info
     """
@@ -24,8 +24,11 @@ def bootstrap(X_train, X_test, z_train, z_test, B):
 
     for i in range(B):
         X_res, z_res = resample(X_train, z_train)
-        beta_OLS = OLS_regression(X_res, z_res)
-        z_pred[:,i] = (X_test @ beta_OLS).ravel()
+        if method == "OLS":
+            beta = OLS_regression(X_train, z_train)
+        elif method == "Rigde":
+            beta = RIDGE_regression(X, y, lamda)
+        z_pred[:,i] = (X_test @ beta).ravel()
 
     return z_pred
 
@@ -50,7 +53,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot = True):
 
         X_train, X_test = scale_design_matrix(X_train, X_test)
 
-        z_pred = bootstrap(X_train, X_test, z_train, z_test, B)
+        z_pred = bootstrap(X_train, X_test, z_train, z_test, B, "OLS")
         bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
         variance[i] = np.mean(np.var(z_pred, axis = 1))
         error[i] = np.mean(np.mean( (z_test-z_pred)**2, axis = 1, keepdims = True  ))

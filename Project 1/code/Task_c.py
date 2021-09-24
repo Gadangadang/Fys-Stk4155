@@ -52,7 +52,7 @@ def compaire_CV_B(N, z_noise,n, B, k_fold_number):
 
         X_train, X_test = scale_design_matrix(X_train, X_test)
 
-        z_pred_B = bootstrap(X_train, X_test, z_train, z_test, B)
+        z_pred_B = bootstrap(X_train, X_test, z_train, z_test, B, "OLS")
 
         error_CV[i] = cross_validation(X, z, k_fold_number, "OLS" , returnError = True)
         error_B[i] = np.mean(np.mean( (z_test-z_pred_B)**2, axis = 1, keepdims = True  ))
