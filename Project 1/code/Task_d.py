@@ -33,7 +33,7 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot = True):
             # print(np.shape(X_train), np.shape(X_test), np.shape(z_train), np.shape(z_test))
 
             X_train, X_test = scale_design_matrix(X_train, X_test)
-            z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B, "Rigde", lamda, include_train = True)
+            z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B, "Ridge", lamda, include_train = True)
             bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
             variance[i] = np.mean(np.var(z_pred, axis = 1))
             error[i] = np.mean(np.mean( (z_test-z_pred)**2, axis = 1, keepdims = True  ))
@@ -66,7 +66,7 @@ def Error_Complexity(lamda, N, z_noise, n, plot = True, seed = 4155):
 
         X_train, X_test = scale_design_matrix(X_train, X_test) #Scales X_train and X_test
 
-        z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B, "Rigde", lamda, include_train = True)
+        z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B, "Ridge", lamda, include_train = True)
         error_test[i] = np.mean(np.mean( (z_test-z_pred)**2, axis = 1, keepdims = True  ))
         error_train[i] = np.mean(np.mean( (z_train-z_tilde)**2, axis = 1, keepdims = True  ))
 

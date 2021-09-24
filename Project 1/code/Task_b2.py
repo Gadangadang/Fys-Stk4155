@@ -7,7 +7,7 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 from sklearn.utils import resample
 from plot_set import * # Specifies plotting settings
-
+from sklearn import linear_model
 
 # def bias(z, ztilde):
 #     return np.mean( (z - np.mean(ztilde))**2 )
@@ -23,15 +23,28 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda = 0, include_tr
     z_pred = np.zeros((len(z_test), B))
     if include_train:
         z_tilde = np.zeros((len(z_train), B))
-    for i in range(B):
-        X_res, z_res = resample(X_train, z_train)
-        if method == "OLS":
-            beta = OLS_regression(X_train, z_train)
-        elif method == "Rigde":
-            beta = RIDGE_regression(X_train, z_train, lamda)
-        z_pred[:,i] = (X_test @ beta).ravel()
-        if include_train:
-            z_tilde[:,i] = (X_train @ beta).ravel()
+    if method == "OLS":
+        for i in range(B):
+            X_res, z_res = resample(X_train, z_train)
+            beta = OLS_regression(X_res, z_res)
+            z_pred[:,i] = (X_test @ beta).ravel()
+            if include_train:
+                z_tilde[:,i] = (X_train @ beta).ravel()
+    elif method == "Ridge":
+        for i in range(B):
+            X_res, z_res = resample(X_train, z_train)
+            beta = RIDGE_regression(X_res, z_res, lamda)
+            z_pred[:,i] = (X_test @ beta).ravel()
+            if include_train:
+                z_tilde[:,i] = (X_train @ beta).ravel()
+    elif method == "Lasso":
+        for i in range(B):
+            X_res, z_res = resample(X_train, z_train)
+            RegLasso = linear_model.Lasso(lmb)
+            RegLasso.fit(X_res,z_res)
+            z_pred[:,i] = RegLasso.predict(X_test)
+            if include_train:
+                z_tilde[:,i] = RegLasso.predict(X_train)
     if include_train:
         return z_pred, z_tilde
     else:
