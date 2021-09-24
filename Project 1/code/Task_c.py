@@ -11,11 +11,14 @@ from matplotlib.ticker import MaxNLocator
 
 
 
-def cross_validation(X, z, k_fold_number, method ,returnError = False, lamba = 0):
+def cross_validation(X, z, k_fold_number, method , lamba = 0, include_train = False):
     kfold = KFold(n_splits = k_fold_number)
     j = 0
     z_pred_arr = np.zeros((int(np.shape(X)[0]/k_fold_number), k_fold_number))
+
     MSE_arr = np.zeros(k_fold_number)
+    if include_train:
+        MSE_arr_tilde = np.zeros(k_fold_number)
 
     for train_indx, test_indx in kfold.split(X):
         X_train = X[train_indx]
@@ -27,16 +30,24 @@ def cross_validation(X, z, k_fold_number, method ,returnError = False, lamba = 0
         X_train, X_test = scale_design_matrix(X_train, X_test)
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
+            if include_train:
+                z_tilde = (X_train @ beta).ravel()
+
         elif method == "Rigde":
             beta = RIDGE_regression(X, y, lamda)
+
         z_pred = (X_test @ beta).ravel()
         z_pred_arr[:, j] = z_pred
 
         MSE_arr[j] = MSE(z_test.ravel(), z_pred)
+        if include_train:
+            MSE_arr_tilde[j] = MSE(z_test.ravel(), z_pred)
+
         j += 1
-    if returnError:
-        return np.mean(MSE_arr)
-    return z_pred_arr
+    if include_train:
+        return np.mean(MSE_arr), np.mean(MSE_arr_tilde)
+    return np.mean(MSE_arr)
+
 
 def compaire_CV_B(N, z_noise,n, B, k_fold_number, method):
     x, y, z = generate_data(N, z_noise, seed=2018)
@@ -52,9 +63,9 @@ def compaire_CV_B(N, z_noise,n, B, k_fold_number, method):
 
         X_train, X_test = scale_design_matrix(X_train, X_test)
 
-        z_pred_B = bootstrap(X_train, X_test, z_train, z_test, B, "OLS")
+        z_pred_B = bootstrap(X_train, X_test, z_train, z_test, B, method)
 
-        error_CV[i] = cross_validation(X, z, k_fold_number, method, returnError = True)
+        error_CV[i] = cross_validation(X, z, k_fold_number, method)
         error_B[i] = np.mean(np.mean( (z_test-z_pred_B)**2, axis = 1, keepdims = True  ))
         error_sklearn[i] = np.mean(-cross_val_score(ols, X, z, scoring='neg_mean_squared_error', cv= k_fold_number))
 
@@ -81,5 +92,5 @@ if __name__ == "__main__":
     n = 10
     B = 100
     k_fold_number = 10
-    method = "OLS" 
-    compaire_CV_B(N, z_noise,n, B, k_fold_number)
+    method = "OLS"
+    compaire_CV_B(N, z_noise,n, B, k_fold_number, method)
