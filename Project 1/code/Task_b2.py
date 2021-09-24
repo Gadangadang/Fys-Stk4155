@@ -15,22 +15,27 @@ from plot_set import * # Specifies plotting settings
 # def variance(ztilde):
 #     return np.mean( (ztilde - np.mean(ztilde))**2 )
 
-def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda = 0):
+def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda = 0, include_train = False):
     """
     info
     """
 
     z_pred = np.zeros((len(z_test), B))
-
+    if include_train:
+        z_tilde = np.zeros((len(z_train), B))
     for i in range(B):
         X_res, z_res = resample(X_train, z_train)
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
         elif method == "Rigde":
-            beta = RIDGE_regression(X, y, lamda)
+            beta = RIDGE_regression(X_train, z_train, lamda)
         z_pred[:,i] = (X_test @ beta).ravel()
-
-    return z_pred
+        if include_train:
+            z_tilde[:,i] = (X_train @ beta).ravel()
+    if include_train:
+        return z_pred, z_tilde
+    else:
+        return z_pred
 
 
 
