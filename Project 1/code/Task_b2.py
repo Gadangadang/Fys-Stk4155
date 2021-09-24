@@ -9,11 +9,6 @@ from sklearn.utils import resample
 from plot_set import * # Specifies plotting settings
 from sklearn import linear_model
 
-# def bias(z, ztilde):
-#     return np.mean( (z - np.mean(ztilde))**2 )
-#
-# def variance(ztilde):
-#     return np.mean( (ztilde - np.mean(ztilde))**2 )
 
 def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda = 0, include_train = False):
     """
