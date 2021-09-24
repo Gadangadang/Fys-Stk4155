@@ -8,6 +8,7 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 
 from plot_set import * # Specifies plotting settings
+from tqdm import trange
 
 def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
     error_test, error_train = np.zeros(n+1), np.zeros(n+1)
@@ -41,7 +42,7 @@ def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
         ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
         plt.legend(fontsize = 13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-        plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
+        # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
 
 
 
@@ -55,15 +56,15 @@ def multiple_avg(N, z_noise, n, numRuns):
 
     # Print process
     info_string = "Multirun avg, #run: "
-    print(f"\r{info_string}0/{numRuns}", end = "")
+    # print(f"\r{info_string}0/{numRuns}", end = "")
 
     # Perform multiple runs
-    for i in range(numRuns):
+    for i in trange(numRuns):
         error_test, error_train = Error_Complexity(N, z_noise, n, plot = False, seed = None)
         error[i,0] = error_test
         error[i,1] = error_train
-        print(f"\r{info_string}{i+1}/{numRuns}", end = "")
-    print(" (done)")
+        # print(f"\r{info_string}{i+1}/{numRuns}", end = "")
+    # print(" (done)")
 
     #Find average
     avg = np.mean(error, axis = 0)
@@ -91,6 +92,6 @@ if __name__ == "__main__":
     z_noise = 0.2       # Added noise to the z-value
     n = 25              # Highest order of polynomial for X
 
-    Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
+    # Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
 
-    # multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)
+    multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)
