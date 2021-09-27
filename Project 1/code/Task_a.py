@@ -8,19 +8,26 @@ from plot_set import *
 from matplotlib.ticker import MaxNLocator
 
 
-def confidence_interval(beta,X):
+def confidence_interval(beta, X):
     """
     Calculates the confidence interval for a
     given beta.
     """
     alpha = 0.95
-    Z = norm.ppf(alpha + (1-alpha)/2) #Calculate Z
+    Z = norm.ppf(alpha + (1 - alpha) / 2)  # Calculate Z
 
+<<<<<<< HEAD
     beta_var = np.linalg.inv(X.T @ X).diagonal() #Find the variance
     SE_i = np.sqrt(beta_var) #Find standard error
 
     conf_int = np.dstack((beta - Z*SE_i, beta + Z*SE_i))[0] #Zip the interval.
     uncertainty = Z*SE_i
+=======
+    SE_i = np.linalg.inv(X.T @ X).diagonal()  # Find the variance
+    # Zip the interval.
+    conf_int = np.dstack((beta - Z * SE_i, beta + Z * SE_i))[0]
+    uncertainty = Z * SE_i
+>>>>>>> main
     uncertainty_print = f"Beta    Uncertainty \n"
     for i in range(len(beta)):
         uncertainty_print += f"{beta[i]:4.2g} +- {uncertainty[i]:2.1g}\n"
@@ -79,6 +86,7 @@ def confidence_plot(conf_int_train, conf_int_test):
 
     plt.show()
 
+
 def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     """
     """
@@ -87,13 +95,14 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     zpredict = (X_test @ beta).ravel()
 
     MSE_train = MSE(z_train, ztilde)
-    MSE_test =  MSE(z_test,zpredict)
-    R2_train =  R2(z_train,ztilde)
-    R2_test =   R2(z_test,zpredict)
+    MSE_test = MSE(z_test, zpredict)
+    R2_train = R2(z_train, ztilde)
+    R2_test = R2(z_test, zpredict)
 
     # alpha-% confidential interval (standard normal distribution)
     alpha = 0.95
     from scipy.stats import norm
+<<<<<<< HEAD
     conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(beta, X_train)
     conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(beta, X_test)
     # confidence_plot(conf_int_train, conf_int_test)
@@ -102,6 +111,12 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     latex_table(beta, uncertainty_train, uncertainty_test)
 
 
+=======
+    conf_int_train, beta_uncertainty_print_train = confidence_interval(
+        beta, X_train)
+    conf_int_test, beta_uncertainty_print_test = confidence_interval(
+        beta, X_test)
+>>>>>>> main
     #--- print result ---#
     print_results = False
     if print_results:
@@ -134,8 +149,9 @@ if __name__ == "__main__":
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
-    X_train, X_test = scale_design_matrix(X_train, X_test) #Scales X_train and X_test
+    X_train, X_test = scale_design_matrix(
+        X_train, X_test)  # Scales X_train and X_test
 
-    #OLS regression
+    # OLS regression
     beta_OLS = OLS_regression(X_train, z_train)
     evaluate_regression(beta_OLS, X_train, X_test, z_train, z_test)

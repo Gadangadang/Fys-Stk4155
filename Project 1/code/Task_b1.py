@@ -10,14 +10,18 @@ from matplotlib.ticker import MaxNLocator
 from plot_set import * # Specifies plotting settings
 from tqdm import trange
 
-def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
-    error_test, error_train = np.zeros(n+1), np.zeros(n+1)
+
+def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
+    error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
-    # z = standard_scale(z)
-    for i in range(0,n+1):
+    z = standard_scale(z)
+    for i in range(0, n + 1):
         X = create_X(x, y, i)
-        X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-        # X_train, X_test = scale_design_matrix(X_train, X_test) #Scales X_train and X_test
+        X_train, X_test, z_train, z_test = train_test_split(
+            X, z, test_size=0.2)
+
+        X_train, X_test = scale_design_matrix(
+            X_train, X_test)  # Scales X_train and X_test
 
         beta_OLS = OLS_regression(X_train, z_train)
 
@@ -50,7 +54,7 @@ def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
 
 
 def multiple_avg(N, z_noise, n, numRuns):
-    error = np.zeros((numRuns, 2, n+1)) # [i, (error_test, error_train), n]
+    error = np.zeros((numRuns, 2, n + 1))  # [i, (error_test, error_train), n]
 
     # Print process
     info_string = "Multirun avg, #run: "
@@ -74,14 +78,14 @@ def multiple_avg(N, z_noise, n, numRuns):
     plt.plot(n_arr[1:], avg[0][1:], label = "Test")
     plt.plot(n_arr[1:], avg[1][1:], label = "Train")
     ax = plt.gca()
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
+    # Force integer ticks on x-axis
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"MSE", fontsize=14)
-    plt.legend(fontsize = 13)
+    plt.legend(fontsize=13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
     plt.show()
-
 
 
 if __name__ == "__main__":
