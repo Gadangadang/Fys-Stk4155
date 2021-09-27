@@ -13,11 +13,13 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
     """
     write info
     """
-<<<<<<< HEAD
-    x, y, z = generate_data(N, z_noise, seed=None)
+
+    x, y, z = generate_data(N, z_noise, seed=4155)
     bias = np.zeros(n+1)
     variance = np.zeros(n+1)
     error = np.zeros(n+1)
+    error_test = np.zeros(n+1)
+
 
     # Print process
     info_string = "Bias-variance analysis, #n: "
@@ -26,45 +28,31 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
 
     for i in range(0,n+1): #For increasing complexity
         print(f"\r{info_string}{i}/{n}", end = "")
-
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-        X_train, X_test = scale_design_matrix(X_train, X_test)
-        z_pred = bootstrap(X_train, X_test, z_train, z_test, B)
-        bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
+        # z_pred = bootstrap(X_train, X_test, z_train, z_test, B, "OLS")
+        z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B, "OLS", lamda=0, include_train=True)
+        bias[i] = np.sqrt(np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2)) # axis = 1 => columns
         variance[i] = np.mean(np.var(z_pred, axis = 1))
         error[i] = np.mean(np.mean( (z_test-z_pred)**2, axis = 1, keepdims = True  ))
+
+        for j in range(z_pred.shape[0]):
+            error_test[i] += MSE(z_test, z_pred[j,0])
+        error_test[i]/z_pred.shape[0]
     print(" (done)")
     n_arr = np.linspace(0,n,n+1)
-=======
-    x, y, z = generate_data(N, z_noise, seed=2018)
-    bias = np.zeros(n + 1)
-    variance = np.zeros(n + 1)
-    error = np.zeros(n + 1)
+    ###### Look into MSE ########
 
-    for i in range(0, n + 1):  # For increasing complexity
-
-        X = create_X(x, y, i)
-
-        X_train, X_test, z_train, z_test = train_test_split(
-            X, z, test_size=0.2)
-
-        X_train, X_test = scale_design_matrix(X_train, X_test)
-
-        z_pred = bootstrap(X_train, X_test, z_train, z_test, B, "OLS")
-        # axis = 1 => columns
-        bias[i] = np.mean((z_test - np.mean(z_pred, axis=1, keepdims=True))**2)
-        variance[i] = np.mean(np.var(z_pred, axis=1))
-        error[i] = np.mean(
-            np.mean((z_test - z_pred)**2, axis=1, keepdims=True))
 
     n_arr = np.linspace(0, n, n + 1)
->>>>>>> main
+
     if plot:
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-        plt.plot(n_arr, bias, label="Bias")
-        plt.plot(n_arr, variance, label="Variance")
-        plt.plot(n_arr, error, "--", label="Error")
+        plt.plot(n_arr[1:], bias[1:], label="Bias")
+        plt.plot(n_arr[1:], variance[1:], label="Variance")
+        plt.plot(n_arr[1:], error[1:], "--", label="MSE test")
+        plt.plot(n_arr[1:], error_test[1:], "--", label="Error test 2")
+
 
         ax = plt.gca()
         # Force integer ticks on x-axis
@@ -83,7 +71,7 @@ if __name__ == "__main__":
     #--- settings ---#
     N =  22          # Number of points in each dimension
     z_noise = 0.2     # Added noise to the z-value
-    n = 14                 # Highest order of polynomial for X
-    B = 100
+    n = 15                 # Highest order of polynomial for X
+    B = int(0.8*N**2) # Number of training points
 
     bias_variance_tradeoff(N, z_noise, n, B, plot=True)
