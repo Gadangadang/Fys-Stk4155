@@ -13,20 +13,19 @@ from tqdm import trange
 def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
     error_test, error_train = np.zeros(n+1), np.zeros(n+1)
     x, y, z = generate_data(N, z_noise, seed)
-    z = standard_scale(z)
+    # z = standard_scale(z)
     for i in range(0,n+1):
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-
-        X_train, X_test = scale_design_matrix(X_train, X_test) #Scales X_train and X_test
+        # X_train, X_test = scale_design_matrix(X_train, X_test) #Scales X_train and X_test
 
         beta_OLS = OLS_regression(X_train, z_train)
 
         ztilde = X_train @ beta_OLS
         zpredict = X_test @ beta_OLS
 
-        error_test[i] = MSE(z_test,zpredict)
-        error_train[i] = MSE(z_train,ztilde)
+        error_train[i] = MSE(z_train, ztilde)
+        error_test[i] = MSE(z_test, zpredict)
 
 
     if plot:
@@ -34,8 +33,8 @@ def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
         n_arr = np.linspace(0,n,n+1)
 
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-        plt.plot(n_arr, error_test, label = "Test")
         plt.plot(n_arr, error_train, label = "Train")
+        plt.plot(n_arr, error_test, label = "Test")
         plt.xlabel(r"$n$", fontsize=14)
         plt.ylabel(r"MSE", fontsize=14)
         ax = plt.gca()
@@ -43,7 +42,6 @@ def Error_Complexity(N, z_noise, n, plot = True, seed = 4155):
         plt.legend(fontsize = 13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
-
 
 
         plt.show()
@@ -70,7 +68,6 @@ def multiple_avg(N, z_noise, n, numRuns):
     avg = np.mean(error, axis = 0)
     n_arr = np.linspace(0,n,n+1)
 
-
     #---Plotting---#
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.title(f"Avg. MSE for {numRuns} runs with {N} datapoints (noise =  {z_noise}" + r" $\times$ $N(0,1)$)")
@@ -93,5 +90,4 @@ if __name__ == "__main__":
     n = 25              # Highest order of polynomial for X
 
     # Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
-
     multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)

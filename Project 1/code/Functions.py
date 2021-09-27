@@ -42,7 +42,6 @@ def generate_2D_mesh_grid(N):
     N: Number of uniform points
     """
 
-
     x = np.linspace(0,1, N)
     y = np.linspace(0,1, N)
     x, y = np.meshgrid(x,y)
