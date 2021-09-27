@@ -16,18 +16,13 @@ def confidence_interval(beta, X):
     alpha = 0.95
     Z = norm.ppf(alpha + (1 - alpha) / 2)  # Calculate Z
 
-<<<<<<< HEAD
+
     beta_var = np.linalg.inv(X.T @ X).diagonal() #Find the variance
     SE_i = np.sqrt(beta_var) #Find standard error
 
     conf_int = np.dstack((beta - Z*SE_i, beta + Z*SE_i))[0] #Zip the interval.
     uncertainty = Z*SE_i
-=======
-    SE_i = np.linalg.inv(X.T @ X).diagonal()  # Find the variance
-    # Zip the interval.
-    conf_int = np.dstack((beta - Z * SE_i, beta + Z * SE_i))[0]
-    uncertainty = Z * SE_i
->>>>>>> main
+
     uncertainty_print = f"Beta    Uncertainty \n"
     for i in range(len(beta)):
         uncertainty_print += f"{beta[i]:4.2g} +- {uncertainty[i]:2.1g}\n"
@@ -102,23 +97,15 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     # alpha-% confidential interval (standard normal distribution)
     alpha = 0.95
     from scipy.stats import norm
-<<<<<<< HEAD
+
     conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(beta, X_train)
     conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(beta, X_test)
+
     # confidence_plot(conf_int_train, conf_int_test)
+    # latex_table(beta, uncertainty_train, uncertainty_test)
 
-
-    latex_table(beta, uncertainty_train, uncertainty_test)
-
-
-=======
-    conf_int_train, beta_uncertainty_print_train = confidence_interval(
-        beta, X_train)
-    conf_int_test, beta_uncertainty_print_test = confidence_interval(
-        beta, X_test)
->>>>>>> main
     #--- print result ---#
-    print_results = False
+    print_results = True
     if print_results:
         print("#----- Error -----#")
         print("      train  |  test")
@@ -145,6 +132,7 @@ if __name__ == "__main__":
     # Create data and set up design matrix
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
+
 
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)

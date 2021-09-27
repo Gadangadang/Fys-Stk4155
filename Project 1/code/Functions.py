@@ -9,15 +9,14 @@ def R2(y_data, y_model):
     """
     Evluated the square error of the data.
     """
-    return 1 - np.sum((y_data - y_model)**2) / np.sum((y_data - np.mean(y_data)) ** 2)
+    return 1 - np.sum((y_data.ravel() - y_model.ravel())**2) / np.sum((y_data.ravel() - np.mean(y_data.ravel())) ** 2)
 
 
 def MSE(y_data, y_model):
     """
     Evaluates the mean sqaured error of the data.
     """
-    n = np.size(y_model)
-    return np.sum((y_data - y_model)**2) / n
+    return np.mean((y_data.ravel() - y_model.ravel())**2)
 
 
 def FrankeFunction(x, y):

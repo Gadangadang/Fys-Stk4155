@@ -25,8 +25,8 @@ def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
 
         beta_OLS = OLS_regression(X_train, z_train)
 
-        ztilde = X_train @ beta_OLS
-        zpredict = X_test @ beta_OLS
+        ztilde = (X_train @ beta_OLS).ravel()
+        zpredict = (X_test @ beta_OLS).ravel()
 
         error_train[i] = MSE(z_train, ztilde)
         error_test[i] = MSE(z_test, zpredict)
@@ -46,7 +46,6 @@ def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
         plt.legend(fontsize = 13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
-
 
         plt.show()
 
@@ -93,5 +92,5 @@ if __name__ == "__main__":
     z_noise = 0.2       # Added noise to the z-value
     n = 25              # Highest order of polynomial for X
 
-    # Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
-    multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)
+    Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
+    #multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)
