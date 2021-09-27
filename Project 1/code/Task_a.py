@@ -16,15 +16,31 @@ def confidence_interval(beta,X):
     alpha = 0.95
     Z = norm.ppf(alpha + (1-alpha)/2) #Calculate Z
 
-    SE_i = np.linalg.inv(X.T @ X).diagonal() #Find the variance
+    beta_var = np.linalg.inv(X.T @ X).diagonal() #Find the variance
+    SE_i = np.sqrt(beta_var) #Find standard error
+
     conf_int = np.dstack((beta - Z*SE_i, beta + Z*SE_i))[0] #Zip the interval.
     uncertainty = Z*SE_i
     uncertainty_print = f"Beta    Uncertainty \n"
     for i in range(len(beta)):
         uncertainty_print += f"{beta[i]:4.2g} +- {uncertainty[i]:2.1g}\n"
 
+    return conf_int, uncertainty_print, uncertainty
 
-    return conf_int, uncertainty_print
+
+def latex_table(beta, pm_train, pm_test):
+    print(r"\begin{table}[H]")
+    print(r"\begin{center}")
+    print(r"\caption{$\beta$-values for OLS regression with a polynomial up to fifth order using $N = 25$ and $\sigma = 0.2$.}")
+    print(r"\begin{tabular}{|c|c|c|} \hline")
+    print(r" \text{Beta} & \text{Train uncertainty} & \text{Test uncertainty} \\\hline")
+    for i in range(len(pm_train)):
+        print(f"{beta[i]:2.2f} & $\pm${pm_train[i]:.2f} & $\pm${pm_test[i]:.2f}" + r"\\\hline")
+    print(r"\end{tabular}")
+    print(r"\label{tab:beta_uncertainty}")
+    print(r"\end{center}")
+    print(r"\end{table}")
+
 
 
 def confidence_plot(conf_int_train, conf_int_test):
@@ -78,11 +94,16 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     # alpha-% confidential interval (standard normal distribution)
     alpha = 0.95
     from scipy.stats import norm
-    conf_int_train, beta_uncertainty_print_train = confidence_interval(beta, X_train)
-    conf_int_test, beta_uncertainty_print_test = confidence_interval(beta, X_test)
-    confidence_plot(conf_int_train, conf_int_test)
+    conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(beta, X_train)
+    conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(beta, X_test)
+    # confidence_plot(conf_int_train, conf_int_test)
+
+
+    latex_table(beta, uncertainty_train, uncertainty_test)
+
+
     #--- print result ---#
-    print_results = True
+    print_results = False
     if print_results:
         print("#----- Error -----#")
         print("      train  |  test")
