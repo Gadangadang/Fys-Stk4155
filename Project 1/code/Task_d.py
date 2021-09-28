@@ -7,11 +7,10 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 from sklearn.utils import resample
 from plot_set import *  # Specifies plotting settings
-from Task_b2 import bootstrap
-from Task_c import cross_validation
 
 
-def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot=True):
+
+def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=True):
     """
     write info
     """
@@ -31,7 +30,7 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot=True):
 
             X_train, X_test = scale_design_matrix(X_train, X_test)
             z_pred, z_tilde = bootstrap(
-                X_train, X_test, z_train, z_test, B, "Ridge", lamda, include_train=True)
+                X_train, X_test, z_train, z_test, B, method, lamda, include_train=True)
             # axis = 1 => columns
             bias[i] = np.mean(
                 (z_test - np.mean(z_pred, axis=1, keepdims=True))**2)
@@ -45,7 +44,7 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot=True):
             plt.plot(n_arr, bias, label="Bias")
             plt.plot(n_arr, variance, label="Variance")
             plt.plot(n_arr, error, "--", label="Error")
-            plt.title(r"$\lambda$ = {:.3f}".format(lamda))
+            plt.title(r"${}: \lambda$ = {:.3f}".format(method, lamda))
             ax = plt.gca()
             # Force integer ticks on x-axis
             ax.xaxis.set_major_locator(MaxNLocator(integer=True))
@@ -159,11 +158,11 @@ if __name__ == "__main__":
     k_fold_number = 10
     # Bootstrap analysis with Ridge
     lamda_values = np.logspace(-3, 2, 4)
-
+    method = "Ridge"
     #MSE_Ridge_bootstrap(N, z_noise, n, lamda_values)
 
     # Cross-validation with Ridge
     MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
     # Bias-variance tradeoff with Ridge
 
-    #bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, plot = True)
+    #bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot = True)

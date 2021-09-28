@@ -9,7 +9,7 @@ from plot_set import *  # Specifies plotting settings
 
 
 
-def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
+def bias_variance_tradeoff(N, z_noise, n, B, method,plot=True):
     """
     write info
     """
@@ -44,7 +44,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
 
             X = create_X(x, y, i)
             X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=test_size)
-            z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B[N_i], "OLS", lamda=0, include_train=True)
+            z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B[N_i], method, lamda=0, include_train=True)
 
             bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
             variance[i] = np.mean(np.var(z_pred, axis = 1))
@@ -73,7 +73,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
             if Nnum <= 1:
                 error_sum = bias + variance
                 plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-                plt.title(f"N = {N[N_i]}")
+                plt.title(f"{method}: N = {N[N_i]}")
                 plt.plot(n_arr[1:], bias[1:], "o-", label=r"Bias$^2$")
                 plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                 plt.plot(n_arr[1:], MSE_test[1:], "o-", label="MSE test")
@@ -96,7 +96,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
 
                 plt.figure(num=0, figsize = (8,6), facecolor='w', edgecolor='k')
                 plt.subplot(2,2,N_i+1)
-                plt.title(f"N = {N[N_i]}")
+                plt.title(f"{method}: N = {N[N_i]}")
                 plt.plot(n_arr[1:], bias[1:], "o-", label=r"Bias$^2$")
                 plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                 plt.plot(n_arr[1:], MSE_test[1:], "o-", label="MSE test")
@@ -129,5 +129,6 @@ if __name__ == "__main__":
     z_noise = 0.2     # Added noise to the z-value
     n = 18                # Highest order of polynomial for X
     B = "N"             # Number of training points
+    method = "OLS"
 
-    bias_variance_tradeoff(N, z_noise, n, B, plot=True)
+    bias_variance_tradeoff(N, z_noise, n, B, method, plot=True)
