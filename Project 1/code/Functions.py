@@ -198,7 +198,7 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
     elif method == "Lasso":
         for i in range(B):
             X_res, z_res = resample(X_train, z_train)
-            RegLasso = linear_model.Lasso(lamda)
+            RegLasso = linear_model.Lasso(lamda, tol = 1e-2)
             RegLasso.fit(X_res, z_res)
             z_pred[:, i] = RegLasso.predict(X_test)
             if include_train:

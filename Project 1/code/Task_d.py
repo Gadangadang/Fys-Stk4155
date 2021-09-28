@@ -14,7 +14,7 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=Tr
     """
     write info
     """
-    x, y, z = generate_data(N, z_noise, seed=2018)
+    x, y, z = generate_data(N, z_noise, seed=4155)
     bias = np.zeros(n + 1)
     variance = np.zeros(n + 1)
     error = np.zeros(n + 1)
