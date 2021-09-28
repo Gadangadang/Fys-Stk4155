@@ -131,6 +131,8 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
             lamda, N, z_noise, n, k_fold_number, plot=True, seed=4155)
         n_arr = np.linspace(0, n, n + 1)
 
+        print("Minimum value for train is {:.3f} with lambda = {:.3f}".format(
+            np.min(error_test), lamda))
         #---Plotting---#
 
         plt.title(r"Bootstrap MSE with $\lambda$ = {:.3f} ".format(lamda))
