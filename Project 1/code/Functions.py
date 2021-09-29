@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn import linear_model
 from sklearn.utils import resample
-from sklearn.model_selection import  KFold, cross_val_score
+from sklearn.model_selection import  KFold, cross_val_score, ShuffleSplit
 
 def R2(y_data, y_model):
     """
@@ -128,7 +128,7 @@ def generate_data(N, z_noise, seed=4155):
     return x, y, z
 
 def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
-    kfold = KFold(n_splits=k_fold_number, shuffle = True)
+
     j = 0
     z_pred_arr = np.zeros((int(np.shape(X)[0] / k_fold_number), k_fold_number))
 
@@ -136,7 +136,8 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
     if include_train:
         MSE_arr_tilde = np.zeros(k_fold_number)
 
-    for train_indx, test_indx in kfold.split(X):
+    ss = ShuffleSplit(n_splits=k_fold_number)
+    for train_indx, test_indx in ss.split(X):
         X_train = X[train_indx]
         z_train = z[train_indx]
 

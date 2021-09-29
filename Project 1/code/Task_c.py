@@ -12,12 +12,12 @@ from matplotlib.ticker import MaxNLocator
 
 
 def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
-    x, y, z = generate_data(N, z_noise, seed=2018)
+    x, y, z = generate_data(N, z_noise, seed=4155)
 
     error_CV = np.zeros(n + 1)
     error_B = np.zeros(n + 1)
     error_sklearn = np.zeros(n + 1)
-    
+
     for i in range(0, n + 1):  # For increasing complexity
         X = create_X(x, y, i)
 
@@ -41,7 +41,7 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
     ax = plt.gca()
     # Force integer ticks on x-axis
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-    plt.xlabel(r"$n [complexity]$", fontsize=14)
+    plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"MSE", fontsize=14)
     plt.title(r"Bootstrap iterations: {}, K-folds: {}".format(B,
                                                               k_fold_number), fontsize=16)
@@ -55,8 +55,8 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
 
 if __name__ == "__main__":
     N = 30
-    z_noise = 0.1
-    n = 10
+    z_noise = 0.2
+    n = 14
     B = 100
 
     method = "OLS"
