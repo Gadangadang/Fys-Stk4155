@@ -14,11 +14,18 @@ from tqdm import trange
 def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
     MSE_test, MSE_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
+    z = Mean_scale(z)
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)
+<<<<<<< HEAD
         X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
         mean_scale(X_train, X_test, z_train, z_test)
+=======
+        X_train, X_test, z_train, z_test = train_test_split(
+            X, z, test_size=0.2)
+        X_train, X_test = scale_design_matrix(X_train, X_test)
+>>>>>>> main
 
         beta_OLS = OLS_regression(X_train, z_train)
 
@@ -72,14 +79,11 @@ def multiple_avg(N, z_noise, n, numRuns):
 
     # Print process
     info_string = "Multirun avg, #run: "
-    # print(f"\r{info_string}0/{numRuns}", end = "")
-
     # Perform multiple runs
     for i in trange(numRuns):
         error_test, error_train = Error_Complexity(N, z_noise, n, plot = False, seed = None)
         error[i,0] = error_test
         error[i,1] = error_train
-        # print(f"\r{info_string}{i+1}/{numRuns}", end = "")
     # print(" (done)")
 
     #Find average
@@ -107,6 +111,7 @@ if __name__ == "__main__":
     z_noise = 0.2       # Added noise to the z-value
     n = 25              # Highest order of polynomial for X
     B = 100
+<<<<<<< HEAD
 
     # Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
     multiple_avg(N, z_noise, n=15, numRuns = 50) # This is not a great solution (talked to TA)
@@ -117,3 +122,8 @@ if __name__ == "__main__":
 
 
     #
+=======
+    #Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
+    #multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)
+    
+>>>>>>> main

@@ -59,7 +59,7 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=Tr
 def Error_Complexity_boot(lamda, N, z_noise, n, plot=True, seed=4155):
     error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
-    z = standard_scale(z)
+    z = Mean_scale(z)
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)
@@ -82,7 +82,7 @@ def Error_Complexity_boot(lamda, N, z_noise, n, plot=True, seed=4155):
 def Error_Complexity_CV(lamda, N, z_noise, n, k_fold_number, plot=True, seed=4155):
     error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
-    z = standard_scale(z)
+    z = Mean_scale(z)
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)

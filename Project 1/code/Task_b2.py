@@ -30,14 +30,10 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
         for N_i in range(Nnum):
             print(f"\r{info_string}{N[N_i]}, n = 0/{n}", end = "")
             x, y, z = generate_data(N[N_i], z_noise, seed=4155)
+            z = Mean_scale(z)
             bias = np.zeros(n+1)
             variance = np.zeros(n+1)
             MSE_test = np.zeros(n+1)
-
-            # man_MSE_test = np.zeros(n+1)
-            # man_var_test = np.zeros(n+1)
-            # man_bias_test = np.zeros(n+1)
-
 
             # Print process
             for i in range(0,n+1): #For increasing complexity
@@ -45,25 +41,13 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
 
                 X = create_X(x, y, i)
                 X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=test_size)
+                X_train, X_test = scale_design_matrix(X_train, X_test)
+
                 z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B[N_i], method, lmb, include_train=True)
 
                 bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
                 variance[i] = np.mean(np.var(z_pred, axis = 1))
                 MSE_test[i] = np.mean(np.mean((z_test-z_pred)**2, axis = 1, keepdims = True  ))
-
-
-                # Manual testing
-                # for j in range(z_pred.shape[1]):
-                #     man_MSE_test[i] += MSE(z_test, z_pred[:,j])
-                #
-                # for k in range(z_pred.shape[0]):
-                #     man_var_test[i] += np.mean((z_pred[k,:] - np.mean(z_pred[k,:]))**2)
-                #     man_bias_test[i] += np.mean((z_test[k,0] - np.mean(z_pred[k,:]))**2)
-                #
-                # man_MSE_test[i] /= z_pred.shape[1]
-                # man_var_test[i] /= z_pred.shape[0]
-                # man_bias_test[i] /= z_pred.shape[0]
-
 
             n_arr = np.linspace(0,n,n+1)
 
@@ -82,11 +66,6 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                     plt.plot(n_arr[1:], MSE_test[1:], "o-", label="MSE test")
                     plt.fill_between(n_arr[1:], 0, error_sum[1:], alpha = 0.3, color = color_cycle(3), label = r"Bias$^2$ + variance")
-
-                    # Manual testing plot
-                    # plt.plot(n_arr[1:], man_MSE_test[1:], alpha = 0.5, label="man_MSE_test")
-                    # plt.plot(n_arr[:], man_var_test[:], alpha = 0.5, label="man_var_test")
-                    # plt.plot(n_arr[:], man_bias_test[:], alpha = 0.5, label="man_bias_test")
 
                     ax = plt.gca()
                     # Force integer ticks on x-axis
