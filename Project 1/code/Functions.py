@@ -105,11 +105,12 @@ def scale_design_matrix(X_train, X_test):
     scaler = StandardScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
+    scaler.fit(X_test)
     X_test = scaler.transform(X_test)
 
     # Force first column of X back to 1
-    X_train[:, 0] = 1.
-    X_test[:, 0] = 1.
+    # X_train[:, 0] = 1.
+    # X_test[:, 0] = 1.
 
     return X_train, X_test
 

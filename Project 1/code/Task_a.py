@@ -16,10 +16,8 @@ def confidence_interval(beta, X):
     alpha = 0.95
     Z = norm.ppf(alpha + (1 - alpha) / 2)  # Calculate Z
 
-
     beta_var = np.linalg.inv(X.T @ X).diagonal() #Find the variance
     SE_i = np.sqrt(beta_var) #Find standard error
-
     conf_int = np.dstack((beta - Z*SE_i, beta + Z*SE_i))[0] #Zip the interval.
     uncertainty = Z*SE_i
 
@@ -33,7 +31,7 @@ def confidence_interval(beta, X):
 def latex_table(beta, pm_train, pm_test):
     print(r"\begin{table}[H]")
     print(r"\begin{center}")
-    print(r"\caption{$\beta$-values for OLS regression with a polynomial up to fifth order using $N = 25$ and $\sigma = 0.2$.}")
+    print(r"\caption{$\beta$-values for OLS regression with a polynomial up to degree five using $N = 25$ and $\sigma = 0.2$. The uncertainty is the result of a $95\%$-confidence interval.}")
     print(r"\begin{tabular}{|c|c|c|} \hline")
     print(r" \text{Beta} & \text{Train uncertainty} & \text{Test uncertainty} \\\hline")
     for i in range(len(pm_train)):
@@ -53,7 +51,6 @@ def confidence_plot(conf_int_train, conf_int_test):
     train_error = np.abs(conf_int_train[:,0]-conf_int_train[:,1])/2
     beta_test = np.mean(conf_int_test, axis = 1)
     test_error = np.abs(conf_int_test[:,0]-conf_int_test[:,1])/2
-
 
     plt.figure(num=0, figsize = (8,6), facecolor='w', edgecolor='k')
     b_arr = np.linspace(0,len(beta_train)-1,len(beta_train))
@@ -78,7 +75,6 @@ def confidence_plot(conf_int_train, conf_int_test):
     plt.subplots_adjust(hspace = 0.3)
     plt.savefig("../article/figures/confidence_interval.pdf", bbox_inches="tight")
 
-
     plt.show()
 
 
@@ -101,8 +97,8 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(beta, X_train)
     conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(beta, X_test)
 
-    # confidence_plot(conf_int_train, conf_int_test)
-    # latex_table(beta, uncertainty_train, uncertainty_test)
+    confidence_plot(conf_int_train, conf_int_test)
+    latex_table(beta, uncertainty_train, uncertainty_test)
 
     #--- print result ---#
     print_results = True
@@ -131,12 +127,13 @@ if __name__ == "__main__":
 
     # Create data and set up design matrix
     x, y, z = generate_data(N, z_noise)
+    z = standard_scale(z)
+
     X = create_X(x, y, n)
 
 
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-
     X_train, X_test = scale_design_matrix(
         X_train, X_test)  # Scales X_train and X_test
 

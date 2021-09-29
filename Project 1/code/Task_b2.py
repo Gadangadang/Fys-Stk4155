@@ -28,7 +28,8 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
     info_string = "Bias-variance analysis, N = "
     for N_i in range(Nnum):
         print(f"\r{info_string}{N[N_i]}, n = 0/{n}", end = "")
-        x, y, z = generate_data(N[N_i], z_noise, seed=4158)
+        x, y, z = generate_data(N[N_i], z_noise, seed=4155)
+        z = standard_scale(z)
         bias = np.zeros(n+1)
         variance = np.zeros(n+1)
         MSE_test = np.zeros(n+1)
@@ -44,6 +45,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
 
             X = create_X(x, y, i)
             X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=test_size)
+            X_train, X_test = scale_design_matrix(X_train, X_test)
             z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B[N_i], "OLS", lamda=0, include_train=True)
 
             bias[i] = np.mean((z_test - np.mean(z_pred, axis = 1, keepdims = True))**2) # axis = 1 => columns
@@ -91,7 +93,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
                 # plt.ylabel(r"MSE", fontsize=14)
                 plt.legend(fontsize=13)
                 plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-                plt.savefig(f"../article/figures/bias_variance_tradeoff.pdf", bbox_inches="tight")
+                # plt.savefig(f"../article/figures/bias_variance_tradeoff.pdf", bbox_inches="tight")
             elif Nnum == 4:
 
                 plt.figure(num=0, figsize = (8,6), facecolor='w', edgecolor='k')
@@ -115,7 +117,8 @@ def bias_variance_tradeoff(N, z_noise, n, B, plot=True):
                     plt.legend(fontsize=13)
                 plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
                 if N_i == 4:
-                    plt.savefig(f"../article/figures/bias_variance_tradeoff_2x2.pdf", bbox_inches="tight")
+                    pass
+                    # plt.savefig(f"../article/figures/bias_variance_tradeoff_2x2.pdf", bbox_inches="tight")
     print(" (done)")
     plt.show()
 
@@ -126,8 +129,9 @@ if __name__ == "__main__":
     #--- settings ---#
     N =  22          # Number of points in each dimension
     N = [20, 24, 30, 40]
+    N = [10, 15, 20, 25]
     z_noise = 0.2     # Added noise to the z-value
-    n = 18                # Highest order of polynomial for X
+    n = 15                # Highest order of polynomial for X
     B = "N"             # Number of training points
 
     bias_variance_tradeoff(N, z_noise, n, B, plot=True)
