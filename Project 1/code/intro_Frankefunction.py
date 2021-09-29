@@ -14,6 +14,9 @@ ax = fig.gca(projection='3d')
 x = np.arange(0, 1, 0.05)
 y = np.arange(0, 1, 0.05)
 x, y = np.meshgrid(x,y)
+print(np.shape(x))
+print(np.shape(y))
+
 
 
 def FrankeFunction(x,y):
@@ -25,6 +28,7 @@ def FrankeFunction(x,y):
 
 
 z = FrankeFunction(x, y)
+
 
 print(np.max(z))
 print(np.min(z))

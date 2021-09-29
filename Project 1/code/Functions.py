@@ -188,13 +188,13 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
     """
 
     z_pred = np.zeros((len(z_test), B))
-    X_test -= np.mean(X_test)
+
     if include_train:
         z_tilde = np.zeros((len(z_train), B))
     if method == "OLS":
         for i in range(B):
             X_res, z_res = resample(X_train, z_train)
-            X_res -= np.mean(X_res)
+            mean_scale(z_res, X_res)
             beta = OLS_regression(X_res, z_res)
             z_pred[:, i] = (X_test @ beta).ravel()
             if include_train:
@@ -202,6 +202,7 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
     elif method == "Ridge":
         for i in range(B):
             X_res, z_res = resample(X_train, z_train)
+            mean_scale(z_res, X_res)
             beta = RIDGE_regression(X_res, z_res, lamda)
             z_pred[:, i] = (X_test @ beta).ravel()
             if include_train:
@@ -209,6 +210,7 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
     elif method == "Lasso":
         for i in range(B):
             X_res, z_res = resample(X_train, z_train)
+            mean_scale(z_res, X_res)
             RegLasso = linear_model.Lasso(lamda, tol = 1e-2)
             RegLasso.fit(X_res, z_res)
             z_pred[:, i] = RegLasso.predict(X_test)

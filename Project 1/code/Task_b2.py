@@ -30,7 +30,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
         for N_i in range(Nnum):
             print(f"\r{info_string}{N[N_i]}, n = 0/{n}", end = "")
             x, y, z = generate_data(N[N_i], z_noise, seed=4155)
-            z = Mean_scale(z)
+
             bias = np.zeros(n+1)
             variance = np.zeros(n+1)
             MSE_test = np.zeros(n+1)
@@ -41,7 +41,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
 
                 X = create_X(x, y, i)
                 X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=test_size)
-                X_train, X_test = scale_design_matrix(X_train, X_test)
+                mean_scale(X_train, X_test, z_train, z_test)
 
                 z_pred, z_tilde = bootstrap(X_train, X_test, z_train, z_test, B[N_i], method, lmb, include_train=True)
 
@@ -85,13 +85,9 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
                         plt.title(f"{method} $\lambda = ${lmb:.3f} : N = {N[N_i]}", size = 14)
                     plt.plot(n_arr[1:], bias[1:], "o-", label=r"Bias$^2$")
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
-                    plt.plot(n_arr[1:], MSE_test[1:], "o-", label="MSE test")
+                    plt.plot(n_arr[1:], MSE_test[1:], "o--", label="MSE test")
                     plt.fill_between(n_arr[1:], 0, error_sum[1:], alpha = 0.3, color = color_cycle(3), label = r"Bias$^2$ + variance")
 
-                    # Manual testing plot
-                    # plt.plot(n_arr[1:], man_MSE_test[1:], alpha = 0.5, label="man_MSE_test")
-                    # plt.plot(n_arr[:], man_var_test[:], alpha = 0.5, label="man_var_test")
-                    # plt.plot(n_arr[:], man_bias_test[:], alpha = 0.5, label="man_bias_test")
 
                     ax = plt.gca()
                     # Force integer ticks on x-axis
@@ -100,11 +96,16 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
 
                     # plt.ylabel(r"MSE", fontsize=14)
                     plt.tight_layout()
-                    if k == 2:
+                    if k == 0:
                         plt.legend(fontsize=13)
-                    if k == Nnum or k == lamdaNum:
+                    if N_i == Nnum-1:
                         plt.savefig(f"../article/figures/bias_variance_tradeoff_2x2.pdf", bbox_inches="tight")
+
+                    # if k == Nnum or k == lamdaNum:
+                    #
+                    #     plt.savefig(f"../article/figures/bias_variance_tradeoff_2x2.pdf", bbox_inches="tight")
             k += 1
+
 
     print(" (done)")
     plt.show()
@@ -115,8 +116,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
 if __name__ == "__main__":
     #--- settings ---#
     N =  22          # Number of points in each dimension
-    # N = [20, 24, 30, 40]
-    # N = [10, 15, 20, 25]
+    N = [10, 17, 27, 41]
     z_noise = 0.2     # Added noise to the z-value
     n = 15                # Highest order of polynomial for X
     B = "N"             # Number of training points
