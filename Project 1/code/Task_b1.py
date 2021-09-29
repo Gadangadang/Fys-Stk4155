@@ -9,7 +9,7 @@ from matplotlib.ticker import MaxNLocator
 
 # from plot_set import * # Specifies plotting settings
 from tqdm import trange
-from prediction_plots import show_predictions
+from prediction_plots import plot_3D
 
 
 def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
@@ -126,6 +126,40 @@ def multiple_avg(N, z_noise, n, numRuns):
     plt.show()
 
 
+def show_predictions(N, z_noise, n):
+    """
+    Show 3D plot of z-predictions
+    Makes one plot for each n
+    This one is actually best without plot_set
+    """
+
+    x_train, y_train, z_train = generate_data(N, z_noise, seed=4155) #Training data
+    x_test, y_test, z_test = generate_data(N, z_noise, seed=None) #Test data
+
+    plot_3D("Input data", x_test, y_test, z_test.reshape(N, N), z_label = r"$z$", save_name ="input_data")
+    plot_3D("Training data", x_train, y_train, z_train.reshape(N, N), z_label = r"$z$", save_name ="train_data")
+
+    inp = input("Sure you wanne rewrite the old figs? (y/n): ")
+    if inp == "y":
+        pass
+    else:
+        exit()
+
+    z_mean_test = np.mean(z_test)
+    mean_scale(z_train, z_test)
+    for i in trange(len(n)):
+        X_train = create_X(x_train, y_train, n[i])
+        X_test = create_X(x_test, y_test, n[i])
+
+        mean_scale(X_train, X_test)
+
+        beta_OLS = OLS_regression(X_train, z_train)
+        zprediction = (X_test @ beta_OLS).ravel()
+        zprediction = zprediction.reshape(N, N) + z_mean_test
+
+        plot_3D(f"n = {n[i]}", x_test, y_test, zprediction, z_label = r"$\tilde{z}$", save_name = f"n{n[i]}")
+
+
 
 
 
@@ -135,7 +169,7 @@ if __name__ == "__main__":
     n = 25              # Highest order of polynomial for X
     B = 100
 
-    n = np.linspace(2,40, 40-1).astype("int")
+    n = np.append(np.linspace(2,19, 18), np.linspace(20, 100, 9)).astype("int")
     show_predictions(N, z_noise, n)
     # Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
     # complexity_bootstrap(N, z_noise, n, B = 5000)
