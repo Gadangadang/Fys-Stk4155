@@ -29,7 +29,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
     for lmb in lamda:
         for N_i in range(Nnum):
             print(f"\r{info_string}{N[N_i]}, n = 0/{n}", end = "")
-            x, y, z = generate_data(N[N_i], z_noise, seed=4158)
+            x, y, z = generate_data(N[N_i], z_noise, seed=4158l)
             bias = np.zeros(n+1)
             variance = np.zeros(n+1)
             MSE_test = np.zeros(n+1)
