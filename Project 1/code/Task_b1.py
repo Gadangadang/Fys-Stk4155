@@ -12,22 +12,21 @@ from tqdm import trange
 
 
 def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
-    error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
+    MSE_test, MSE_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)
-        X_train, X_test, z_train, z_test = train_test_split(
-            X, z, test_size=0.2)
-
+        X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
+        mean_scale(X_train, X_test, z_train, z_test)
 
         beta_OLS = OLS_regression(X_train, z_train)
 
         ztilde = (X_train @ beta_OLS).ravel()
         zpredict = (X_test @ beta_OLS).ravel()
 
-        error_train[i] = MSE(z_train, ztilde)
-        error_test[i] = MSE(z_test, zpredict)
+        MSE_train[i] = MSE(z_train, ztilde)
+        MSE_test[i] = MSE(z_test, zpredict)
 
 
     if plot:
@@ -35,8 +34,8 @@ def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
         n_arr = np.linspace(0,n,n+1)
 
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-        plt.plot(n_arr[1:], error_train[1:], label = "Train")
-        plt.plot(n_arr[1:], error_test[1:], label = "Test")
+        plt.plot(n_arr[1:], MSE_train[1:], label = "Train")
+        plt.plot(n_arr[1:], MSE_test[1:], label = "Test")
         plt.xlabel(r"$n$", fontsize=14)
         plt.ylabel(r"MSE", fontsize=14)
         ax = plt.gca()
@@ -47,7 +46,25 @@ def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
 
         plt.show()
 
-    return error_test, error_train
+    return MSE_test, MSE_train
+
+def complexity_bootstrap():
+    MSE_test, MSE_train = np.zeros(n + 1), np.zeros(n + 1)
+    x, y, z = generate_data(N, z_noise, seed)
+
+    
+    for i in range(0, n + 1):
+        X = create_X(x, y, i)
+        X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
+        mean_scale(X_train, X_test, z_train, z_test)
+
+        beta_OLS = OLS_regression(X_train, z_train)
+
+        ztilde = (X_train @ beta_OLS).ravel()
+        zpredict = (X_test @ beta_OLS).ravel()
+
+        MSE_train[i] = MSE(z_train, ztilde)
+        MSE_test[i] = MSE(z_test, zpredict)
 
 
 def multiple_avg(N, z_noise, n, numRuns):
@@ -81,7 +98,7 @@ def multiple_avg(N, z_noise, n, numRuns):
     plt.ylabel(r"MSE", fontsize=14)
     plt.legend(fontsize=13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
+    plt.savefig(f"../article/figures/hastie_multi{numRuns}.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -90,8 +107,9 @@ if __name__ == "__main__":
     z_noise = 0.2       # Added noise to the z-value
     n = 25              # Highest order of polynomial for X
     B = 100
-    #Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
-    #multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)
+
+    # Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
+    multiple_avg(N, z_noise, n=15, numRuns = 50) # This is not a great solution (talked to TA)
 
 
 

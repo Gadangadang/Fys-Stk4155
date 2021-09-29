@@ -88,19 +88,36 @@ def create_X(x, y, n):
     return X
 
 
-def standard_scale(z):
+# def mean_scale(z):
+#     """
+#     Returns the scaling of z by subtracting the MEAN
+#     """
+#     z_scaled = z - np.mean(z)
+#     return z_scaled
+
+def mean_scale(*args):
     """
-    Returns the scaling of z by subtracting the MEAN
+    Scales by subtracting the mean.
+    Takes multiple arguments and return the scaled version as:
+    a_scaled, b_scaled = mean_scale(a, b)
+    Take both vectors and matrices where the matrix mean is by columns.
+    Note: that you does not need to fetch the returns
+    as this is updated directly from the argument references
     """
-    z_scaled = (z - np.mean(z))
-    return z_scaled
+    for arg in args:
+        arg -= np.mean(arg, axis = 0)
+
+    if len(args) == 1: #If just one argument
+        return args[0]
+    else:
+        return args
+
 
 
 
 def scale_design_matrix(X_train, X_test):
     """
-    Scales the design matrix by subtracting the
-    MEAN of each matrix column for train and test seperately
+    See mean scale instead
     """
 
     col_mean_train = np.mean(X_train, axis = 0)
