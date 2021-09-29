@@ -135,9 +135,12 @@ def show_predictions(N, z_noise, n):
 
     x_train, y_train, z_train = generate_data(N, z_noise, seed=4155) #Training data
     x_test, y_test, z_test = generate_data(N, z_noise, seed=None) #Test data
+    x, y = generate_2D_mesh_grid(N)
 
     plot_3D("Input data", x_test, y_test, z_test.reshape(N, N), z_label = r"$z$", save_name ="input_data")
     plot_3D("Training data", x_train, y_train, z_train.reshape(N, N), z_label = r"$z$", save_name ="train_data")
+    plot_3D("Function data", x, y, FrankeFunction(x, y), z_label = r"$z$", save_name ="func_data")
+    
 
     inp = input("Sure you wanne rewrite the old figs? (y/n): ")
     if inp == "y":
