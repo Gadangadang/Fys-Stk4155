@@ -97,8 +97,8 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(beta, X_train)
     conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(beta, X_test)
 
-    confidence_plot(conf_int_train, conf_int_test)
-    latex_table(beta, uncertainty_train, uncertainty_test)
+    #confidence_plot(conf_int_train, conf_int_test)
+    #latex_table(beta, uncertainty_train, uncertainty_test)
 
     #--- print result ---#
     print_results = True
@@ -125,17 +125,21 @@ if __name__ == "__main__":
     z_noise = 0.2       # Added noise to the z-value
     n = 5               # Highest order of polynomial for X
 
+    N = 4
+    n = 2
+
     # Create data and set up design matrix
     x, y, z = generate_data(N, z_noise)
-    z = standard_scale(z)
+    print(np.std(z))
+    exit()
+    z - np.mean(z)
 
     X = create_X(x, y, n)
 
 
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-    X_train, X_test = scale_design_matrix(
-        X_train, X_test)  # Scales X_train and X_test
+    X_train, X_test = scale_design_matrix(X_train, X_test)  # Scales X_train and X_test
 
     # OLS regression
     beta_OLS = OLS_regression(X_train, z_train)
