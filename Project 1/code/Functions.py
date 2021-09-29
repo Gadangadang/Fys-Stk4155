@@ -88,7 +88,7 @@ def create_X(x, y, n):
     return X
 
 
-def standard_scale(z):
+def Mean_scale(z):
     """
     Returns the scaling of z by subtracting the MEAN
     """
@@ -134,13 +134,11 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
     MSE_arr = np.zeros(k_fold_number)
     if include_train:
         MSE_arr_tilde = np.zeros(k_fold_number)
-
+    z = Mean_scale(z)
     ss = ShuffleSplit(n_splits=k_fold_number)
     for train_indx, test_indx in ss.split(X):
-        X_train = X[train_indx]
+        X_train, X_test = scale_design_matrix(X[train_indx], X[test_indx])
         z_train = z[train_indx]
-
-        X_test = X[test_indx]
         z_test = z[test_indx]
 
         #X_train, X_test = scale_design_matrix(X_train, X_test)
@@ -179,11 +177,13 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
     """
 
     z_pred = np.zeros((len(z_test), B))
+    X_test -= np.mean(X_test) 
     if include_train:
         z_tilde = np.zeros((len(z_train), B))
     if method == "OLS":
         for i in range(B):
             X_res, z_res = resample(X_train, z_train)
+            X_res -= np.mean(X_res)
             beta = OLS_regression(X_res, z_res)
             z_pred[:, i] = (X_test @ beta).ravel()
             if include_train:

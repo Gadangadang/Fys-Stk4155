@@ -17,14 +17,14 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
     error_CV = np.zeros(n + 1)
     error_B = np.zeros(n + 1)
     error_sklearn = np.zeros(n + 1)
-
+    z = Mean_scale(z)
     for i in range(0, n + 1):  # For increasing complexity
         X = create_X(x, y, i)
 
         X_train, X_test, z_train, z_test = train_test_split(
             X, z, test_size=0.2)
 
-        #X_train, X_test = scale_design_matrix(X_train, X_test)
+        X_train, X_test = scale_design_matrix(X_train, X_test)
 
         z_pred_B = bootstrap(X_train, X_test, z_train, z_test, B, method, lamda)
 

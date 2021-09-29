@@ -14,12 +14,13 @@ from tqdm import trange
 def Error_Complexity(N, z_noise, n, plot=True, seed=4155):
     error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
+    z = Mean_scale(z)
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)
         X_train, X_test, z_train, z_test = train_test_split(
             X, z, test_size=0.2)
-
+        X_train, X_test = scale_design_matrix(X_train, X_test)
 
         beta_OLS = OLS_regression(X_train, z_train)
 
@@ -55,14 +56,11 @@ def multiple_avg(N, z_noise, n, numRuns):
 
     # Print process
     info_string = "Multirun avg, #run: "
-    # print(f"\r{info_string}0/{numRuns}", end = "")
-
     # Perform multiple runs
     for i in trange(numRuns):
         error_test, error_train = Error_Complexity(N, z_noise, n, plot = False, seed = None)
         error[i,0] = error_test
         error[i,1] = error_train
-        # print(f"\r{info_string}{i+1}/{numRuns}", end = "")
     # print(" (done)")
 
     #Find average
@@ -92,10 +90,4 @@ if __name__ == "__main__":
     B = 100
     #Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
     #multiple_avg(N, z_noise, n, numRuns = 10) # This is not a great solution (talked to TA)
-
-
-
-
-
-
-    #
+    
