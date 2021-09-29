@@ -17,12 +17,7 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
     error_CV = np.zeros(n + 1)
     error_B = np.zeros(n + 1)
     error_sklearn = np.zeros(n + 1)
-    if method == "OLS":
-        sklearMethod = LinearRegression(fit_intercept=False)
-    elif method == "Ridge":
-        sklearMethod = Ridge()
-    elif method == "Lasso":
-        sklearMethod = Lasso(lamda, tol = 0.0, fit_intercept = False)
+    
     for i in range(0, n + 1):  # For increasing complexity
         X = create_X(x, y, i)
 
@@ -52,6 +47,9 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
                                                               k_fold_number), fontsize=16)
     plt.legend(fontsize=13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig(f"../article/figures/CV_boot_comparison_with_k{k_fold_number}.pdf", bbox_inches="tight")
+
+
     plt.show()
 
 
@@ -60,6 +58,17 @@ if __name__ == "__main__":
     z_noise = 0.1
     n = 10
     B = 100
-    k_fold_number = 10
+
     method = "OLS"
+
+    k_fold_number = 5
+    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+
+    k_fold_number = 10
+    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+
+    k_fold_number = 20
+    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+
+    k_fold_number = 50
     compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
