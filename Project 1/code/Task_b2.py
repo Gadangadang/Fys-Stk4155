@@ -14,7 +14,6 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
     write info
     """
     test_size = 0.2
-
     if type(N) == int:
         N = np.array([N])
     else:
@@ -23,9 +22,10 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
     if B == "N":
         B = ((1-test_size)*N**2).astype(int)
 
-
+    lamdaNum = len(lamda)
     Nnum = len(N)
     info_string = "Bias-variance analysis, N = "
+    k = 0
     for lmb in lamda:
         for N_i in range(Nnum):
             print(f"\r{info_string}{N[N_i]}, n = 0/{n}", end = "")
@@ -67,14 +67,17 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
 
             n_arr = np.linspace(0,n,n+1)
 
-
+            error_sum = bias + variance
             if plot:
                 n_arr = np.linspace(0, n, n + 1)
 
-                if Nnum <= 1:
-                    error_sum = bias + variance
+                if Nnum <= 1 and lamdaNum <= 1:
+
                     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-                    plt.title(f"{method}: N = {N[N_i]}")
+                    if method == "OLS":
+                        plt.title(f"{method}: N = {N[N_i]}")
+                    else:
+                        plt.title(f"{method} $\lambda = ${lmb:.3f} : N = {N[N_i]}")
                     plt.plot(n_arr[1:], bias[1:], "o-", label=r"Bias$^2$")
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                     plt.plot(n_arr[1:], MSE_test[1:], "o-", label="MSE test")
@@ -93,16 +96,18 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
                     plt.legend(fontsize=13)
                     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
                     plt.savefig(f"../article/figures/bias_variance_tradeoff.pdf", bbox_inches="tight")
-                    if lamda != [0]:
-                        plt.show()
-                elif Nnum == 4:
+                elif Nnum == 4 or lamdaNum == 4:
 
                     plt.figure(num=0, figsize = (8,6), facecolor='w', edgecolor='k')
-                    plt.subplot(2,2,N_i+1)
-                    plt.title(f"{method}: N = {N[N_i]}")
+                    plt.subplot(2,2,k+1)
+                    if method == "OLS":
+                        plt.title(f"{method}: N = {N[N_i]}", size = 14)
+                    else:
+                        plt.title(f"{method} $\lambda = ${lmb:.3f} : N = {N[N_i]}", size = 14)
                     plt.plot(n_arr[1:], bias[1:], "o-", label=r"Bias$^2$")
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                     plt.plot(n_arr[1:], MSE_test[1:], "o-", label="MSE test")
+                    plt.fill_between(n_arr[1:], 0, error_sum[1:], alpha = 0.3, color = color_cycle(3), label = r"Bias$^2$ + variance")
 
                     # Manual testing plot
                     # plt.plot(n_arr[1:], man_MSE_test[1:], alpha = 0.5, label="man_MSE_test")
@@ -113,12 +118,15 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda = [0], plot=True):
                     # Force integer ticks on x-axis
                     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
                     plt.xlabel(r"$n$", fontsize=14)
+
                     # plt.ylabel(r"MSE", fontsize=14)
-                    if N_i == 0:
+                    plt.tight_layout()
+                    if k == 2:
                         plt.legend(fontsize=13)
-                    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-                    if N_i == 4:
+                    if k == Nnum or k == lamdaNum:
                         plt.savefig(f"../article/figures/bias_variance_tradeoff_2x2.pdf", bbox_inches="tight")
+            k += 1
+
     print(" (done)")
     plt.show()
 
