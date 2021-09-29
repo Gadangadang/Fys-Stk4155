@@ -128,7 +128,7 @@ def generate_data(N, z_noise, seed=4155):
     return x, y, z
 
 def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
-    kfold = KFold(n_splits=k_fold_number)
+    kfold = KFold(n_splits=k_fold_number, shuffle = True)
     j = 0
     z_pred_arr = np.zeros((int(np.shape(X)[0] / k_fold_number), k_fold_number))
 
@@ -143,7 +143,7 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
         X_test = X[test_indx]
         z_test = z[test_indx]
 
-        X_train, X_test = scale_design_matrix(X_train, X_test)
+        #X_train, X_test = scale_design_matrix(X_train, X_test)
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
             z_pred = (X_test @ beta).ravel()

@@ -150,6 +150,24 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
     # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
     plt.show()
 
+def lamdaDependency(N, z_noise, n, lamda):
+    x, y, z = generate_data(N, z_noise, seed=2018)
+    X = create_X(x, y, n)
+    X_train, X_test, z_train, z_test = train_test_split(
+        X, z, test_size=0.2)
+    length = len(RIDGE_regression(X_train,z_train, 0.1))
+    beta_R  = np.zeros(( int(length),len(lamda)))
+    i = 0
+    for lmb in lamda:
+        beta_R[:,i] = RIDGE_regression(X_train,z_train, lmb).ravel()
+        i += 1
+    for j in range(len(lamda)):
+        plt.plot((lamda), beta_R[j,:])
+    plt.ylabel(r"$\beta$", size = 16)
+    plt.xlabel(r"$\lambda$", size = 16)
+    plt.xscale('log')
+    plt.title(r"$\beta_i (\lambda)$ - [degree = {} and N = {}] ".format(n,N), size = 16)
+    plt.show()
 
 if __name__ == "__main__":
     #--- settings ---#
@@ -164,7 +182,9 @@ if __name__ == "__main__":
     #MSE_Ridge_bootstrap(N, z_noise, n, lamda_values)
 
     # Cross-validation with Ridge
-    MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
+    #MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
     # Bias-variance tradeoff with Ridge
 
     #bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot = True)
+
+    lamdaDependency(22, 0.2, 15, np.logspace(-5,0,20))
