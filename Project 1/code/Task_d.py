@@ -7,7 +7,7 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 from sklearn.utils import resample
 from plot_set import *  # Specifies plotting settings
-
+from Task_c import compaire_CV_B
 
 def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=True):
     """Calculates the bias variance tradeoff with a given
@@ -160,7 +160,7 @@ def MSE_Ridge_bootstrap(N, z_noise, n, lamda_values):
     plt.ylabel(r"MSE", fontsize=14)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
+    plt.savefig(f"../article/figures/MSE_Ridge_bootstrap.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -199,7 +199,7 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
     plt.ylabel(r"MSE", fontsize=14)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
+    #plt.savefig(f"../article/figures/MSE_Ridge_CV.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -247,9 +247,9 @@ if __name__ == "__main__":
     #MSE_Ridge_bootstrap(N, z_noise, n, lamda_values)
 
     # Cross-validation with Ridge
-    MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
+    #MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
     # Bias-variance tradeoff with Ridge
 
     #bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot = True)
-
+    compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 1e-3)
     #lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))

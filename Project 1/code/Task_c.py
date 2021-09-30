@@ -30,18 +30,15 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
     error_CV = np.zeros(n + 1)
     error_B = np.zeros(n + 1)
     error_sklearn = np.zeros(n + 1)
-    
+
     for i in range(0, n + 1):  # For increasing complexity
         X = create_X(x, y, i)
 
         X_train, X_test, z_train, z_test = train_test_split(
             X, z, test_size=0.2)
-
-        mean_scale(X_train, X_test, z_train, z_test)
-
+        mean_scale(X_test, z_test)
         z_pred_B = bootstrap(X_train, X_test, z_train,
                              z_test, B, method, lamda)
-
         error_CV[i] = cross_validation(X, z, k_fold_number, method, lamda)
         error_B[i] = np.mean(
             np.mean((z_test - z_pred_B)**2, axis=1, keepdims=True))
