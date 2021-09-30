@@ -9,8 +9,21 @@ from plot_set import *  # Specifies plotting settings
 
 
 def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
-    """
-    write info
+    """Calculates the bias variance tradeoff with a given 
+       linear regression model. Then generates a plot showing
+       the tradeoff. 
+
+    Args:
+        N                (Int): Dimension on the datasets
+        z_noise        (Float): Noise scalar, scales the normally distributed noise
+        n                (Int): Highest order complexity
+        B                (Int): Amount of bootstrap iterations
+        method        (String): Choice of linear regression model
+        lamda (list, optional): List of floats with adjustment parameter lamda. Defaults to [0].
+        plot  (bool, optional): Choice to produce plot or not. Defaults to True.
+
+    Returns:
+        Int: Returns zero
     """
     test_size = 0.2
     if type(N) == int:
@@ -125,7 +138,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
 if __name__ == "__main__":
     #--- settings ---#
     N = 22          # Number of points in each dimension
-    N = [10, 17, 27, 41]
+    #N = [10, 17, 27, 41]?
     z_noise = 0.2     # Added noise to the z-value
     n = 15                # Highest order of polynomial for X
     B = "N"             # Number of training points
