@@ -10,8 +10,21 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 
 
+def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
+    """
+    Function to compare cross validation to bootstrap for a given
+    k fold number, lamda value, linear regression method and
+    bootstrap iteration number.
 
-def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
+    Args:
+        N               (Int): Dimension for datasets
+        z_noise       (Float): Noise scalar, scales the normally distributed noise
+        n               (Int): Highest order complexity
+        B               (Int): Bootstrap iteration number
+        k_fold_number   (Int): Number of k folds for cross validation algorithm
+        method       (String): Choice for linear regression model
+        lamda (int, optional): List of floats with adjustment parameter lamda. Defaults to [0].
+    """
     x, y, z = generate_data(N, z_noise, seed=4155)
 
     error_CV = np.zeros(n + 1)
@@ -24,9 +37,10 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
         X_train, X_test, z_train, z_test = train_test_split(
             X, z, test_size=0.2)
 
-        X_train, X_test = scale_design_matrix(X_train, X_test)
+        mean_scale(X_train, X_test, z_train, z_test)
 
-        z_pred_B = bootstrap(X_train, X_test, z_train, z_test, B, method, lamda)
+        z_pred_B = bootstrap(X_train, X_test, z_train,
+                             z_test, B, method, lamda)
 
         error_CV[i] = cross_validation(X, z, k_fold_number, method, lamda)
         error_B[i] = np.mean(
@@ -47,8 +61,8 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 0):
                                                               k_fold_number), fontsize=16)
     plt.legend(fontsize=13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig(f"../article/figures/CV_boot_comparison_with_k{k_fold_number}.pdf", bbox_inches="tight")
-
+    plt.savefig(
+        f"../article/figures/CV_boot_comparison_with_k{k_fold_number}.pdf", bbox_inches="tight")
 
     plt.show()
 

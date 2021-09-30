@@ -9,15 +9,24 @@ from matplotlib.ticker import MaxNLocator
 
 
 def confidence_interval(beta, X):
-    """
-    Calculates the confidence interval for a given beta.
+    """Finds the confidence interval for beta values
+
+    Args:
+        beta (Array): Array containing all the beta values
+        X    (Array): Design matrix 
+
+    Returns:
+        Array: Interval array
+        String: print string
+        Float: Uncertainty for a given beta value
     """
     alpha = 0.95
     Z = norm.ppf(alpha + (1 - alpha) / 2)  # Calculate Z
-    beta_var = np.linalg.pinv(X.T @ X).diagonal() #Find the variance
-    SE_i = np.sqrt(beta_var) #Find standard error
-    conf_int = np.dstack((beta - Z*SE_i, beta + Z*SE_i))[0] #Zip the interval.
-    uncertainty = Z*SE_i
+    beta_var = np.linalg.pinv(X.T @ X).diagonal()  # Find the variance
+    SE_i = np.sqrt(beta_var)  # Find standard error
+    # Zip the interval.
+    conf_int = np.dstack((beta - Z * SE_i, beta + Z * SE_i))[0]
+    uncertainty = Z * SE_i
 
     uncertainty_print = f"Beta    Uncertainty \n"
     for i in range(len(beta)):
@@ -27,57 +36,80 @@ def confidence_interval(beta, X):
 
 
 def latex_table(beta, pm_train, pm_test):
+    """Creates table for latex
+
+    Args:
+        beta (Array): Array with beta values
+        pm_train ([type]): Uncertainty for train data
+        pm_test ([type]): Uncertainty for train data
+    """
     print(r"\begin{table}[H]")
     print(r"\begin{center}")
     print(r"\caption{$\beta$-values for OLS regression with a polynomial up to degree five using $N = 25$ and $\sigma = 0.2$. The uncertainty is the result of a $95\%$-confidence interval.}")
     print(r"\begin{tabular}{|c|c|c|} \hline")
-    print(r" \text{Beta} & \text{Train uncertainty} & \text{Test uncertainty} \\\hline")
+    print(
+        r" \text{Beta} & \text{Train uncertainty} & \text{Test uncertainty} \\\hline")
     for i in range(len(pm_train)):
-        print(f"{beta[i]:2.2f} & $\pm${pm_train[i]:.2f} & $\pm${pm_test[i]:.2f}" + r"\\\hline")
+        print(
+            f"{beta[i]:2.2f} & $\pm${pm_train[i]:.2f} & $\pm${pm_test[i]:.2f}" + r"\\\hline")
     print(r"\end{tabular}")
     print(r"\label{tab:beta_uncertainty}")
     print(r"\end{center}")
     print(r"\end{table}")
 
 
-
 def confidence_plot(conf_int_train, conf_int_test):
-    """
-    Plot confidence interval
-    """
-    beta_train = np.mean(conf_int_train, axis = 1)
-    train_error = np.abs(conf_int_train[:,0]-conf_int_train[:,1])/2
-    beta_test = np.mean(conf_int_test, axis = 1)
-    test_error = np.abs(conf_int_test[:,0]-conf_int_test[:,1])/2
+    """Confidence interval plot
 
-    plt.figure(num=0, figsize = (8,6), facecolor='w', edgecolor='k')
-    b_arr = np.linspace(0,len(beta_train)-1,len(beta_train))
+    Args:
+        conf_int_train (Array): Array with confidence intervals for train data
+        conf_int_test (Array): Array with confidence intervals for test data
+    """
+    beta_train = np.mean(conf_int_train, axis=1)
+    train_error = np.abs(conf_int_train[:, 0] - conf_int_train[:, 1]) / 2
+    beta_test = np.mean(conf_int_test, axis=1)
+    test_error = np.abs(conf_int_test[:, 0] - conf_int_test[:, 1]) / 2
 
-    plt.subplot(2,1,1)
-    plt.errorbar(b_arr, beta_train, yerr=train_error, color = color_cycle(0), fmt='o', label = "train")
+    plt.figure(num=0, figsize=(8, 6), facecolor='w', edgecolor='k')
+    b_arr = np.linspace(0, len(beta_train) - 1, len(beta_train))
+
+    plt.subplot(2, 1, 1)
+    plt.errorbar(b_arr, beta_train, yerr=train_error,
+                 color=color_cycle(0), fmt='o', label="train")
     ax = plt.gca()
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
+    # Force integer ticks on x-axis
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.xlabel(r"$i$", fontsize=14)
     plt.ylabel(r"$\beta_i$", fontsize=14)
-    plt.legend(fontsize = 13)
+    plt.legend(fontsize=13)
 
-    plt.subplot(2,1,2)
-    plt.errorbar(b_arr, beta_test, yerr=test_error, color = color_cycle(1), fmt='o', label = "test")
+    plt.subplot(2, 1, 2)
+    plt.errorbar(b_arr, beta_test, yerr=test_error,
+                 color=color_cycle(1), fmt='o', label="test")
     ax = plt.gca()
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True)) # Force integer ticks on x-axis
+    # Force integer ticks on x-axis
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.xlabel(r"i", fontsize=14)
     plt.ylabel(r"$\beta_i$", fontsize=14)
-    plt.legend(fontsize = 13)
+    plt.legend(fontsize=13)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.subplots_adjust(hspace = 0.3)
-    plt.savefig("../article/figures/confidence_interval.pdf", bbox_inches="tight")
+    plt.subplots_adjust(hspace=0.3)
+    plt.savefig("../article/figures/confidence_interval.pdf",
+                bbox_inches="tight")
 
     plt.show()
 
 
 def evaluate_regression(beta, X_train, X_test, z_train, z_test):
-    """
+    """Prints the uncertainty for beta values for the test and training set
+
+    Args:
+        beta    (Array): Array with beta values
+        X_train (Array): Array with training data from the design matrix
+        X_test  (Array): Array with test data from the design matrix
+        z_train (Array): Array with training data from the actual data
+        z_test  (Array): Array with test data from the actual data
     """
     # Prediction
     ztilde = (X_train @ beta).ravel()
@@ -92,8 +124,10 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     alpha = 0.95
     from scipy.stats import norm
 
-    conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(beta, X_train)
-    conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(beta, X_test)
+    conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(
+        beta, X_train)
+    conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(
+        beta, X_test)
 
     confidence_plot(conf_int_train, conf_int_test)
     latex_table(beta, uncertainty_train, uncertainty_test)
@@ -123,18 +157,15 @@ if __name__ == "__main__":
     z_noise = 0.2       # Added noise to the z-value
     n = 5               # Highest order of polynomial for X
 
-
     # Create data and set up design matrix
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
-
 
     # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 
     # Scale bu subtracting mean
     mean_scale(X_train, X_test, z_train, z_test)
-
 
     # OLS regression
     beta_OLS = OLS_regression(X_train, z_train)
