@@ -10,9 +10,9 @@ from plot_set import *  # Specifies plotting settings
 
 
 def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=True):
-    """Calculates the bias variance tradeoff with a given 
+    """Calculates the bias variance tradeoff with a given
        linear regression model. Then generates a plot showing
-       the tradeoff. 
+       the tradeoff.
 
     Args:
         lamda_values (Array): List of floats with adjustment parameter lamda. Defaults to [0].
@@ -20,10 +20,10 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=Tr
         z_noise      (Float): Noise scalar, scales the normally distributed noise
         n              (Int): Highest order complexity
         B              (Int): Amount of bootstrap iterations
-        method      (String): Choice of linear regression model 
+        method      (String): Choice of linear regression model
         plot(bool, optional): Choice to produce plot or not. Defaults to True.
 
-   
+
     """
     x, y, z = generate_data(N, z_noise, seed=4155)
     bias = np.zeros(n + 1)
@@ -77,12 +77,11 @@ def Error_Complexity_boot(lamda, N, z_noise, n, seed=4155):
         seed (int, optional): Random seed. Defaults to 4155.
 
     Returns:
-        Array: Error for train 
+        Array: Error for train
         Array: Error for test
     """
     error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
-    z = Mean_scale(z)
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)
@@ -188,7 +187,7 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
             np.min(error_test), lamda))
         #---Plotting---#
 
-        plt.title(r"Bootstrap MSE with $\lambda$ = {:.3f} ".format(lamda))
+        plt.title(r"CV MSE with $\lambda$ = {:.3f} ".format(lamda))
         plt.plot(n_arr, error_test, label="Test")
         plt.plot(n_arr, error_train, label="Train")
         plt.legend(fontsize=13)
@@ -220,7 +219,7 @@ def lamdaDependency(N, z_noise, n, lamda):
     mean_scale(X_train, X_test, z_train, z_test)
     length = len(RIDGE_regression(X_train, z_train, 0.1))
     beta_R = np.zeros((int(length), len(lamda)))
-    
+
     i = 0
     for lmb in lamda:
         beta_R[:, i] = RIDGE_regression(X_train, z_train, lmb).ravel()
@@ -248,9 +247,9 @@ if __name__ == "__main__":
     #MSE_Ridge_bootstrap(N, z_noise, n, lamda_values)
 
     # Cross-validation with Ridge
-    #MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
+    MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
     # Bias-variance tradeoff with Ridge
 
     #bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot = True)
 
-    lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
+    #lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
