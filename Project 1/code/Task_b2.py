@@ -9,9 +9,9 @@ from plot_set import *  # Specifies plotting settings
 
 
 def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
-    """Calculates the bias variance tradeoff with a given 
+    """Calculates the bias variance tradeoff with a given
        linear regression model. Then generates a plot showing
-       the tradeoff. 
+       the tradeoff.
 
     Args:
         N                (Int): Dimension on the datasets
@@ -94,7 +94,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
                     plt.legend(fontsize=13)
                     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
                     plt.savefig(
-                        f"../article/figures/bias_variance_tradeoff.pdf", bbox_inches="tight")
+                        f"../article/figures/bias_variance_tradeoff_{method}.pdf", bbox_inches="tight")
                 elif Nnum == 4 or lamdaNum == 4:
 
                     plt.figure(num=0, figsize=(8, 6),
@@ -122,7 +122,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
                         plt.legend(fontsize=13)
                     if N_i == Nnum - 1:
                         plt.savefig(
-                            f"../article/figures/bias_variance_tradeoff_2x2.pdf", bbox_inches="tight")
+                            f"../article/figures/bias_variance_tradeoff_{method}_2x2.pdf", bbox_inches="tight")
 
                     # if k == Nnum or k == lamdaNum:
                     #

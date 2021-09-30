@@ -16,7 +16,7 @@ from tqdm import trange
 
 # from plot_set import * # Specifies plotting settings
 
-def plot_3D(title, x, y, z, z_label, save_name):
+def plot_3D(title, x, y, z, z_label, save_name, show = False):
     """Creates 3D plot
 
     Args:
@@ -36,7 +36,8 @@ def plot_3D(title, x, y, z, z_label, save_name):
                            linewidth=0, antialiased=False)
 
     # Customize the z axis.
-    #ax.set_zlim(-0.10, 1.40)
+    if show:
+        ax.set_zlim(-0.10, 1.40)
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
     ax.zaxis.set_rotate_label(False)
@@ -49,5 +50,6 @@ def plot_3D(title, x, y, z, z_label, save_name):
     plt.tight_layout(pad=1.5, w_pad=0.7, h_pad=0.2)
     ax.view_init(azim=45)
     plt.savefig(f"../article/figures/zprediction/{save_name}.pdf", bbox_inches="tight")
-    #plt.show()
+    if show:
+        plt.show()
     plt.clf()
