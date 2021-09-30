@@ -218,7 +218,7 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
     for train_indx, test_indx in ss.split(X):
         X_train, X_test = scale_design_matrix(X[train_indx], X[test_indx])
         z_train, z_test = scale_design_matrix(z_train[train_indx], z_test[test_indx])
-        #X_train, X_test = scale_design_matrix(X_train, X_test)
+        
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
             z_pred = (X_test @ beta).ravel()
