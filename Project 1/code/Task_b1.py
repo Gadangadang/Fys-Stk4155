@@ -96,6 +96,14 @@ def complexity_bootstrap(N, z_noise, n, B, plot=True, seed=4155):
 
 
 def multiple_avg(N, z_noise, n, numRuns):
+    """[summary]
+
+    Args:
+        N ([type]): [description]
+        z_noise ([type]): [description]
+        n ([type]): [description]
+        numRuns ([type]): [description]
+    """
     error = np.zeros((numRuns, 2, n + 1))  # [i, (error_test, error_train), n]
 
     # Print process
@@ -135,7 +143,14 @@ def show_predictions(N, z_noise, n):
     Show 3D plot of z-predictions
     Makes one plot for each n
     This one is actually best without plot_set
+
+    Args:
+        N         (Int): Matrix dimension
+        z_noise (Float): Scalar value to scale the normally distributed noise
+        n         (Int): Tells the highest order complexity 
     """
+    
+    
 
     x_train, y_train, z_train = generate_data(
         N, z_noise, seed=4155)  # Training data
