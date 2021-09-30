@@ -9,9 +9,9 @@ from plot_set import *  # Specifies plotting settings
 
 
 def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
-    """Calculates the bias variance tradeoff with a given 
+    """Calculates the bias variance tradeoff with a given
        linear regression model. Then generates a plot showing
-       the tradeoff. 
+       the tradeoff.
 
     Args:
         N                (Int): Dimension on the datasets
@@ -61,14 +61,14 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
 
                 # axis = 1 => columns
                 bias[i] = np.mean(
-                    (z_test - np.mean(z_pred, axis=1, keepdims=True))**2)
+                    (z_test - np.mean(z_pred, axis=1, keepdims=True))**2) - z_noise**2
                 variance[i] = np.mean(np.var(z_pred, axis=1))
                 MSE_test[i] = np.mean(
                     np.mean((z_test - z_pred)**2, axis=1, keepdims=True))
 
             n_arr = np.linspace(0, n, n + 1)
 
-            error_sum = bias + variance
+            error_sum = bias + variance + z_noise**2
             if plot:
                 n_arr = np.linspace(0, n, n + 1)
 
@@ -84,7 +84,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                     plt.plot(n_arr[1:], MSE_test[1:], "o-", label="MSE test")
                     plt.fill_between(n_arr[1:], 0, error_sum[1:], alpha=0.3, color=color_cycle(
-                        3), label=r"Bias$^2$ + variance")
+                        3), label=r"Bias$^2$ + variance + $\sigma^2$")
 
                     ax = plt.gca()
                     # Force integer ticks on x-axis
@@ -109,7 +109,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                     plt.plot(n_arr[1:], MSE_test[1:], "o--", label="MSE test")
                     plt.fill_between(n_arr[1:], 0, error_sum[1:], alpha=0.3, color=color_cycle(
-                        3), label=r"Bias$^2$ + variance")
+                        3), label=r"Bias$^2$ + variance + $\sigma^2$")
 
                     ax = plt.gca()
                     # Force integer ticks on x-axis
