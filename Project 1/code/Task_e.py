@@ -21,6 +21,6 @@ if __name__ == "__main__":
     lamba = np.logspace(-3, 2, 4)
     k_fold_number = 5
 
-    bias_variance_tradeoff(N, z_noise, n, B, method, lamba, plot=True)
+    #bias_variance_tradeoff(N, z_noise, n, B, method, lamba, plot=True)
 
     compaire_CV_B(N, z_noise, n, N * N, k_fold_number, method, lamda=1e-3)

@@ -30,7 +30,7 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
     error_CV = np.zeros(n + 1)
     error_B = np.zeros(n + 1)
     error_sklearn = np.zeros(n + 1)
-    z = Mean_scale(z)
+    
     for i in range(0, n + 1):  # For increasing complexity
         X = create_X(x, y, i)
 
