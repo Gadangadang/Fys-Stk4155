@@ -9,8 +9,16 @@ from matplotlib.ticker import MaxNLocator
 
 
 def confidence_interval(beta, X):
-    """
-    Calculates the confidence interval for a given beta.
+    """Finds the confidence interval for beta values
+
+    Args:
+        beta (Array): Array containing all the beta values
+        X    (Array): Design matrix 
+
+    Returns:
+        Array: Interval array
+        String: print string
+        Float: Uncertainty for a given beta value
     """
     alpha = 0.95
     Z = norm.ppf(alpha + (1 - alpha) / 2)  # Calculate Z
@@ -28,6 +36,13 @@ def confidence_interval(beta, X):
 
 
 def latex_table(beta, pm_train, pm_test):
+    """Creates table for latex
+
+    Args:
+        beta (Array): Array with beta values
+        pm_train ([type]): Uncertainty for train data
+        pm_test ([type]): Uncertainty for train data
+    """
     print(r"\begin{table}[H]")
     print(r"\begin{center}")
     print(r"\caption{$\beta$-values for OLS regression with a polynomial up to degree five using $N = 25$ and $\sigma = 0.2$. The uncertainty is the result of a $95\%$-confidence interval.}")
@@ -44,8 +59,11 @@ def latex_table(beta, pm_train, pm_test):
 
 
 def confidence_plot(conf_int_train, conf_int_test):
-    """
-    Plot confidence interval
+    """Confidence interval plot
+
+    Args:
+        conf_int_train (Array): Array with confidence intervals for train data
+        conf_int_test (Array): Array with confidence intervals for test data
     """
     beta_train = np.mean(conf_int_train, axis=1)
     train_error = np.abs(conf_int_train[:, 0] - conf_int_train[:, 1]) / 2
@@ -84,7 +102,14 @@ def confidence_plot(conf_int_train, conf_int_test):
 
 
 def evaluate_regression(beta, X_train, X_test, z_train, z_test):
-    """
+    """Prints the uncertainty for beta values for the test and training set
+
+    Args:
+        beta    (Array): Array with beta values
+        X_train (Array): Array with training data from the design matrix
+        X_test  (Array): Array with test data from the design matrix
+        z_train (Array): Array with training data from the actual data
+        z_test  (Array): Array with test data from the actual data
     """
     # Prediction
     ztilde = (X_train @ beta).ravel()
