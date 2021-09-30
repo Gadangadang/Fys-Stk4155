@@ -17,6 +17,16 @@ from tqdm import trange
 # from plot_set import * # Specifies plotting settings
 
 def plot_3D(title, x, y, z, z_label, save_name):
+    """Creates 3D plot 
+
+    Args:
+        title (String): Title of plot
+        x          (Array): x mesh grid
+        y          (Array): y meshgrid
+        z          (Array): Mesh grid with the data
+        z_label   (String): Label for the z axis component 
+        save_name (String): Name to save file as 
+    """
     fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     ax = fig.gca(projection='3d')
     plt.title(title)
