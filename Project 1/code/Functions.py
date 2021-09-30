@@ -55,7 +55,7 @@ def OLS_regression(X, y):
 
     Args:
         X (Array): Design matrix with complexity as columns
-        y (Array): Actual data 
+        y (Array): Actual data
 
     Returns:
         Array: Array containing the ideal set of betas
@@ -111,7 +111,7 @@ def create_X(x, y, n):
         n   (Int): Order of complexity for the design matrix
 
     Returns:
-        Array: Multi-dim array with the different complexities 
+        Array: Multi-dim array with the different complexities
     """
     if len(x.shape) > 1:
         x = x.reshape(x.shape[0] * x.shape[1])  # flattens x
@@ -140,8 +140,8 @@ def mean_scale(*args):
     Returns:
         List/array: Scaled arguments by means of mean scaling
     """
-    
-    
+
+
     for arg in args:
         arg -= np.mean(arg, axis=0)
 
@@ -200,11 +200,11 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
         k_fold_number            (Int): Number of folds to split the data in
         method                (String): String telling the function with regression method to use
         lamda          (int, optional): Adjustment parameter, used in Ridge. Defaults to 0.
-        include_train (bool, optional): Bool, tell if function should return the training 
+        include_train (bool, optional): Bool, tell if function should return the training
                                         model as well. Defaults to False.
 
     Returns:
-        Float: Float value containing the total average error for all 
+        Float: Float value containing the total average error for all
                the folds, for a given design matrix.
     """
     j = 0
@@ -217,9 +217,7 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
     ss = ShuffleSplit(n_splits=k_fold_number)
     for train_indx, test_indx in ss.split(X):
         X_train, X_test = scale_design_matrix(X[train_indx], X[test_indx])
-        z_train = z[train_indx]
-        z_test = z[test_indx]
-
+        z_train, z_test = scale_design_matrix(z_train[train_indx], z_test[test_indx])
         #X_train, X_test = scale_design_matrix(X_train, X_test)
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
@@ -251,8 +249,8 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
 
 
 def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_train=False):
-    """Method to find the optimal model. Iterates and for each time 
-    resamples the training data, thus weighting each datapoint. 
+    """Method to find the optimal model. Iterates and for each time
+    resamples the training data, thus weighting each datapoint.
 
     Args:
         X_train                (Array): Array containing the training part of the design matrix
@@ -262,11 +260,11 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
         B                        (Int): Number of bootstrap iterations
         method                (String): Choice of regression method
         lamda          (int, optional): Adjustment parameter, used in Ridge. Defaults to 0.
-        include_train (bool, optional): Bool, tell if function should return the training 
+        include_train (bool, optional): Bool, tell if function should return the training
                                         model as well. Defaults to False.
 
     Returns:
-        Array: A prediction model 
+        Array: A prediction model
     """
     z_pred = np.zeros((len(z_test), B))
 

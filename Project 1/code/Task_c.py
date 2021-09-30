@@ -12,8 +12,8 @@ from matplotlib.ticker import MaxNLocator
 
 def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
     """
-    Function to compare cross validation to bootstrap for a given 
-    k fold number, lamda value, linear regression method and 
+    Function to compare cross validation to bootstrap for a given
+    k fold number, lamda value, linear regression method and
     bootstrap iteration number.
 
     Args:
@@ -37,7 +37,7 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
         X_train, X_test, z_train, z_test = train_test_split(
             X, z, test_size=0.2)
 
-        X_train, X_test = scale_design_matrix(X_train, X_test)
+        mean_scale(X_train, X_test, z_train, z_test)
 
         z_pred_B = bootstrap(X_train, X_test, z_train,
                              z_test, B, method, lamda)

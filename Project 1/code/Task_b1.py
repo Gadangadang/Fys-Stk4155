@@ -147,10 +147,10 @@ def show_predictions(N, z_noise, n):
     Args:
         N         (Int): Matrix dimension
         z_noise (Float): Scalar value to scale the normally distributed noise
-        n         (Int): Tells the highest order complexity 
+        n         (Int): Tells the highest order complexity
     """
-    
-    
+
+
 
     x_train, y_train, z_train = generate_data(
         N, z_noise, seed=4155)  # Training data

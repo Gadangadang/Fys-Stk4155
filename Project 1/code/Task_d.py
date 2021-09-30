@@ -25,9 +25,8 @@ def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=Tr
 
             X_train, X_test, z_train, z_test = train_test_split(
                 X, z, test_size=0.2)
-            # print(np.shape(X_train), np.shape(X_test), np.shape(z_train), np.shape(z_test))
+            mean_scale(X_train, X_test, z_train, z_test)
 
-            X_train, X_test = scale_design_matrix(X_train, X_test)
             z_pred, z_tilde = bootstrap(
                 X_train, X_test, z_train, z_test, B, method, lamda, include_train=True)
             # axis = 1 => columns
@@ -65,8 +64,7 @@ def Error_Complexity_boot(lamda, N, z_noise, n, plot=True, seed=4155):
         X_train, X_test, z_train, z_test = train_test_split(
             X, z, test_size=0.2)
 
-        X_train, X_test = scale_design_matrix(
-            X_train, X_test)  # Scales X_train and X_test
+        mean_scale(X_train, X_test, z_train, z_test)
 
         z_pred, z_tilde = bootstrap(
             X_train, X_test, z_train, z_test, B, "Ridge", lamda, include_train=True)
@@ -81,7 +79,7 @@ def Error_Complexity_boot(lamda, N, z_noise, n, plot=True, seed=4155):
 def Error_Complexity_CV(lamda, N, z_noise, n, k_fold_number, plot=True, seed=4155):
     error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
-    z = Mean_scale(z)
+
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)
@@ -155,6 +153,7 @@ def lamdaDependency(N, z_noise, n, lamda):
     X = create_X(x, y, n)
     X_train, X_test, z_train, z_test = train_test_split(
         X, z, test_size=0.2)
+    mean_scale(X_train, X_test, z_train, z_test)
     length = len(RIDGE_regression(X_train, z_train, 0.1))
     beta_R = np.zeros((int(length), len(lamda)))
     i = 0
