@@ -17,15 +17,15 @@ from tqdm import trange
 # from plot_set import * # Specifies plotting settings
 
 def plot_3D(title, x, y, z, z_label, save_name):
-    """Creates 3D plot 
+    """Creates 3D plot
 
     Args:
         title (String): Title of plot
         x          (Array): x mesh grid
         y          (Array): y meshgrid
         z          (Array): Mesh grid with the data
-        z_label   (String): Label for the z axis component 
-        save_name (String): Name to save file as 
+        z_label   (String): Label for the z axis component
+        save_name (String): Name to save file as
     """
     fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     ax = fig.gca(projection='3d')
@@ -36,7 +36,7 @@ def plot_3D(title, x, y, z, z_label, save_name):
                            linewidth=0, antialiased=False)
 
     # Customize the z axis.
-    ax.set_zlim(-0.10, 1.40)
+    #ax.set_zlim(-0.10, 1.40)
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
     ax.zaxis.set_rotate_label(False)
@@ -48,6 +48,6 @@ def plot_3D(title, x, y, z, z_label, save_name):
     fig.colorbar(surf, shrink=0.5, aspect=5)
     plt.tight_layout(pad=1.5, w_pad=0.7, h_pad=0.2)
     ax.view_init(azim=45)
-    plt.savefig(
-        f"../article/figures/zprediction/{save_name}.pdf", bbox_inches="tight")
+    plt.savefig(f"../article/figures/zprediction/{save_name}.pdf", bbox_inches="tight")
+    #plt.show()
     plt.clf()
