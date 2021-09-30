@@ -7,22 +7,40 @@ from sklearn.model_selection import KFold, cross_val_score, ShuffleSplit
 
 
 def R2(y_data, y_model):
-    """
-    Evluated the square error of the data.
+    """Calculates the R^2 error for a given model
+
+    Args:
+        y_data  (Array): Data to test against for error
+        y_model (Array): Model to test against data
+
+    Returns:
+        Float: R^2 error from model and data
     """
     return 1 - np.sum((y_data.ravel() - y_model.ravel())**2) / np.sum((y_data.ravel() - np.mean(y_data.ravel())) ** 2)
 
 
 def MSE(y_data, y_model):
-    """
-    Evaluates the mean sqaured error of the data.
+    """Calculates the Mean Squared Error for a given model
+
+    Args:
+        y_data  (Array): Data to test against for error
+        y_model (Array): Model to test against data
+
+    Returns:
+        FLoat: Mean squared error for a given model
     """
     return np.mean((y_data.ravel() - y_model.ravel())**2)
 
 
 def FrankeFunction(x, y):
-    """
-    Generates a set of values using Franke function.
+    """Calculates the Franke Function over a given meshgrid
+
+    Args:
+        x (Meshgrid): Array of values along x axis
+        y (Meshgrid): Array of values along y axis
+
+    Returns:
+        2D Array: Function over a meshgrid
     """
     term1 = 0.75 * np.exp(-(0.25 * (9 * x - 2)**2) - 0.25 * ((9 * y - 2)**2))
     term2 = 0.75 * np.exp(-((9 * x + 1)**2) / 49.0 - 0.1 * (9 * y + 1))
@@ -32,11 +50,15 @@ def FrankeFunction(x, y):
 
 
 def OLS_regression(X, y):
-    """
-    Ordinary Least Squares
-    Matrix inversion to find beta
-    X (train/test): Design matrix
-    y: (train/test) data output
+    """Calculates the ideal set of betas to minimize the error
+       with ordinary least square method
+
+    Args:
+        X (Array): Design matrix with complexity as columns
+        y (Array): Actual data 
+
+    Returns:
+        Array: Array containing the ideal set of betas
     """
     beta = (np.linalg.pinv(X.T @ X) @ X.T @ y).ravel()
 
@@ -44,12 +66,16 @@ def OLS_regression(X, y):
 
 
 def RIDGE_regression(X, y, lamda):
-    """
-    Rigde
-    Matrix inversion to find beta
-    X (train/test): Design matrix
-    y: (train/test) data output
-    lamda: parameter to avoid singular matrix
+    """Calculates the ideal set of betas to minimize the error
+       with Ridge regression method
+
+    Args:
+        X     (Array): Design matrix with complexity as columns
+        y     (Array): Actual data
+        lamda (Float): Adjustment parameter to avoid singular matrices
+
+    Returns:
+        Array: Array containing the ideal set of betas
     """
     dim = X.shape[1]
     beta = np.linalg.pinv(X.T @ X + lamda * np.eye(dim)) @ X.T @ y
@@ -57,11 +83,16 @@ def RIDGE_regression(X, y, lamda):
 
 
 def generate_2D_mesh_grid(N):
-    """
-    Generates 2D mesh grid (x,y)
-    N: Number of uniform points
-    """
+    """Generates 2D mesh grid
 
+    Args:
+        N (Int): Dimension size for the given mesh, creates a NxN mesh
+                 with numbers ranging from 0 to 1
+
+    Returns:
+        Array: x mesh grid with NxN points
+        Array: y mesh grid with NxN points
+    """
     x = np.linspace(0, 1, N)
     y = np.linspace(0, 1, N)
     x, y = np.meshgrid(x, y)
@@ -73,6 +104,14 @@ def create_X(x, y, n):
     Creates design matrix X
     for polynomials in 2D up to order n as:
     [x, y, x^2, xy, y^2, ... x^n, .. y^n]
+
+    Args:
+        x (Array): x meshgrid
+        y (Array): y meshgrid
+        n   (Int): Order of complexity for the design matrix
+
+    Returns:
+        Array: Multi-dim array with the different complexities 
     """
     if len(x.shape) > 1:
         x = x.reshape(x.shape[0] * x.shape[1])  # flattens x
@@ -97,7 +136,12 @@ def mean_scale(*args):
     Take both vectors and matrices where the matrix mean is by columns.
     Note: that you does not need to fetch the returns
     as this is updated directly from the argument references
+
+    Returns:
+        List/array: Scaled arguments by means of mean scaling
     """
+    
+    
     for arg in args:
         arg -= np.mean(arg, axis=0)
 
@@ -123,8 +167,17 @@ def scale_design_matrix(X_train, X_test):
 
 def generate_data(N, z_noise, seed=4155):
     """
-    Generates x,y mesh grid and
-    corresponding z-values from FrankeFunction
+    Generates dataset x, y, z corresponding to the FrankeFunction
+
+    Args:
+        N              (Int): Size of mesh grid
+        z_noise      (Float): Float value to scale the normally distributed noise
+        seed (int, optional): Random seed. Defaults to 4155.
+
+    Returns:
+        Array: x mesh grid
+        Array: y mesh grid
+        Array: z data based on x,y and noise
     """
     if seed != None:
         np.random.seed(seed)  # Random seed
@@ -136,7 +189,24 @@ def generate_data(N, z_noise, seed=4155):
 
 
 def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
+    """
+    Method to find optimal model, using k folding of data.
+    Number of folds are not arbitrary, and needs to be tested
+    to be optimalized. Here, data is shuffled before algorithm starts.
 
+    Args:
+        X                      (Array): Design matrix
+        z                      (Array): Data to test and train on
+        k_fold_number            (Int): Number of folds to split the data in
+        method                (String): String telling the function with regression method to use
+        lamda          (int, optional): Adjustment parameter, used in Ridge. Defaults to 0.
+        include_train (bool, optional): Bool, tell if function should return the training 
+                                        model as well. Defaults to False.
+
+    Returns:
+        Float: Float value containing the total average error for all 
+               the folds, for a given design matrix.
+    """
     j = 0
     z_pred_arr = np.zeros((int(np.shape(X)[0] / k_fold_number), k_fold_number))
 
@@ -181,10 +251,23 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
 
 
 def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_train=False):
-    """
-    info
-    """
+    """Method to find the optimal model. Iterates and for each time 
+    resamples the training data, thus weighting each datapoint. 
 
+    Args:
+        X_train                (Array): Array containing the training part of the design matrix
+        X_test                 (Array): Array containing the test part of the design matrix
+        z_train                (Array): Array containing the train part of the data
+        z_test                ([Array): Array containing the test part of the data
+        B                        (Int): Number of bootstrap iterations
+        method                (String): Choice of regression method
+        lamda          (int, optional): Adjustment parameter, used in Ridge. Defaults to 0.
+        include_train (bool, optional): Bool, tell if function should return the training 
+                                        model as well. Defaults to False.
+
+    Returns:
+        Array: A prediction model 
+    """
     z_pred = np.zeros((len(z_test), B))
 
     if include_train:
