@@ -11,6 +11,20 @@ from matplotlib.ticker import MaxNLocator
 
 
 def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
+    """
+    Function to compare cross validation to bootstrap for a given 
+    k fold number, lamda value, linear regression method and 
+    bootstrap iteration number.
+
+    Args:
+        N               (Int): Dimension for datasets
+        z_noise       (Float): Noise scalar, scales the normally distributed noise
+        n               (Int): Highest order complexity
+        B               (Int): Bootstrap iteration number
+        k_fold_number   (Int): Number of k folds for cross validation algorithm
+        method       (String): Choice for linear regression model
+        lamda (int, optional): List of floats with adjustment parameter lamda. Defaults to [0].
+    """
     x, y, z = generate_data(N, z_noise, seed=4155)
 
     error_CV = np.zeros(n + 1)
