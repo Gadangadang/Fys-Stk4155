@@ -3,7 +3,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn import linear_model
 from sklearn.utils import resample
-from sklearn.model_selection import  KFold, cross_val_score, ShuffleSplit
+from sklearn.model_selection import KFold, cross_val_score, ShuffleSplit
+
 
 def R2(y_data, y_model):
     """
@@ -88,7 +89,6 @@ def create_X(x, y, n):
     return X
 
 
-
 def mean_scale(*args):
     """
     Scales by subtracting the mean.
@@ -99,14 +99,12 @@ def mean_scale(*args):
     as this is updated directly from the argument references
     """
     for arg in args:
-        arg -= np.mean(arg, axis = 0)
+        arg -= np.mean(arg, axis=0)
 
-    if len(args) == 1: #If just one argument
+    if len(args) == 1:  # If just one argument
         return args[0]
     else:
         return args
-
-
 
 
 def scale_design_matrix(X_train, X_test):
@@ -114,12 +112,11 @@ def scale_design_matrix(X_train, X_test):
     See mean scale instead
     """
 
-    col_mean_train = np.mean(X_train, axis = 0)
-    col_mean_test = np.mean(X_test, axis = 0)
+    col_mean_train = np.mean(X_train, axis=0)
+    col_mean_test = np.mean(X_test, axis=0)
 
     X_train_scaled = X_train - col_mean_train
     X_test_scaled = X_test - col_mean_test
-
 
     return X_train_scaled, X_test_scaled
 
@@ -136,6 +133,7 @@ def generate_data(N, z_noise, seed=4155):
     z = FrankeFunction(x, y) + z_noise * np.random.randn(N, N)
     z = z.reshape(N**2, 1)  # flatten
     return x, y, z
+
 
 def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
 
@@ -211,7 +209,7 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
         for i in range(B):
             X_res, z_res = resample(X_train, z_train)
             mean_scale(z_res, X_res)
-            RegLasso = linear_model.Lasso(lamda, tol = 1e-2)
+            RegLasso = linear_model.Lasso(lamda, tol=1e-2)
             RegLasso.fit(X_res, z_res)
             z_pred[:, i] = RegLasso.predict(X_test)
             if include_train:

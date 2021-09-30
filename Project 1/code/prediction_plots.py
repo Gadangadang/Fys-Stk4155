@@ -22,7 +22,8 @@ def plot_3D(title, x, y, z, z_label, save_name):
     plt.title(title)
 
     # Plot the surface.
-    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm,
+                           linewidth=0, antialiased=False)
 
     # Customize the z axis.
     ax.set_zlim(-0.10, 1.40)
@@ -37,5 +38,6 @@ def plot_3D(title, x, y, z, z_label, save_name):
     fig.colorbar(surf, shrink=0.5, aspect=5)
     plt.tight_layout(pad=1.5, w_pad=0.7, h_pad=0.2)
     ax.view_init(azim=45)
-    plt.savefig(f"../article/figures/zprediction/{save_name}.pdf", bbox_inches="tight")
+    plt.savefig(
+        f"../article/figures/zprediction/{save_name}.pdf", bbox_inches="tight")
     plt.clf()
