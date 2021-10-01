@@ -13,7 +13,7 @@ def confidence_interval(beta, X):
 
     Args:
         beta (Array): Array containing all the beta values
-        X    (Array): Design matrix 
+        X    (Array): Design matrix
 
     Returns:
         Array: Interval array
@@ -80,7 +80,7 @@ def confidence_plot(conf_int_train, conf_int_test):
     # Force integer ticks on x-axis
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.xlabel(r"$i$", fontsize=14)
-    plt.ylabel(r"$\beta_i$", fontsize=14)
+    plt.ylabel(r"$\hat{\beta}_i$", fontsize=14)
     plt.legend(fontsize=13)
 
     plt.subplot(2, 1, 2)
@@ -90,7 +90,7 @@ def confidence_plot(conf_int_train, conf_int_test):
     # Force integer ticks on x-axis
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.xlabel(r"i", fontsize=14)
-    plt.ylabel(r"$\beta_i$", fontsize=14)
+    plt.ylabel(r"$\hat{\beta}_i$", fontsize=14)
     plt.legend(fontsize=13)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)

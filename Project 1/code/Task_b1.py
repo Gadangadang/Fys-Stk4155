@@ -154,7 +154,7 @@ def show_predictions(N, z_noise, n):
     x_test, y_test, z_test = generate_data(N, z_noise, seed=None) #Test data
     x, y = generate_2D_mesh_grid(N)
 
-    plot_3D("Input data", x_test, y_test, z_test.reshape(N, N), z_label = r"$z$", save_name ="input_data")
+    plot_3D("Test data", x_test, y_test, z_test.reshape(N, N), z_label = r"$z$", save_name ="test_data")
     plot_3D("Training data", x_train, y_train, z_train.reshape(N, N), z_label = r"$z$", save_name ="train_data")
     plot_3D("Function data", x, y, FrankeFunction(x, y), z_label = r"$z$", save_name ="func_data")
 
@@ -189,6 +189,7 @@ if __name__ == "__main__":
 
     n = np.append(np.linspace(2, 19, 18),
                   np.linspace(20, 100, 9)).astype("int")
+    n = np.linspace(2, 19, 18).astype("int")
     show_predictions(N, z_noise, n)
     # Error_Complexity(N, z_noise, n, plot = True, seed = 4155)
     # complexity_bootstrap(N, z_noise, n, B = 5000)
