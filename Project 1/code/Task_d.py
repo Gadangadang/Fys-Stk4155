@@ -7,64 +7,8 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 from sklearn.utils import resample
 from plot_set import *  # Specifies plotting settings
-
-
-def bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot=True):
-    """Calculates the bias variance tradeoff with a given 
-       linear regression model. Then generates a plot showing
-       the tradeoff. 
-
-    Args:
-        lamda_values (Array): List of floats with adjustment parameter lamda. Defaults to [0].
-        N              (Int): Dimension on the datasets
-        z_noise      (Float): Noise scalar, scales the normally distributed noise
-        n              (Int): Highest order complexity
-        B              (Int): Amount of bootstrap iterations
-        method      (String): Choice of linear regression model 
-        plot(bool, optional): Choice to produce plot or not. Defaults to True.
-
-   
-    """
-    x, y, z = generate_data(N, z_noise, seed=4155)
-    bias = np.zeros(n + 1)
-    variance = np.zeros(n + 1)
-    error = np.zeros(n + 1)
-
-    for lamda in lamda_values:
-        for i in range(0, n + 1):  # For increasing complexity
-
-            X = create_X(x, y, i)
-
-            X_train, X_test, z_train, z_test = train_test_split(
-                X, z, test_size=0.2)
-            mean_scale(X_train, X_test, z_train, z_test)
-
-            z_pred, z_tilde = bootstrap(
-                X_train, X_test, z_train, z_test, B, method, lamda, include_train=True)
-            # axis = 1 => columns
-            bias[i] = np.mean(
-                (z_test - np.mean(z_pred, axis=1, keepdims=True))**2)
-            variance[i] = np.mean(np.var(z_pred, axis=1))
-            error[i] = np.mean(
-                np.mean((z_test - z_pred)**2, axis=1, keepdims=True))
-
-        n_arr = np.linspace(0, n, n + 1)
-        if plot:
-            plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-            plt.plot(n_arr, bias, label="Bias")
-            plt.plot(n_arr, variance, label="Variance")
-            plt.plot(n_arr, error, "--", label="Error")
-            plt.title(r"${}: \lambda$ = {:.3f}".format(method, lamda))
-            ax = plt.gca()
-            # Force integer ticks on x-axis
-            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-            plt.xlabel(r"$n$", fontsize=14)
-            # plt.ylabel(r"MSE", fontsize=14)
-            plt.legend(fontsize=13)
-            plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-            # plt.savefig(f"../article/figures/bias_variance_tradeoff.pdf", bbox_inches="tight")
-            plt.show()
-
+from Task_c import compaire_CV_B
+from Task_b2 import bias_variance_tradeoff
 
 def Error_Complexity_boot(lamda, N, z_noise, n, seed=4155):
     """Computes the error for bootstrap
@@ -77,12 +21,11 @@ def Error_Complexity_boot(lamda, N, z_noise, n, seed=4155):
         seed (int, optional): Random seed. Defaults to 4155.
 
     Returns:
-        Array: Error for train 
+        Array: Error for train
         Array: Error for test
     """
     error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
-    z = Mean_scale(z)
 
     for i in range(0, n + 1):
         X = create_X(x, y, i)
@@ -161,7 +104,7 @@ def MSE_Ridge_bootstrap(N, z_noise, n, lamda_values):
     plt.ylabel(r"MSE", fontsize=14)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
+    plt.savefig(f"../article/figures/MSE_Ridge_bootstrap.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -188,7 +131,7 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
             np.min(error_test), lamda))
         #---Plotting---#
 
-        plt.title(r"Bootstrap MSE with $\lambda$ = {:.3f} ".format(lamda))
+        plt.title(r"CV MSE with $\lambda$ = {:.3f} ".format(lamda))
         plt.plot(n_arr, error_test, label="Test")
         plt.plot(n_arr, error_train, label="Train")
         plt.legend(fontsize=13)
@@ -200,7 +143,7 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
     plt.ylabel(r"MSE", fontsize=14)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    # plt.savefig(f"../article/figures/Complexity_MSE{numRuns}.pdf", bbox_inches="tight")
+    #plt.savefig(f"../article/figures/MSE_Ridge_CV.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -220,7 +163,7 @@ def lamdaDependency(N, z_noise, n, lamda):
     mean_scale(X_train, X_test, z_train, z_test)
     length = len(RIDGE_regression(X_train, z_train, 0.1))
     beta_R = np.zeros((int(length), len(lamda)))
-    
+
     i = 0
     for lmb in lamda:
         beta_R[:, i] = RIDGE_regression(X_train, z_train, lmb).ravel()
@@ -240,7 +183,7 @@ if __name__ == "__main__":
     N = 30           # Number of points in each dimension
     z_noise = 0.2     # Added noise to the z-value
     n = 14                 # Highest order of polynomial for X
-    B = 100           # Number of iterations in boostrap
+    B = "N"           # Number of iterations in boostrap
     k_fold_number = 10
     # Bootstrap analysis with Ridge
     lamda_values = np.logspace(-3, 2, 4)
@@ -251,6 +194,6 @@ if __name__ == "__main__":
     #MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
     # Bias-variance tradeoff with Ridge
 
-    #bias_variance_tradeoff_lamda(lamda_values, N, z_noise, n, B, method, plot = True)
-
-    lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
+    bias_variance_tradeoff(N, z_noise, n, B, method, lamda_values, plot=True)
+    #compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = 1e-3)
+    #lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))

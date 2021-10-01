@@ -213,12 +213,11 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
     MSE_arr = np.zeros(k_fold_number)
     if include_train:
         MSE_arr_tilde = np.zeros(k_fold_number)
-    z = Mean_scale(z)
     ss = ShuffleSplit(n_splits=k_fold_number)
     for train_indx, test_indx in ss.split(X):
         X_train, X_test = scale_design_matrix(X[train_indx], X[test_indx])
-        z_train, z_test = scale_design_matrix(z_train[train_indx], z_test[test_indx])
-        
+        z_train, z_test = scale_design_matrix(z[train_indx], z[test_indx])
+
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
             z_pred = (X_test @ beta).ravel()
@@ -232,7 +231,7 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
                 z_tilde = (X_train @ beta).ravel()
 
         elif method == "Lasso":
-            RegLasso = linear_model.Lasso(lamda)
+            RegLasso = linear_model.Lasso(lamda, max_iter = 5000)
             RegLasso.fit(X_train, z_train)
             z_pred = RegLasso.predict(X_test)
             if include_train:
@@ -290,7 +289,7 @@ def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_trai
         for i in range(B):
             X_res, z_res = resample(X_train, z_train)
             mean_scale(z_res, X_res)
-            RegLasso = linear_model.Lasso(lamda, tol=1e-2)
+            RegLasso = linear_model.Lasso(lamda, max_iter = 5000)
             RegLasso.fit(X_res, z_res)
             z_pred[:, i] = RegLasso.predict(X_test)
             if include_train:

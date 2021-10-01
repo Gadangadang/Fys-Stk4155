@@ -10,7 +10,7 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 
 
-def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
+def compaire_CV_B(data, n, B, k_fold_number, method, lamda=0):
     """
     Function to compare cross validation to bootstrap for a given
     k fold number, lamda value, linear regression method and
@@ -25,23 +25,20 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
         method       (String): Choice for linear regression model
         lamda (int, optional): List of floats with adjustment parameter lamda. Defaults to [0].
     """
-    x, y, z = generate_data(N, z_noise, seed=4155)
+    x, y, z = data
 
     error_CV = np.zeros(n + 1)
     error_B = np.zeros(n + 1)
     error_sklearn = np.zeros(n + 1)
-    z = Mean_scale(z)
+
     for i in range(0, n + 1):  # For increasing complexity
         X = create_X(x, y, i)
 
         X_train, X_test, z_train, z_test = train_test_split(
             X, z, test_size=0.2)
-
-        mean_scale(X_train, X_test, z_train, z_test)
-
+        mean_scale(X_test, z_test)
         z_pred_B = bootstrap(X_train, X_test, z_train,
                              z_test, B, method, lamda)
-
         error_CV[i] = cross_validation(X, z, k_fold_number, method, lamda)
         error_B[i] = np.mean(
             np.mean((z_test - z_pred_B)**2, axis=1, keepdims=True))
@@ -76,13 +73,13 @@ if __name__ == "__main__":
     method = "OLS"
 
     k_fold_number = 5
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)
 
     k_fold_number = 10
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)
 
     k_fold_number = 20
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)
 
     k_fold_number = 50
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)
