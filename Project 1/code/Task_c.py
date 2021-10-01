@@ -10,7 +10,7 @@ from Functions import *
 from matplotlib.ticker import MaxNLocator
 
 
-def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
+def compaire_CV_B(data, n, B, k_fold_number, method, lamda=0):
     """
     Function to compare cross validation to bootstrap for a given
     k fold number, lamda value, linear regression method and
@@ -25,7 +25,7 @@ def compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda=0):
         method       (String): Choice for linear regression model
         lamda (int, optional): List of floats with adjustment parameter lamda. Defaults to [0].
     """
-    x, y, z = generate_data(N, z_noise, seed=4155)
+    x, y, z = data
 
     error_CV = np.zeros(n + 1)
     error_B = np.zeros(n + 1)
@@ -73,13 +73,13 @@ if __name__ == "__main__":
     method = "OLS"
 
     k_fold_number = 5
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)
 
     k_fold_number = 10
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)
 
     k_fold_number = 20
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)
 
     k_fold_number = 50
-    compaire_CV_B(N, z_noise, n, B, k_fold_number, method)
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method)

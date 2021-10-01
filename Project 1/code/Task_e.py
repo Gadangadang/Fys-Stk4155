@@ -11,9 +11,9 @@ from Task_b2 import bias_variance_tradeoff
 from Task_c import compaire_CV_B
 
 
-def complexity_CV(N, z_noise, n, k_fold_number, method, lamda = 0, plot=True, seed=4155):
+def complexity_CV(data, n, k_fold_number, method, lamda = 0, plot=True, seed=4155):
     k = 0
-    x, y, z = generate_data(N, z_noise, seed)
+    x,y,z = data
     for lmb in lamda:
         MSE_test, MSE_train = np.zeros(n + 1), np.zeros(n + 1)
         for i in range(0, n + 1):
@@ -23,8 +23,6 @@ def complexity_CV(N, z_noise, n, k_fold_number, method, lamda = 0, plot=True, se
         if plot:
             #---Plotting---#
             n_arr = np.linspace(0, n, n + 1)
-
-
 
             plt.figure(num=0, figsize=(8, 6),
                        facecolor='w', edgecolor='k')
@@ -64,4 +62,4 @@ if __name__ == "__main__":
     #bias_variance_tradeoff(N, z_noise, n, "N", method, lamda, plot=True)
 
     #compaire_CV_B(N, z_noise, n, N * N, k_fold_number, method, lamda=1e-3)
-    complexity_CV(N, z_noise, n, k_fold_number, method, lamda, plot=True, seed=4155)
+    complexity_CV(generate_data(N, z_noise, seed=4155), n, k_fold_number, method, lamda, plot=True, seed=4155)

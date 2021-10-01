@@ -195,5 +195,5 @@ if __name__ == "__main__":
     # Bias-variance tradeoff with Ridge
 
     bias_variance_tradeoff(N, z_noise, n, B, method, lamda_values, plot=True)
-    #compaire_CV_B(N, z_noise, n, B, k_fold_number, method, lamda = 1e-3)
+    #compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = 1e-3)
     #lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
