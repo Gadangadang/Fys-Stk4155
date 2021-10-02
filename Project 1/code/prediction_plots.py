@@ -16,7 +16,7 @@ from tqdm import trange
 
 # from plot_set import * # Specifies plotting settings
 
-def plot_3D(title, x, y, z, z_label, save_name, show = False):
+def plot_3D(title, x, y, z, z_label, save_name, show = False, save = True):
     """Creates 3D plot
 
     Args:
@@ -33,10 +33,10 @@ def plot_3D(title, x, y, z, z_label, save_name, show = False):
 
     # Plot the surface.
     surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm,
-                           linewidth=0, antialiased=False)
+                           linewidth=0.2, antialiased=False)
 
     # Customize the z axis.
-    if show:
+    if not show:
         ax.set_zlim(-0.10, 1.40)
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
@@ -49,7 +49,8 @@ def plot_3D(title, x, y, z, z_label, save_name, show = False):
     fig.colorbar(surf, shrink=0.5, aspect=5)
     plt.tight_layout(pad=1.5, w_pad=0.7, h_pad=0.2)
     ax.view_init(azim=45)
-    plt.savefig(f"../article/figures/zprediction/{save_name}.pdf", bbox_inches="tight")
+    if save:
+        plt.savefig(f"../article/figures/zprediction/{save_name}.pdf", bbox_inches="tight")
+        plt.clf()
     if show:
         plt.show()
-    plt.clf()
