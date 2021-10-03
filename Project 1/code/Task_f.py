@@ -7,24 +7,23 @@ from prediction_plots import plot_3D
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
 from Functions import *
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     MSE_OLS = np.zeros(len(n_values))
     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
     MSE_Lasso = np.zeros((len(n_values), len(lamda_values)))
     x,y,z = data
-    z = np.asarray(z)
-    z = z - np.mean(z)
-
+    print(z)
     i = 0
     j = 0
-    OLS = LinearRegression()
+    OLS = LinearRegression(normalize = True)
     txt_info =  "Regression analysis:"
     for n in n_values:
         X = create_X(x, y, n)
-        mean_scale(X)
         MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
         for lmb in lamda_values:
             print(f"\r{txt_info}", f"process: {100*(i*len(lamda_values) + j)/(len(lamda_values)*len(n_values)):.2f} %",end="")
@@ -35,7 +34,6 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
             j += 1
         i += 1
         j = 0
-    print(MSE_Lasso)
     cmap = plt.get_cmap('RdBu')
     fig, axs = plt.subplots(1,3,figsize=(8,5))
     axs[0].plot(n_values, MSE_OLS)
@@ -57,19 +55,19 @@ if __name__ == "__main__":
     z_noise = 0.2
     n = 10
     B = 100
-    terrain1 = imread("../article/Norway.tif")
-    z = terrain1 #[::100,::100]
-    length = np.shape(z)[0]
-    print(length)
-    x = np.linspace(0, length-1, length)
-    y = np.linspace(0, length-1, length)
-    x,y = np.meshgrid(x,y)
-    z = (z)/np.mean(z)
+    z = imread("../article/Saudi.tif")[::10,::10]
+    print(np.shape(z))
+    x_len, y_len = np.shape(z)
+    x = np.linspace(0, x_len-1, x_len)
+    y = np.linspace(0, y_len-1, y_len)
+    #scaler = StandardScaler()
+    #x,y = np.meshgrid(x,y)
+    #z = scaler.fit_transform(z)
+    #z = (z- np.mean(z))/np.max(z)
 
-    plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
-    exit()
+    #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
     data = [x,y,z]
-    lamda_values = lamda_values = np.logspace(-3, 0, 5)
-    n_values = range(0,5)
+    lamda_values = lamda_values = np.logspace(-3, 0, 20)
+    n_values = range(0,10)
     k_fold_number = 5
-    compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
+    compare_OLS_R_L(generate_data(N, z_noise), n_values, lamda_values, k_fold_number)
