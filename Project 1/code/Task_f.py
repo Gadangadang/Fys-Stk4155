@@ -36,12 +36,7 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     indx1 = np.where(MSE_OLS == np.min(MSE_OLS))
     indx2 = np.where(MSE_Ridge == np.min(MSE_Ridge))
     indx3 = np.where(MSE_Lasso == np.min(MSE_Lasso))
-    print(indx1)
-    print(indx2)
-    print(indx3)
-    exit()
-    print(lamda_values[indx2[1]],lamda_values[indx3[1]])
-    print(n_values[indx1[0]], n_values[indx2[0]],n_values[indx3[0]])
+    
 
     cmap = plt.get_cmap('RdBu')
     fig, axs = plt.subplots(1,3,figsize=(8,5))
