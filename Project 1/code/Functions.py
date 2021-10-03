@@ -213,10 +213,19 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
     MSE_arr = np.zeros(k_fold_number)
     if include_train:
         MSE_arr_tilde = np.zeros(k_fold_number)
-    ss = ShuffleSplit(n_splits=k_fold_number)
-    for train_indx, test_indx in ss.split(X):
-        X_train, X_test = scale_design_matrix(X[train_indx], X[test_indx])
-        z_train, z_test = scale_design_matrix(z[train_indx], z[test_indx])
+
+    kfold = KFold(n_splits=k_fold_number)
+
+    for train_indx, test_indx in kfold.split(X):
+
+        X_train = X[train_indx, :]
+        X_test = X[test_indx, :]
+
+        z_train = z[train_indx]
+        z_test = z[test_indx]
+
+        X_train, X_test = scale_design_matrix(X_train, X_test)
+        z_train, z_test = scale_design_matrix(z_train, z_test)
 
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
@@ -244,7 +253,7 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
         j += 1
     if include_train:
         return np.mean(MSE_arr), np.mean(MSE_arr_tilde)
-    return np.mean(MSE_arr)
+    return np.mean(MSE_arr[1:-1])
 
 
 def bootstrap(X_train, X_test, z_train, z_test, B, method, lamda=0, include_train=False):
