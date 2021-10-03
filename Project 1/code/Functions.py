@@ -4,7 +4,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn import linear_model
 from sklearn.utils import resample
 from sklearn.model_selection import KFold, cross_val_score, ShuffleSplit
-
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import PolynomialFeatures
 
 def R2(y_data, y_model):
     """Calculates the R^2 error for a given model
@@ -143,7 +144,7 @@ def mean_scale(*args):
 
 
     for arg in args:
-        arg -= np.mean(arg, axis=0)
+        arg = arg - np.mean(arg, axis=0)
 
     if len(args) == 1:  # If just one argument
         return args[0]
@@ -223,9 +224,7 @@ def cross_validation(X, z, k_fold_number, method, lamda=0, include_train=False):
 
         z_train = z[train_indx]
         z_test = z[test_indx]
-
-        X_train, X_test = scale_design_matrix(X_train, X_test)
-        z_train, z_test = scale_design_matrix(z_train, z_test)
+        mean_scale(X_train, X_test,z_train, z_test )
 
         if method == "OLS":
             beta = OLS_regression(X_train, z_train)
