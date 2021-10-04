@@ -98,7 +98,7 @@ def data_split(x, y, z, split = 0.2):
 
 
 if __name__ == "__main__":
-    z = imread("../article/Saudi.tif")[::50,::50]
+    z = imread("../article/Saudi.tif")[::100,::100]
     x_len, y_len = np.shape(z)
     x = np.linspace(0, x_len-1, x_len)
     y = np.linspace(0, y_len-1, y_len)
@@ -109,15 +109,31 @@ if __name__ == "__main__":
     y = y.reshape(y.shape[0] * y.shape[1])  # flattens y
     z = z.reshape(z.shape[0]**2, 1)
 
+
+    # n = 2
+    # X = create_X(x, y, n)
+    #
+    # print(np.shape(X))
+    # print(np.sum(X, axis = 0))
+
     # Split x,y,z in train and test
-    x_train, y_train, z_train, x_test, y_test, z_test = data_split(x, y, z, split = 0.2)
+    # x_train, y_train, z_train, x_test, y_test, z_test = data_split(x, y, z, split = 0.2)
+    split_idx = int((1-0.2)*len(z))
+    shuffle_idx = np.arange(z.shape[0]*z.shape[1])
+    np.random.shuffle(shuffle_idx)
+    x, y, z = x[shuffle_idx], y[shuffle_idx], z[shuffle_idx]
+
+    # X = create_X(x, y, n)
+    # print(np.shape(X))
+    # print(np.sum(X, axis = 0))
+
+
 
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
-    data = [x_train, y_train, z_train]
-    # print(np.shape(x_train))
-    # exit()
-    # data = [x, y, z]
+    # data = [x_train, y_train, z_train]
+    data = [x, y, z]
+
 
     lamda_values = np.logspace(-7, -3, 7)
     n_values = range(1,9)
