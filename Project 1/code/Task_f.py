@@ -47,7 +47,7 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
             MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z_train, scoring='neg_mean_squared_error', cv=k_fold_number))
     print(" (done)")
 
-    
+
     idx1 = np.argmin(MSE_OLS)
     idx2 = np.argwhere(MSE_Ridge == np.min(MSE_Ridge)).ravel()
     idx3 = np.argwhere(MSE_Lasso== np.min(MSE_Lasso)).ravel()
@@ -142,8 +142,8 @@ if __name__ == "__main__":
     data = [x, y, z]
 
 
-    lamda_values = np.logspace(-10, -3, 10)
-    n_values = range(1,16)
+    lamda_values = np.logspace(-8, -3, 10)
+    n_values = range(5,20)
     k_fold_number = 5
     compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
 
