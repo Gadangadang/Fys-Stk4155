@@ -38,31 +38,20 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     OLS = LinearRegression()
     X_F = create_X(x, y, n_values[-1])
 
-    split, z_test_len = find_best_test_size(0.2, z)
 
-    X_train, X_test, z_train, z_test = train_test_split(
-        X_F, z, test_size=split)
 
     # standard scaling of z (saves scaling values for z_test)
-    z_train = (z_train-np.mean(z_train))/np.std(z_train)
-    z_test_mean, z_test_std = np.mean(z_test), np.std(z_test)
-    z_test = (z_test - z_test_mean)/z_test_std
+    # z_train = (z_train-np.mean(z_train))/np.std(z_train)
+    # z_test_mean, z_test_std = np.mean(z_test), np.std(z_test)
+    # z_test = (z_test - z_test_mean)/z_test_std
 
-    if len(z_test) == z_test_len:
-        pass
-    else:
-        print(f"z_test did not have wanted length of {z_test_len}\
-        but had length {len(z_test)}")
-
-
-    ##### Substituted until this part this part to actual have x_test and y_test later #####
 
     kfold = KFold(n_splits=k_fold_number)
     txt_info =  "Regression analysis:"
     scaler = StandardScaler()
     for i in range(len(n_values)):
         l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
-        X = X_train[:,:l]
+        X = X_F[:,:l]
 
         scaler.fit(X)
         X = scaler.transform(X)
@@ -78,11 +67,54 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
             MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
     print(" (done)")
 
-
     idx1 = np.argmin(MSE_OLS)
     idx2 = np.argwhere(MSE_Ridge == np.min(MSE_Ridge)).ravel()
     idx3 = np.argwhere(MSE_Lasso== np.min(MSE_Lasso)).ravel()
 
+    #-- Plotting --#
+    # OLS
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.plot(n_values, MSE_OLS, "o--")
+    plt.ylim(MSE_OLS.min()*0.5,MSE_OLS.min()*15 )
+    plt.title("OLS")
+    plt.plot(n_values[idx1], MSE_OLS[idx1], markersize = 20, marker = "x", color = "black")
+    plt.xlabel(r"$n$", fontsize=14)
+    plt.ylabel(r"$\lambda$", fontsize=14)
+
+
+    # Ridge
+    cmap = plt.get_cmap('RdBu') # Cmap
+    plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
+    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
+    plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
+    plt.plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 20, marker = "x", color = "black")
+    plt.yscale("log")
+    cbar1 = plt.colorbar()
+    cbar1.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
+    plt.title("Ridge")
+    plt.xlabel(r"$n$", fontsize=14)
+    plt.ylabel(r"$\lambda$", fontsize=14)
+
+    # Lasso
+    plt.figure(num=2, dpi=80, facecolor='w', edgecolor='k')
+    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Lasso), np.max(MSE_Lasso))
+    plt.contourf(n_values,lamda_values, MSE_Lasso.T, vmin=np.min(MSE_Lasso), vmax=np.max(MSE_Lasso), cmap='RdBu',levels=levels)
+    plt.plot(n_values[idx3[0]], lamda_values[idx3[1]], markersize = 20, marker = "x", color = "black")
+    plt.yscale("log")
+    cbar2 = plt.colorbar()
+    cbar2.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
+    plt.title("Lasso")
+    plt.xlabel(r"$n$", fontsize=14)
+    plt.ylabel(r"$\lambda$", fontsize=14)
+    plt.show()
+
+    # Return best hyper-parameter in order OLS, Ridge, Lasso
+    best_n = [n_values[idx1], n_values[idx2[0]], n_values[idx3[0]] ]
+    best_lmd = [np.nan, n_values[idx2[1]], n_values[idx3[1]]]
+
+    return best_n, best_lmd
+
+def evaluate_best_model():
     n = n_values[idx1]
     l = int((n + 1) * (n + 2) / 2)
     X = X_train[:,:l]
@@ -158,7 +190,8 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     Lasso_predict = Lasso_predict*z_test_std + z_test_mean
 
 
-    return X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict
+
+
 
 def plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict):
 
@@ -201,6 +234,26 @@ def plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict):
     ax.set_title("Lasso-predict")
     plt.show()
 
+def train_test_split_data(x_flat, y_flat, z_flat, split):
+    split, z_test_len_exp = find_best_test_size(split, z_flat)
+    split_idx = int((1-split)*len(z_flat))
+    shuffle_idx = np.arange(len(z_flat)) # Assumes quadratic grid
+    np.random.shuffle(shuffle_idx)
+
+    x_flat, y_flat, z_flat = x_flat[shuffle_idx], y_flat[shuffle_idx], z_flat[shuffle_idx]
+    x_train, y_train, z_train = x_flat[:split_idx], y_flat[:split_idx], z_flat[:split_idx]
+    x_test, y_test, z_test = x_flat[split_idx:], y_flat[split_idx:], z_flat[split_idx:]
+
+    if len(z_test) == z_test_len_exp:
+        pass
+    else:
+        print(f"z_test did not have wanted length of {z_test_len}\
+        but had length {len(z_test)}")
+    return x_train, y_train, z_train, x_test, y_test, z_test
+
+
+
+
 
 
 if __name__ == "__main__":
@@ -215,15 +268,22 @@ if __name__ == "__main__":
     y_flat = y.reshape(y.shape[0] * y.shape[1])  # flattens y
     z_flat = z.reshape(z.shape[0]**2, 1)
 
+    x_train, y_train, z_train, x_test, y_test, z_test = train_test_split_data(x_flat, y_flat, z_flat, split = 0.2)
+
+
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
-    data = [x_flat, y_flat, z_flat]
+    data = [x_train, y_train, z_train]
 
     lamda_values = np.logspace(-8, -1, 8)
     n_values = range(1,8)
     k_fold_number = 5
-    X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict = compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
+    # best_n, best_lmd = compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
 
-    plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
+    best_n = np.array([7,7,7])
+    best_lmd = np.array([np.nan, 1, 1])
+
+    evaluate_best_model()
+    # plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
 
