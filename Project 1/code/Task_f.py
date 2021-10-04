@@ -12,6 +12,7 @@ from Functions import *
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from plot_set import*
+from matplotlib.ticker import MaxNLocator
 # def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
 #     MSE_OLS = np.zeros(len(n_values))
 #     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
@@ -95,8 +96,8 @@ def compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number):
 
 
     cmap = plt.get_cmap('RdBu')
-    fig, axs = plt.subplots(3,1,figsize=(7,8))
-    axs[0].plot(n_values, MSE_OLS, "o--")
+    #fig, axs = plt.subplots(3,1,figsize=(7,8))
+    #axs[0].plot(n_values, MSE_OLS, "o--")
 
     # np.random.seed(19680801)
     # Z_test = np.random.rand(6, 10)
@@ -105,40 +106,28 @@ def compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number):
     #
     # print(np.shape(x_test), np.shape(y_test), np.shape(Z_test))
     #
-
-
-
-    # im2 = axs[1].pcolormesh(n_values, lamda_values, MSE_Ridge, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), shading='auto')
-    im2 = axs[1].pcolormesh(lamda_values, n_values, MSE_Ridge, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), shading='auto')
-
-
-    # im2 = axs[1].pcolormesh([n_values, lamda_values,] MSE_Ridge, cmap='RdBu',shading='auto')
-    # im2 = axs[1].imshow(MSE_Ridge, cmap='RdBu')
-
-
-    axs[0].plot(n_values[idx1], MSE_OLS[idx1], markersize = 10, marker = "x", color = color_cycle(3))
-    axs[1].plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 10, marker = "x", color = color_cycle(3))
-    # axs[2].scatter(n_values[idx3], MSE_OLS[idx3])
-
-    # axs[2].set_title("Lasso")
-
-    axs[0].set_title("OLS")
-    axs[0].set_xlabel(r"$n$", fontsize=14)
-    axs[0].set_ylabel(r"MSE", fontsize=14)
-
-    axs[1].set_title("Ridge")
-    axs[1].set_xlabel(r"$n$", fontsize=14)
-    axs[1].set_ylabel(r"$\lambda$", fontsize=14)
-    cbar2 = plt.colorbar(im2, ax=axs[1])
-    cbar2.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
-    # cbar2.set_pad(0.05, 0.15)
-    axs[1].set_yscale("log")
-    # plt.
-    # plt.ylabel(r"$y$", fontsize=14)
-
-    # plt.colorbar(im3, ax=axs[2])
-    fig.tight_layout()
+    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
+    plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
+    plt.plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 20, marker = "x", color = "black")
+    plt.yscale("log")
+    plt.colorbar()
+    plt.title("Ridge")
+    plt.xlabel(r"$n$", fontsize=14)
+    plt.ylabel(r"$\lambda$", fontsize=14)
     plt.show()
+    
+    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
+    plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
+    plt.plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 20, marker = "x", color = "black")
+    plt.yscale("log")
+    plt.colorbar()
+    plt.title("Ridge")
+    plt.xlabel(r"$n$", fontsize=14)
+    plt.ylabel(r"$\lambda$", fontsize=14)
+    plt.show()
+
+    print(np.shape(MSE_Ridge))
+
 
 
 
@@ -158,8 +147,8 @@ if __name__ == "__main__":
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
     data = [x,y,z]
-    lamda_values = lamda_values = np.logspace(-9, -3, 7)
-    n_values = range(1,10)
+    lamda_values = np.logspace(-9, -3, 7)
+    n_values = range(1,7)
     k_fold_number = 5
     compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number)
 
