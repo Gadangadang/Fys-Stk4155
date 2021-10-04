@@ -40,10 +40,6 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
 
 
 
-    # standard scaling of z (saves scaling values for z_test)
-    # z_train = (z_train-np.mean(z_train))/np.std(z_train)
-    # z_test_mean, z_test_std = np.mean(z_test), np.std(z_test)
-    # z_test = (z_test - z_test_mean)/z_test_std
 
 
     kfold = KFold(n_splits=k_fold_number)
@@ -114,7 +110,25 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
 
     return best_n, best_lmd
 
-def evaluate_best_model():
+def evaluate_best_model(data_test, best_n, best_lmd):
+    x, y, z = data
+
+    X_F = create_X(x, y, best_n.max())
+    best_n.max()
+    exit()
+    scaler.fit(X)
+    X = scaler.transform(X)
+
+    l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
+    X = X_F[:,:l]
+
+
+    # standard scaling of z (saves scaling values for z_test)
+    # z_train = (z_train-np.mean(z_train))/np.std(z_train)
+    # z_test_mean, z_test_std = np.mean(z_test), np.std(z_test)
+    # z_test = (z_test - z_test_mean)/z_test_std
+
+
     n = n_values[idx1]
     l = int((n + 1) * (n + 2) / 2)
     X = X_train[:,:l]
@@ -147,43 +161,6 @@ def evaluate_best_model():
 
     MSE_OLS_test, MSE_Ridge_test, MSE_Lasso_test = MSE(z_test, OLS_predict), MSE(z_test, Ridge_predict), MSE(z_test, Lasso_predict)
     print(f"MSE for varying methods: OLS = {MSE_OLS_test:.5f} -- Ridge = {MSE_Ridge_test:.5f} -- Lasso = {MSE_Lasso_test:.5f} ")
-    #-- Plotting --#
-    # OLS
-    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-    plt.plot(n_values, MSE_OLS, "o--")
-    plt.ylim(MSE_OLS.min()*0.5,MSE_OLS.min()*15 )
-    plt.title("OLS")
-    plt.plot(n_values[idx1], MSE_OLS[idx1], markersize = 20, marker = "x", color = "black")
-    plt.xlabel(r"$n$", fontsize=14)
-    plt.ylabel(r"$\lambda$", fontsize=14)
-
-
-    # Ridge
-    cmap = plt.get_cmap('RdBu') # Cmap
-    plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
-    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
-    plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
-    plt.plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 20, marker = "x", color = "black")
-    plt.yscale("log")
-    cbar1 = plt.colorbar()
-    cbar1.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
-    plt.title("Ridge")
-    plt.xlabel(r"$n$", fontsize=14)
-    plt.ylabel(r"$\lambda$", fontsize=14)
-
-    # Lasso
-    plt.figure(num=2, dpi=80, facecolor='w', edgecolor='k')
-    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Lasso), np.max(MSE_Lasso))
-    plt.contourf(n_values,lamda_values, MSE_Lasso.T, vmin=np.min(MSE_Lasso), vmax=np.max(MSE_Lasso), cmap='RdBu',levels=levels)
-    plt.plot(n_values[idx3[0]], lamda_values[idx3[1]], markersize = 20, marker = "x", color = "black")
-    plt.yscale("log")
-    cbar2 = plt.colorbar()
-    cbar2.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
-    plt.title("Lasso")
-    plt.xlabel(r"$n$", fontsize=14)
-    plt.ylabel(r"$\lambda$", fontsize=14)
-    # plt.show()
-    plt.clf()
 
     OLS_predict = OLS_predict*z_test_std + z_test_mean
     Ridge_predict = Ridge_predict*z_test_std + z_test_mean
@@ -282,7 +259,8 @@ if __name__ == "__main__":
     best_n = np.array([7,7,7])
     best_lmd = np.array([np.nan, 1, 1])
 
-    evaluate_best_model()
+    data_test = [x_test, y_test, z_test]
+    evaluate_best_model(data_test)
     # plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
