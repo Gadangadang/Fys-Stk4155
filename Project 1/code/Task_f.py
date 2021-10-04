@@ -25,25 +25,29 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     x,y,z = data
 
     OLS = LinearRegression()
-
+    X = create_X(x, y, n_values[-1])
+    X_train, X_test, z_train, z_test = train_test_split(
+        X, z, test_size=0.2)
     txt_info =  "Regression analysis:"
     for i in range(len(n_values)):
-        X = create_X(x, y, n_values[i])
+        l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
+        X = X_train[:,:l]
         scaler = StandardScaler()
         scaler.fit(X)
         X = scaler.transform(X)
 
-        MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
+        MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z_train, scoring='neg_mean_squared_error', cv=k_fold_number))
         for j in range(len(lamda_values)):
             print(f"\r{txt_info}: process: n = {i}/{len(n_values)-1}, lmb = {j}/{len(lamda_values)-1}", end="")
 
             max_iter = int(1e4)
             ridge = Ridge(alpha = lamda_values[j], max_iter = max_iter, normalize=True)
             lasso = Lasso(alpha = lamda_values[j],  max_iter = max_iter, normalize=True)
-            MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
-            MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
+            MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z_train, scoring='neg_mean_squared_error', cv=k_fold_number))
+            MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z_train, scoring='neg_mean_squared_error', cv=k_fold_number))
     print(" (done)")
 
+    
     idx1 = np.argmin(MSE_OLS)
     idx2 = np.argwhere(MSE_Ridge == np.min(MSE_Ridge)).ravel()
     idx3 = np.argwhere(MSE_Lasso== np.min(MSE_Lasso)).ravel()
@@ -118,12 +122,15 @@ if __name__ == "__main__":
 
     # Split x,y,z in train and test
     # x_train, y_train, z_train, x_test, y_test, z_test = data_split(x, y, z, split = 0.2)
-    split_idx = int((1-0.2)*len(z))
+    """split_idx = int((1-0.2)*len(z))
     shuffle_idx = np.arange(z.shape[0]*z.shape[1])
     np.random.shuffle(shuffle_idx)
-    x, y, z = x[shuffle_idx], y[shuffle_idx], z[shuffle_idx]
 
-    # X = create_X(x, y, n)
+    print(np.sum(x*x + y*y +z*z))
+    x, y, z = x[shuffle_idx], y[shuffle_idx], z[shuffle_idx]
+    print(np.sum(x*x + y*y +z*z))"""
+    #X = create_X(x, y, n)
+
     # print(np.shape(X))
     # print(np.sum(X, axis = 0))
 
@@ -131,12 +138,12 @@ if __name__ == "__main__":
 
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
-    # data = [x_train, y_train, z_train]
+    #data = [x_train, y_train, z_train]
     data = [x, y, z]
 
 
-    lamda_values = np.logspace(-7, -3, 7)
-    n_values = range(1,9)
+    lamda_values = np.logspace(-10, -3, 10)
+    n_values = range(1,16)
     k_fold_number = 5
     compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
 
