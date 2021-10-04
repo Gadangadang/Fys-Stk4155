@@ -35,22 +35,20 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     MSE_Lasso = np.zeros((len(n_values), len(lamda_values)))
     x,y,z = data
 
-    OLS = LinearRegression()
+    # X and scaling
     X_F = create_X(x, y, n_values[-1])
+    scaler = StandardScaler()
+    scaler.fit(X_F)
+    X_F = scaler.transform(X_F)
+    z = (z - np.mean(z))/np.std(z) # standard scale
 
 
-
-
-
+    OLS = LinearRegression()
     kfold = KFold(n_splits=k_fold_number)
     txt_info =  "Regression analysis:"
-    scaler = StandardScaler()
     for i in range(len(n_values)):
         l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
         X = X_F[:,:l]
-
-        scaler.fit(X)
-        X = scaler.transform(X)
 
         MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
         for j in range(len(lamda_values)):
@@ -104,67 +102,63 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.show()
 
-    # Return best hyper-parameter in order OLS, Ridge, Lasso
+
+    # Save best hyper-parameter in order OLS, Ridge, Lasso
     best_n = [n_values[idx1], n_values[idx2[0]], n_values[idx3[0]] ]
     best_lmd = [np.nan, n_values[idx2[1]], n_values[idx3[1]]]
 
-    return best_n, best_lmd
-
-def evaluate_best_model(data_test, best_n, best_lmd):
-    x, y, z = data
-
-    X_F = create_X(x, y, best_n.max())
-    best_n.max()
-    exit()
-    scaler.fit(X)
-    X = scaler.transform(X)
-
-    l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
-    X = X_F[:,:l]
 
 
-    # standard scaling of z (saves scaling values for z_test)
-    # z_train = (z_train-np.mean(z_train))/np.std(z_train)
-    # z_test_mean, z_test_std = np.mean(z_test), np.std(z_test)
-    # z_test = (z_test - z_test_mean)/z_test_std
+    return best_n, best_lmd, X_F,
+
+def evaluate_best_model(data_train, data_test, best_n, best_lmd):
+    x_train, y_train, z_train = data_train
+    x_test, y_test, z_test = data_test
 
 
-    n = n_values[idx1]
+    #--- X and scaling ---#
+    scaler = StandardScaler()
+
+    # Train
+    X_F_train = create_X(x_train, y_train, best_n.max())
+    scaler.fit(X_F_train)
+    X = scaler.transform(X_F_train)
+    z_train = (z_train - np.mean(z_train))/np.std(z_train)
+
+    # Test
+    X_F_test = create_X(x_test, y_test, best_n.max())
+    scaler.fit(X_F_test)
+    X = scaler.transform(X_F_test)
+    z_test_mean, z_test_std = np.mean(z_test), np.std(z_test)
+    z_test = (z_test - z_test_mean)/z_test_std
+
+    #OLS
+    OLS = LinearRegression()
+    n = best_n[0]
     l = int((n + 1) * (n + 2) / 2)
-    X = X_train[:,:l]
-    scaler.fit(X)
-    X = scaler.transform(X)
-    scaler.fit(X_test)
-    X_test = scaler.transform(X_test)
-    OLS.fit(X,z_train)
-    OLS_predict  = OLS.predict(X_test)
+    OLS.fit(X_F_train[:,:l], z_train)
 
-    n, lmb = n_values[idx2[0]], lamda_values[idx2[1]]
-    l = int((n + 1) * (n + 2) / 2)
-    X = X_train[:,:l]
-    scaler.fit(X)
-    X = scaler.transform(X)
-    scaler.fit(X_test)
-    X_test = scaler.transform(X_test)
-    ridge = Ridge(alpha = lmb, max_iter = max_iter, normalize=True).fit(X,z_train)
-    Ridge_predict = ridge.predict(X_test)
+    ####### Working from this line and down ##############
+    OLS_predict = OLS.predict(X_F_train[:,:l], z_test)
 
-    n, lmb = n_values[idx3[0]], lamda_values[idx3[1]]
+
+    n, lmb = best_n[1], best_lmd[1]
     l = int((n + 1) * (n + 2) / 2)
-    X = X_train[:,:l]
-    scaler.fit(X)
-    X = scaler.transform(X)
-    scaler.fit(X_test)
-    X_test = scaler.transform(X_test)
-    lasso = Lasso(alpha = lmb, max_iter = max_iter, normalize=True).fit(X,z_train)
-    Lasso_predict = lasso.predict(X_test)
+    ridge = Ridge(alpha = lmb, max_iter = max_iter, normalize=True).fit(X_F_train[:,:l], z_train)
+    Ridge_predict = ridge.predict(X_test[:,:l])
+
+    n, lmb = best_n[2], best_lmd[2]
+    l = int((n + 1) * (n + 2) / 2)
+
+    lasso = Lasso(alpha = lmb, max_iter = max_iter, normalize=True).fit(X_F_train[:,:l], z_train[:,:l])
+    Lasso_predict = lasso.predict(X_test[:,:l])
 
     MSE_OLS_test, MSE_Ridge_test, MSE_Lasso_test = MSE(z_test, OLS_predict), MSE(z_test, Ridge_predict), MSE(z_test, Lasso_predict)
     print(f"MSE for varying methods: OLS = {MSE_OLS_test:.5f} -- Ridge = {MSE_Ridge_test:.5f} -- Lasso = {MSE_Lasso_test:.5f} ")
 
-    OLS_predict = OLS_predict*z_test_std + z_test_mean
-    Ridge_predict = Ridge_predict*z_test_std + z_test_mean
-    Lasso_predict = Lasso_predict*z_test_std + z_test_mean
+    # OLS_predict = OLS_predict*z_test_std + z_test_mean
+    # Ridge_predict = Ridge_predict*z_test_std + z_test_mean
+    # Lasso_predict = Lasso_predict*z_test_std + z_test_mean
 
 
 
@@ -238,7 +232,6 @@ if __name__ == "__main__":
     x_len, y_len = np.shape(z)
     x = np.linspace(0, x_len-1, x_len)
     y = np.linspace(0, y_len-1, y_len)
-    z = (z - np.mean(z))/np.std(z) # standard scale
 
     x,y = np.meshgrid(x,y)
     x_flat = x.reshape(x.shape[0] * x.shape[1])  # flattens x
@@ -246,21 +239,22 @@ if __name__ == "__main__":
     z_flat = z.reshape(z.shape[0]**2, 1)
 
     x_train, y_train, z_train, x_test, y_test, z_test = train_test_split_data(x_flat, y_flat, z_flat, split = 0.2)
+    data_train = [x_train, y_train, z_train]
+    data_test = [x_test, y_test, z_test]
 
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
-    data = [x_train, y_train, z_train]
 
     lamda_values = np.logspace(-8, -1, 8)
     n_values = range(1,8)
     k_fold_number = 5
-    # best_n, best_lmd = compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
+    # best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number)
 
+    #tmp best
     best_n = np.array([7,7,7])
     best_lmd = np.array([np.nan, 1, 1])
 
-    data_test = [x_test, y_test, z_test]
-    evaluate_best_model(data_test)
+    evaluate_best_model(data_train, data_test, best_n, best_lmd)
     # plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
