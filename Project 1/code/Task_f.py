@@ -18,6 +18,17 @@ from sklearn.utils.testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
 @ignore_warnings(category=ConvergenceWarning)
 
+def find_best_test_size(wanted_test_size, z):
+    """
+    Find best test size which allow a even grid
+    when reshaping back
+    """
+    closets_N = np.int(np.round(np.sqrt((len(z)*0.2))))
+    z_test_len = closets_N**2
+    split = z_test_len/len(z)
+    return split, z_test_len
+
+
 def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     MSE_OLS = np.zeros(len(n_values))
     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
@@ -26,8 +37,26 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
 
     OLS = LinearRegression()
     X_F = create_X(x, y, n_values[-1])
+
+    split, z_test_len = find_best_test_size(0.2, z)
+
     X_train, X_test, z_train, z_test = train_test_split(
-        X_F, z, test_size=0.2)
+        X_F, z, test_size=split)
+
+    # standard scaling of z (saves scaling values for z_test)
+    z_train = (z_train-np.mean(z_train))/np.std(z_train)
+    z_test_mean, z_test_std = np.mean(z_test), np.std(z_test)
+    z_test = (z_test - z_test_mean)/z_test_std
+
+    if len(z_test) == z_test_len:
+        pass
+    else:
+        print(f"z_test did not have wanted length of {z_test_len}\
+        but had length {len(z_test)}")
+
+
+    ##### Substituted until this part this part to actual have x_test and y_test later #####
+
     kfold = KFold(n_splits=k_fold_number)
     txt_info =  "Regression analysis:"
     scaler = StandardScaler()
@@ -84,8 +113,8 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     lasso = Lasso(alpha = lmb, max_iter = max_iter, normalize=True).fit(X,z_train)
     Lasso_predict = lasso.predict(X_test)
 
-    MSE_OLS, MSE_Ridge, MSE_Lasso = MSE(z_test, OLS_predict), MSE(z_test, Ridge_predict), MSE(z_test, Lasso_predict)
-    print(f"MSE for varying methods: OLS = {MSE_OLS:.5f} -- Ridge = {MSE_Ridge:.5f} -- Lasso = {MSE_Lasso:.5f} ")
+    MSE_OLS_test, MSE_Ridge_test, MSE_Lasso_test = MSE(z_test, OLS_predict), MSE(z_test, Ridge_predict), MSE(z_test, Lasso_predict)
+    print(f"MSE for varying methods: OLS = {MSE_OLS_test:.5f} -- Ridge = {MSE_Ridge_test:.5f} -- Lasso = {MSE_Lasso_test:.5f} ")
     #-- Plotting --#
     # OLS
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -121,14 +150,36 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     plt.title("Lasso")
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
-    plt.show()
+    # plt.show()
+    plt.clf()
+
+    OLS_predict = OLS_predict*z_test_std + z_test_mean
+    Ridge_predict = Ridge_predict*z_test_std + z_test_mean
+    Lasso_predict = Lasso_predict*z_test_std + z_test_mean
+
+
     return X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict
 
 def plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict):
-    lenght = int(np.sqrt(len(z_test)))
-    plt.scatter(X_test, z_test)
-    #plt.imshow(z_test.reshape(lenght, lenght))
-    #plt.colorbar()
+
+    N = np.sqrt(len(z_test))
+    if N%int(N) == 0:
+        N = int(N)
+    else:
+        print("length of z_test did not allow for squared reshape")
+
+
+    z_test = z_test.reshape(N, N)
+    OLS_predict = OLS_predict.reshape(N, N)
+    Ridge_predict = Ridge_predict.reshape(N, N)
+    Lasso_predict = Lasso_predict.reshape(N, N)
+
+    plot_3D("Real data", x, y, z_test, "z", "nan", show = True, save = False)
+
+    # "OLS-predict"
+    # "Ridge-predict"
+    # "Lasso-predict"
+
     exit()
 
     fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -172,4 +223,10 @@ if __name__ == "__main__":
     k_fold_number = 5
     X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict = compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
 
-    #plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
+    plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
+
+
+
+
+
+#
