@@ -25,29 +25,67 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     x,y,z = data
 
     OLS = LinearRegression()
-
+    X_F = create_X(x, y, n_values[-1])
+    X_train, X_test, z_train, z_test = train_test_split(
+        X_F, z, test_size=0.2)
+    kfold = KFold(n_splits=k_fold_number)
     txt_info =  "Regression analysis:"
+    scaler = StandardScaler()
     for i in range(len(n_values)):
-        X = create_X(x, y, n_values[i])
-        scaler = StandardScaler()
+        l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
+        X = X_train[:,:l]
+
         scaler.fit(X)
         X = scaler.transform(X)
 
-        MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
+        MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
         for j in range(len(lamda_values)):
             print(f"\r{txt_info}: process: n = {i}/{len(n_values)-1}, lmb = {j}/{len(lamda_values)-1}", end="")
 
             max_iter = int(1e4)
             ridge = Ridge(alpha = lamda_values[j], max_iter = max_iter, normalize=True)
             lasso = Lasso(alpha = lamda_values[j],  max_iter = max_iter, normalize=True)
-            MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
-            MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
+            MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
+            MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
     print(" (done)")
+
 
     idx1 = np.argmin(MSE_OLS)
     idx2 = np.argwhere(MSE_Ridge == np.min(MSE_Ridge)).ravel()
     idx3 = np.argwhere(MSE_Lasso== np.min(MSE_Lasso)).ravel()
 
+    n = n_values[idx1]
+    l = int((n + 1) * (n + 2) / 2)
+    X = X_train[:,:l]
+    scaler.fit(X)
+    X = scaler.transform(X)
+    scaler.fit(X_test)
+    X_test = scaler.transform(X_test)
+    OLS.fit(X,z_train)
+    OLS_predict  = OLS.predict(X_test)
+
+    n, lmb = n_values[idx2[0]], lamda_values[idx2[1]]
+    l = int((n + 1) * (n + 2) / 2)
+    X = X_train[:,:l]
+    scaler.fit(X)
+    X = scaler.transform(X)
+    scaler.fit(X_test)
+    X_test = scaler.transform(X_test)
+    ridge = Ridge(alpha = lmb, max_iter = max_iter, normalize=True).fit(X,z_train)
+    Ridge_predict = ridge.predict(X_test)
+
+    n, lmb = n_values[idx3[0]], lamda_values[idx3[1]]
+    l = int((n + 1) * (n + 2) / 2)
+    X = X_train[:,:l]
+    scaler.fit(X)
+    X = scaler.transform(X)
+    scaler.fit(X_test)
+    X_test = scaler.transform(X_test)
+    lasso = Lasso(alpha = lmb, max_iter = max_iter, normalize=True).fit(X,z_train)
+    Lasso_predict = lasso.predict(X_test)
+
+    MSE_OLS, MSE_Ridge, MSE_Lasso = MSE(z_test, OLS_predict), MSE(z_test, Ridge_predict), MSE(z_test, Lasso_predict)
+    print(f"MSE for varying methods: OLS = {MSE_OLS:.5f} -- Ridge = {MSE_Ridge:.5f} -- Lasso = {MSE_Lasso:.5f} ")
     #-- Plotting --#
     # OLS
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -84,17 +122,34 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.show()
+    return X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict
 
+def plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict):
+    lenght = int(np.sqrt(len(z_test)))
+    plt.scatter(X_test, z_test)
+    #plt.imshow(z_test.reshape(lenght, lenght))
+    #plt.colorbar()
+    exit()
 
+    fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    ax = fig.add_subplot(2, 2, 1, projection='3d')
+    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm,
+                           linewidth=0.2, antialiased=False)
+    ax.set_title("Real data")
+    ax = fig.add_subplot(2, 2, 2, projection='3d')
+    surf = ax.plot_surface(x, y, OLS_predict, cmap=cm.coolwarm,
+                           linewidth=0.2, antialiased=False)
+    ax.set_title("OLS-predict")
+    ax = fig.add_subplot(2, 2, 2, projection='3d')
+    surf = ax.plot_surface(x, y, Ridge_predict, cmap=cm.coolwarm,
+                           linewidth=0.2, antialiased=False)
+    ax.set_title("Ridge-predict")
+    ax = fig.add_subplot(2, 2, 2, projection='3d')
+    surf = ax.plot_surface(x, y, Lasso_predict, cmap=cm.coolwarm,
+                           linewidth=0.2, antialiased=False)
+    ax.set_title("Lasso-predict")
+    plt.show()
 
-def data_split(x, y, z, split = 0.2):
-    split_idx = int((1-0.2)*len(z))
-    shuffle_idx = np.arange(z.shape[0]*z.shape[1])
-    np.random.shuffle(shuffle_idx)
-    x, y, z = x[shuffle_idx], y[shuffle_idx], z[shuffle_idx]
-    x_train, y_train, z_train = x[:split_idx], y[:split_idx], z[:split_idx]
-    x_test, y_test, z_test = x[split_idx:], y[split_idx:], z[split_idx:]
-    return x_train, y_train, z_train, x_test, y_test, z_test
 
 
 if __name__ == "__main__":
@@ -105,41 +160,19 @@ if __name__ == "__main__":
     z = (z - np.mean(z))/np.std(z) # standard scale
 
     x,y = np.meshgrid(x,y)
-    x = x.reshape(x.shape[0] * x.shape[1])  # flattens x
-    y = y.reshape(y.shape[0] * y.shape[1])  # flattens y
-    z = z.reshape(z.shape[0]**2, 1)
-
-
-    # n = 2
-    # X = create_X(x, y, n)
-    #
-    # print(np.shape(X))
-    # print(np.sum(X, axis = 0))
-
-    # Split x,y,z in train and test
-    # x_train, y_train, z_train, x_test, y_test, z_test = data_split(x, y, z, split = 0.2)
-    split_idx = int((1-0.2)*len(z))
-    shuffle_idx = np.arange(z.shape[0]*z.shape[1])
-    np.random.shuffle(shuffle_idx)
-    x, y, z = x[shuffle_idx], y[shuffle_idx], z[shuffle_idx]
-
-    # X = create_X(x, y, n)
-    # print(np.shape(X))
-    # print(np.sum(X, axis = 0))
-
-
-
+    x_flat = x.reshape(x.shape[0] * x.shape[1])  # flattens x
+    y_flat = y.reshape(y.shape[0] * y.shape[1])  # flattens y
+    z_flat = z.reshape(z.shape[0]**2, 1)
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
-    # data = [x_train, y_train, z_train]
-    data = [x, y, z]
-
+    data = [x_flat, y_flat, z_flat]
 
     lamda_values = np.logspace(-7, -3, 7)
     n_values = range(1,15)
     k_fold_number = 5
-    compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
+    X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict = compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
 
+    #plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
 
