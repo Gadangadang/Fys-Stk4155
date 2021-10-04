@@ -18,12 +18,14 @@ from sklearn.utils.testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
 @ignore_warnings(category=ConvergenceWarning)
 
-def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
+def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, isFranke = False):
     MSE_OLS = np.zeros(len(n_values))
     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
     MSE_Lasso = np.zeros((len(n_values), len(lamda_values)))
     x,y,z = data
-
+    scaler = StandardScaler()
+    if isFranke:
+        mean_scale(z)
     OLS = LinearRegression()
     X_F = create_X(x, y, n_values[-1])
     X_train, X_test, z_train, z_test = train_test_split(
@@ -32,11 +34,12 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
     txt_info =  "Regression analysis:"
     scaler = StandardScaler()
     for i in range(len(n_values)):
-        l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
-        X = X_train[:,:l]
-
-        scaler.fit(X)
-        X = scaler.transform(X)
+        X = create_X(x, y, n_values[i])
+        if isFranke:
+            mean_scale(X)
+        else:
+            scaler.fit(X)
+            X = scaler.transform(X)
 
         MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
         for j in range(len(lamda_values)):
