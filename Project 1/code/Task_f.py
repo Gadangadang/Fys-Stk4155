@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
 
     lamda_values = np.logspace(-7, -3, 7)
-    n_values = range(1,9)
+    n_values = range(1,15)
     k_fold_number = 5
     compare_OLS_R_L(data, n_values, lamda_values, k_fold_number)
 
