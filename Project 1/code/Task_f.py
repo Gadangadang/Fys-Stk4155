@@ -115,7 +115,7 @@ def compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number):
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.show()
-    
+
     levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
     plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
     plt.plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 20, marker = "x", color = "black")
@@ -129,28 +129,69 @@ def compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number):
     print(np.shape(MSE_Ridge))
 
 
+# def compare_best_model():
 
 
 if __name__ == "__main__":
+
+    # z = imread("../article/Saudi.tif")[::100,::100]
+    # x_len, y_len = np.shape(z)
+    # x = np.linspace(0, x_len-1, x_len)
+    # y = np.linspace(0, y_len-1, y_len)
+    # z = (z - np.mean(z))/np.std(z) # standard scale
+    #
+    # x,y = np.meshgrid(x,y)
+    # x = x.reshape(x.shape[0] * x.shape[1])  # flattens x
+    # y = y.reshape(y.shape[0] * y.shape[1])  # flattens y
+    # z = z.reshape(z.shape[0]**2, 1)
+    #
+    #
+    #
+    # #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
+    # data = [x,y,z]
+    # lamda_values = np.logspace(-9, -3, 7)
+    # n_values = range(1,7)
+    # k_fold_number = 5
+    # #compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number)
+
+
+    # --- Proper divide of the dataset ---#
     z = imread("../article/Saudi.tif")[::100,::100]
     x_len, y_len = np.shape(z)
     x = np.linspace(0, x_len-1, x_len)
     y = np.linspace(0, y_len-1, y_len)
     z = (z - np.mean(z))/np.std(z) # standard scale
 
+
     x,y = np.meshgrid(x,y)
-    x = x.reshape(x.shape[0] * x.shape[1])  # flattens x
-    y = y.reshape(y.shape[0] * y.shape[1])  # flattens y
-    z = z.reshape(z.shape[0]**2, 1)
+
+    arr = np.arange(z.shape[0]*z.shape[1])
+    np.random.shuffle(arr)
+    arr = arr.reshape((z.shape[0], z.shape[1]))
+
+
+    print(arr)
+
+    # print(arr)
+
+
+    exit()
+
+
+    # x = x.reshape(x.shape[0] * x.shape[1])  # flattens x
+    # y = y.reshape(y.shape[0] * y.shape[1])  # flattens y
+    # z = z.reshape(z.shape[0]**2, 1)
 
 
 
-    #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
-    data = [x,y,z]
-    lamda_values = np.logspace(-9, -3, 7)
-    n_values = range(1,7)
-    k_fold_number = 5
-    compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number)
+    # print(np.shape(x), np.shape(y), np.shape(z))
+
+    # X_train_val, X_test, z_train_val, z_test = train_test_split(X, z, test_size=0.2)
+    # X_train, X_val, z_train, z_val = train_test_split(X_train_val, z_train_val, test_size=0.2)
+
+
+
+
 
 
 
