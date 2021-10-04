@@ -76,57 +76,55 @@ def compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number):
             print(f"\r{txt_info}: process: n = {i}/{len(n_values)-1}, lmb = {j}/{len(lamda_values)-1}", end="")
 
             max_iter = int(1e4)
-            ridge = Ridge(alpha = lamda_values[j], max_iter = max_iter,normalize=True)
-            # lasso = Lasso(alpha = lamda_values[j],  max_iter = max_iter, normalize=True)
+            ridge = Ridge(alpha = lamda_values[j], max_iter = max_iter, normalize=True)
+            lasso = Lasso(alpha = lamda_values[j],  max_iter = max_iter, normalize=True)
             MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
-            # MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
+            MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z, scoring='neg_mean_squared_error', cv=k_fold_number))
     print(" (done)")
 
 
     idx1 = np.argmin(MSE_OLS)
     idx2 = np.argwhere(MSE_Ridge == np.min(MSE_Ridge)).ravel()
-    # idx3 = np.argwhere(MSE_lasso == np.min(MSE_lasso)).ravel()
+    idx3 = np.argwhere(MSE_Lasso== np.min(MSE_Lasso)).ravel()
 
 
-    # print(idx2)
-    # print(lamda_values[idx2[1]])
 
+    plt.plot(n_values, MSE_OLS, "o--")
+    plt.ylim(MSE_OLS.min()*0.5,MSE_OLS.min()*15 )
+    plt.title("OLS")
+    plt.plot(n_values[idx1], MSE_OLS[idx1], markersize = 20, marker = "x", color = "black")
+    plt.xlabel(r"$n$", fontsize=14)
+    plt.ylabel(r"$\lambda$", fontsize=14)
+    plt.show()
 
 
 
 
     cmap = plt.get_cmap('RdBu')
-    #fig, axs = plt.subplots(3,1,figsize=(7,8))
-    #axs[0].plot(n_values, MSE_OLS, "o--")
-
-    # np.random.seed(19680801)
-    # Z_test = np.random.rand(6, 10)
-    # x_test = np.arange(-0.5, 10, 1)  # len = 11
-    # y_test = np.arange(4.5, 11, 1)  # len = 7
-    #
-    # print(np.shape(x_test), np.shape(y_test), np.shape(Z_test))
-    #
-    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
-    plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
-    plt.plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 20, marker = "x", color = "black")
-    plt.yscale("log")
-    plt.colorbar()
-    plt.title("Ridge")
-    plt.xlabel(r"$n$", fontsize=14)
-    plt.ylabel(r"$\lambda$", fontsize=14)
-    plt.show()
 
     levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
     plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
     plt.plot(n_values[idx2[0]], lamda_values[idx2[1]], markersize = 20, marker = "x", color = "black")
     plt.yscale("log")
-    plt.colorbar()
+    cbar1 = plt.colorbar()
+    cbar1.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
     plt.title("Ridge")
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.show()
 
-    print(np.shape(MSE_Ridge))
+    levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Lasso), np.max(MSE_Lasso))
+    plt.contourf(n_values,lamda_values, MSE_Lasso.T, vmin=np.min(MSE_Lasso), vmax=np.max(MSE_Lasso), cmap='RdBu',levels=levels)
+    plt.plot(n_values[idx3[0]], lamda_values[idx3[1]], markersize = 20, marker = "x", color = "black")
+    plt.yscale("log")
+    cbar2 = plt.colorbar()
+    cbar2.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
+    plt.title("Lasso")
+    plt.xlabel(r"$n$", fontsize=14)
+    plt.ylabel(r"$\lambda$", fontsize=14)
+    plt.show()
+
+    #print(np.shape(MSE_Ridge))
 
 
 # def compare_best_model():
@@ -192,27 +190,14 @@ if __name__ == "__main__":
 
 
 
+    #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
+    data = [x,y,z]
+    lamda_values = np.logspace(-7, -3, 7)
+    n_values = range(1,9)
+    k_fold_number = 5
+    compare_OLS_R_L2(data, n_values, lamda_values, k_fold_number)
 
 
-
-
-    # x_, y_ = np.meshgrid(x,y)
-    # x_ = x_.reshape(x_.shape[0] * x_.shape[1])  # flattens x
-    # y_ = y_.reshape(y_.shape[0] * y_.shape[1])  # flattens y
-    #
-    # z = z.reshape(z.shape[0]**2, 1)
-    #
-    # for i in range(len(n_values)):
-    #     X = create_X(x_, y_, n_values[i])
-    #
-    #     scaler = StandardScaler()
-    #     scaler.fit(X)
-    #     X = scaler.transform(X)
-    #
-    #
-    #     beta_OLS = OLS_regression(X, z)
-    #     ztilde = (X @ beta_OLS).ravel()
-    #     print( MSE(z, ztilde) )
 
 
 
