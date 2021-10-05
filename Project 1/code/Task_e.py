@@ -59,7 +59,25 @@ if __name__ == "__main__":
     lamda = np.logspace(-5, -2, 4)
     k_fold_number = 5
 
-    bias_variance_tradeoff(N, z_noise, n, "N", method, lamda, plot=True)
+    #bias_variance_tradeoff(N, z_noise, n, "N", method, lamda, plot=True)
 
     #compaire_CV_B(N, z_noise, n, N * N, k_fold_number, method, lamda=1e-3)
     #complexity_CV(generate_data(N, z_noise, seed=4155), n, k_fold_number, method, lamda, plot=True, seed=4155)
+    N = 30
+    z_noise = 0.2
+    n = 14
+    B = 100
+
+    method = "Lasso"
+
+    lmb = 1e-4
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
+
+    lmb = 1e-3
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
+
+    lmb = 1e-2
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
+
+    lmb = 1e2
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
