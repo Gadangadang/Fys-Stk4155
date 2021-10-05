@@ -104,7 +104,7 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
                         plt.title(f"{method}: N = {N[N_i]}", size=14)
                     else:
                         plt.title(
-                            f"{method} $\lambda = ${lmb:.3f} : N = {N[N_i]}", size=14)
+                            f"{method} $\lambda = ${lmb} : N = {N[N_i]}", size=14)
                     plt.plot(n_arr[1:], bias[1:], "o-", label=r"Bias$^2$")
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
                     plt.plot(n_arr[1:], MSE_test[1:], "o--", label="MSE test")
