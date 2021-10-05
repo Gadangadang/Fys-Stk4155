@@ -104,12 +104,12 @@ def bias_variance_tradeoff(N, z_noise, n, B, method, lamda=[0], plot=True):
                         plt.title(f"{method}: N = {N[N_i]}", size=14)
                     else:
                         plt.title(
-                            f"{method} $\lambda = ${lmb} : N = {N[N_i]}", size=14)
+                            f"{method} $\lambda = ${lmb:.5f} : N = {N[N_i]}", size=14)
                     plt.plot(n_arr[1:], bias[1:], "o-", label=r"Bias$^2$")
                     plt.plot(n_arr[1:], variance[1:], "o-", label="Variance")
-                    plt.plot(n_arr[1:], MSE_test[1:], "o--", label="MSE test")
-                    plt.fill_between(n_arr[1:], 0, error_sum[1:], alpha=0.3, color=color_cycle(
-                        3), label=r"Bias$^2$ + variance + $\sigma^2$")
+                    #plt.plot(n_arr[1:], MSE_test[1:], "o--", label="MSE test")
+                    #plt.fill_between(n_arr[1:], 0, error_sum[1:], alpha=0.3, color=color_cycle(
+                    #    3), label=r"Bias$^2$ + variance + $\sigma^2$")
 
                     ax = plt.gca()
                     # Force integer ticks on x-axis
