@@ -139,6 +139,7 @@ if __name__ == "__main__":
     #--- settings ---#
     N = 22          # Number of points in each dimension
     N = [10, 17, 27, 41]
+    N = 15
     z_noise = 0.2     # Added noise to the z-value
     n = 15                # Highest order of polynomial for X
     B = "N"             # Number of training points
