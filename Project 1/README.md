@@ -22,4 +22,4 @@ Files named "Task_{}.py" with letters a to f have functions
 more specifically needed for the corresponding task. This is
 not however exclusive usage, as some files inherits functions
 from previous files. Each function and all its parameters are thoroughly
-in the functions themselves. 
+in the functions themselves.

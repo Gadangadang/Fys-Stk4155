@@ -325,7 +325,6 @@ if __name__ == "__main__":
     data_train = [x_train, y_train, z_train]
     data_test = [x_test, y_test, z_test]
 
-    # plot_3D_shuffled("Terrain data: Saudi Arabia", x_flat, y_flat, z_flat.ravel(), "z", "terrain_data", show = True, save = True)
 
     lamda_values = np.logspace(-6, -1, 5)
     n_values = range(10, 20)
@@ -336,7 +335,6 @@ if __name__ == "__main__":
 
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(
         data_train, data_test, best_n, best_lmd, max_iter)
-    exit()
     plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
