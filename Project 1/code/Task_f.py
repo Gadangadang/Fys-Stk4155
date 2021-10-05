@@ -26,13 +26,14 @@ def find_best_test_size(wanted_test_size, z):
 
 
     Args:
-        wanted_test_size ([type]): [description]
-        z ([type]): [description]
+        wanted_test_size ([Float]): Split size for train/test
+        z                  (Array): Array with data, to be split
 
     Returns:
-        [type]: [description]
+        Float: Split number
+        Int: Length to split z
     """
-    closets_N = np.int(np.round(np.sqrt((len(z) * 0.2))))
+    closets_N = np.int(np.round(np.sqrt((len(z) * wanted_test_size))))
     z_test_len = closets_N**2
     split = z_test_len / len(z)
     return split, z_test_len
@@ -40,18 +41,19 @@ def find_best_test_size(wanted_test_size, z):
 
 # @ignore_warnings(category=ConvergenceWarning)
 def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter, isFranke=False):
-    """[summary]
+    """Gridsearch function to find optimal paramters lambda and n
 
     Args:
-        data ([type]): [description]
-        n_values ([type]): [description]
-        lamda_values ([type]): [description]
-        k_fold_number ([type]): [description]
-        max_iter ([type]): [description]
-        isFranke (bool, optional): [description]. Defaults to False.
+        data              (Array): Array containing dataset x, y, z
+        n_values           (List): List containing range of complexity numbers
+        lamda_values      (Array): Logscale lambda values
+        k_fold_number       (Int): Number of k folds
+        max_iter            (Int): Max number of iterations for CV if no convergence
+        isFranke (bool, optional): Choice if Franke dataset or not. Defaults to False.
 
     Returns:
-        [type]: [description]
+        Array: Set of ideal n complexity values
+        Array: Set of ideal lamda values
     """
     MSE_OLS = np.zeros(len(n_values))
     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
@@ -166,17 +168,19 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter, isFra
 
 
 def evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter):
-    """[summary]
+    """Trains the best models given the optimized hyperparameters
 
     Args:
-        data_train ([type]): [description]
-        data_test ([type]): [description]
-        best_n ([type]): [description]
-        best_lmd ([type]): [description]
-        max_iter ([type]): [description]
+        data_train (Array): Array containing all train data for x, y, z
+        data_test (Array): Array containing all test data for x, y, z
+        best_n (List): List containing the optimal order of complexity
+        best_lmd (Array): Array containing the optimal lambda value
+        max_iter (Int): Number of iteration if no convergence is found
 
     Returns:
-        [type]: [description]
+        Array: Prediction for OLS
+        Array: Prediction for Ridge
+        Array: Prediction for Lasso
     """
     x_train, y_train, z_train = data_train
     x_test, y_test, z_test = data_test
@@ -235,13 +239,13 @@ def evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter):
 
 
 def plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict):
-    """[summary]
+    """Plots the 3D predictions from our gridsearch and optimized models
 
     Args:
-        data_test ([type]): [description]
-        OLS_predict ([type]): [description]
-        Ridge_predict ([type]): [description]
-        Lasso_predict ([type]): [description]
+        data_test     (Array): Containes the test data for x, y, z
+        OLS_predict   (Array): Prediction model for OLS
+        Ridge_predict (Array): Prediction model for Ridge
+        Lasso_predict (Array): Prediction model for Lasso
     """
     x_test, y_test, z_test = data_test
 
@@ -259,16 +263,22 @@ def plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict):
 
 
 def train_test_split_data(x_flat, y_flat, z_flat, split):
-    """[summary]
+    """Splits the given data in part of our choice
 
     Args:
-        x_flat ([type]): [description]
-        y_flat ([type]): [description]
-        z_flat ([type]): [description]
-        split ([type]): [description]
+        x_flat (Array): Flattened array with x values
+        y_flat (Array): Flattened array with y values
+        z_flat (Array): Flattened array with z values
+        split  (Float): Percentage to split in decimal points
 
     Returns:
-        [type]: [description]
+        Array: Training model for x
+        Array: Training model for y
+        Array: Training model for z
+        Array: Test model for x
+        Array: Test model for y
+        Array: Test model for z
+
     """
     split, z_test_len_exp = find_best_test_size(split, z_flat)
     split_idx = int((1 - split) * len(z_flat))
@@ -311,7 +321,6 @@ if __name__ == "__main__":
     data_train = [x_train, y_train, z_train]
     data_test = [x_test, y_test, z_test]
 
-    # plot_3D_shuffled("Terrain data: Saudi Arabia", x_flat, y_flat, z_flat.ravel(), "z", "terrain_data", show = True, save = True)
 
     lamda_values = np.logspace(-6, -1, 5)
     n_values = range(10, 20)
@@ -326,8 +335,6 @@ if __name__ == "__main__":
 
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(
         data_train, data_test, best_n, best_lmd, max_iter)
-
-
     plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
