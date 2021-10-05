@@ -14,9 +14,9 @@ from sklearn.preprocessing import MinMaxScaler
 from plot_set import*
 from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
-
+"""
 from sklearn.utils.testing import ignore_warnings
-from sklearn.exceptions import ConvergenceWarning
+from sklearn.exceptions import ConvergenceWarning"""
 
 def find_best_test_size(wanted_test_size, z):
     """
@@ -27,6 +27,7 @@ def find_best_test_size(wanted_test_size, z):
     z_test_len = closets_N**2
     split = z_test_len/len(z)
     return split, z_test_len
+
 
 
 @ignore_warnings(category=ConvergenceWarning)
@@ -52,15 +53,14 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter, isFra
         l = int((n_values[i] + 1) * (n_values[i] + 2) / 2)
         X = X_F[:,:l]
 
-        MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
+        MSE_OLS[i] = np.mean(-cross_val_score(OLS, X, z, scoring='neg_mean_squared_error', cv=kfold))
         for j in range(len(lamda_values)):
             print(f"\r{txt_info}: process: n = {i}/{len(n_values)-1}, lmb = {j}/{len(lamda_values)-1}", end="")
 
-
-            ridge = Ridge(alpha = lamda_values[j], max_iter = max_iter, normalize=True)
-            lasso = Lasso(alpha = lamda_values[j],  max_iter = max_iter, normalize=True)
-            MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
-            MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
+            ridge = Ridge(alpha = lamda_values[j], max_iter = max_iter, normalize=True).fit(X, z)
+            lasso = Lasso(alpha = lamda_values[j],  max_iter = max_iter, normalize=True).fit(X, z)
+            MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z, scoring='neg_mean_squared_error', cv=kfold))
+            MSE_Lasso[i,j] = np.mean(-cross_val_score(lasso, X, z, scoring='neg_mean_squared_error', cv=kfold))
     print(" (done)")
 
     idx1 = np.argmin(MSE_OLS)
@@ -77,12 +77,13 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter, isFra
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"MSE", fontsize=14)
     plt.legend(fontsize = 13)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     fig_OLS.savefig("../article/figures/real_data_best_OLS_map.pdf", bbox_inches="tight")
-
+    plt.show()
 
     # Colorbar settings
     cmap = mpl.cm.RdBu
-    norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
     # Ridge
     fig_Ridge = plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
@@ -90,14 +91,16 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter, isFra
     plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
     plt.scatter(n_values[idx2[0]], lamda_values[idx2[1]], s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.yscale("log")
+    norm = mpl.colors.Normalize(vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge))
     cbar1 = plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap))
     cbar1.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
     plt.title("Ridge")
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.legend(fontsize = 13)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     fig_Ridge.savefig("../article/figures/real_data_best_Ridge_map.pdf", bbox_inches="tight")
-
 
 
     # Lasso
@@ -106,22 +109,22 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter, isFra
     plt.contourf(n_values,lamda_values, MSE_Lasso.T, vmin=np.min(MSE_Lasso), vmax=np.max(MSE_Lasso), cmap='RdBu',levels=levels)
     plt.scatter(n_values[idx3[0]], lamda_values[idx3[1]], s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.yscale("log")
+    norm = mpl.colors.Normalize(vmin=np.min(MSE_Lasso), vmax=np.max(MSE_Lasso))
     cbar2 = plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap))
     cbar2.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
     plt.title("Lasso")
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.legend(fontsize = 13)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     fig_Lasso.savefig("../article/figures/real_data_best_Lasso_map.pdf", bbox_inches="tight")
 
     plt.show()
 
-
     # Save best hyper-parameter in order OLS, Ridge, Lasso
     best_n = [n_values[idx1], n_values[idx2[0]], n_values[idx3[0]] ]
     best_lmd = [np.nan, lamda_values[idx2[1]], lamda_values[idx3[1]]]
-
-
 
     return np.array(best_n), np.array(best_lmd)
 
@@ -139,6 +142,7 @@ def evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter):
     scaler.fit(X_F_train)
     X = scaler.transform(X_F_train)
     z_train = (z_train - np.mean(z_train))/np.std(z_train)
+
 
     # Test
     X_F_test = create_X(x_test, y_test, best_n.max())
@@ -159,8 +163,11 @@ def evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter):
     l = int((n + 1) * (n + 2) / 2)
     ridge = Ridge(alpha = lmb, max_iter = max_iter, normalize=True).fit(X_F_train[:,:l], z_train)
     Ridge_predict = ridge.predict(X_F_test[:,:l])
+    print(np.mean(-cross_val_score(ridge, X_F_test[:,:l], z_test, scoring='neg_mean_squared_error', cv=5)))
+    print(np.mean(-cross_val_score(ridge, X_F_train[:,:l], z_train, scoring='neg_mean_squared_error', cv=5)))
 
-    #L
+    exit()
+    #Lasso
     n, lmb = best_n[2], best_lmd[2]
     l = int((n + 1) * (n + 2) / 2)
 
@@ -220,6 +227,7 @@ if __name__ == "__main__":
     y = np.linspace(0, y_len-1, y_len)
     isFranke = True
 
+
     x,y = np.meshgrid(x,y)
     x_flat = x.reshape(x.shape[0] * x.shape[1])  # flattens x
     y_flat = y.reshape(y.shape[0] * y.shape[1])  # flattens y
@@ -236,17 +244,19 @@ if __name__ == "__main__":
     data_test = [x_test, y_test, z_test]
 
 
-    #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
+    # plot_3D_shuffled("Terrain data: Saudi Arabia", x_flat, y_flat, z_flat.ravel(), "z", "terrain_data", show = True, save = True)
 
-    lamda_values = np.logspace(-15, -1, 15)
 
-    n_values = range(0,15)
+    lamda_values = np.logspace(-10, -1, 10)
+    n_values = range(1,5)
 
     k_fold_number = 5
     max_iter = int(1e4)
     best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number, max_iter)
 
+
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter)
+    exit()
     plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
