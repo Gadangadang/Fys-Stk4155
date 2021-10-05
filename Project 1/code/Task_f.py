@@ -11,7 +11,7 @@ from sklearn.pipeline import make_pipeline
 from Functions import *
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
-from plot_set import*
+# from plot_set import*
 from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
 
@@ -212,10 +212,6 @@ def evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter):
     ridge = Ridge(alpha=lmb, max_iter=max_iter, normalize=True).fit(
         X_F_train[:, :l], z_train)
     Ridge_predict = ridge.predict(X_F_test[:, :l])
-    print(np.mean(-cross_val_score(ridge,
-                                   X_F_test[:, :l], z_test, scoring='neg_mean_squared_error', cv=5)))
-    print(np.mean(-cross_val_score(ridge,
-                                   X_F_train[:, :l], z_train, scoring='neg_mean_squared_error', cv=5)))
 
     # Lasso
     n, lmb = best_n[2], best_lmd[2]
@@ -297,7 +293,7 @@ if __name__ == "__main__":
     x_len, y_len = np.shape(z)
     x = np.linspace(0, x_len - 1, x_len)
     y = np.linspace(0, y_len - 1, y_len)
-    isFranke = True
+    isFranke = False
 
     x, y = np.meshgrid(x, y)
     x_flat = x.reshape(x.shape[0] * x.shape[1])  # flattens x
@@ -320,13 +316,18 @@ if __name__ == "__main__":
     lamda_values = np.logspace(-6, -1, 5)
     n_values = range(10, 20)
     k_fold_number = 5
-    max_iter = int(2e6)
-    best_n, best_lmd = compare_OLS_R_L(
-        data_train, n_values, lamda_values, k_fold_number, max_iter)
+    max_iter = int(1e4)
+    # best_n, best_lmd = compare_OLS_R_L(
+    #     data_train, n_values, lamda_values, k_fold_number, max_iter)
+
+    best_n = np.array([11, 12, 19])
+    best_lmd = np.array([np.nan, 2.68269580e-10, 4.39397056e-7])
+
 
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(
         data_train, data_test, best_n, best_lmd, max_iter)
-    exit()
+
+
     plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
