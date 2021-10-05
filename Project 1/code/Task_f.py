@@ -14,9 +14,9 @@ from sklearn.preprocessing import MinMaxScaler
 from plot_set import*
 from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
-
+"""
 from sklearn.utils.testing import ignore_warnings
-from sklearn.exceptions import ConvergenceWarning
+from sklearn.exceptions import ConvergenceWarning"""
 
 def find_best_test_size(wanted_test_size, z):
     """
@@ -29,7 +29,7 @@ def find_best_test_size(wanted_test_size, z):
     return split, z_test_len
 
 
-@ignore_warnings(category=ConvergenceWarning)
+#@ignore_warnings(category=ConvergenceWarning)
 def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     MSE_OLS = np.zeros(len(n_values))
     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
@@ -231,8 +231,8 @@ if __name__ == "__main__":
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
 
-    lamda_values = np.logspace(-15, -1, 10)
-    n_values = range(1,5)
+    lamda_values = np.logspace(-16, -1, 16)
+    n_values = range(10,29)
     k_fold_number = 5
     max_iter = int(1e4)
     best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number, max_iter)
@@ -240,7 +240,7 @@ if __name__ == "__main__":
     print(best_n)
     print(best_lmd)
 
-    exit()
+
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter)
     plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)
 
