@@ -10,7 +10,8 @@ from plot_set import *  # Specifies plotting settings
 from Task_c import compaire_CV_B
 from Task_b2 import bias_variance_tradeoff
 
-def Error_Complexity_boot(lamda, N, z_noise, n, seed=4155):
+
+def Error_Complexity_boot(lamda, N, z_noise, n, B, method, seed=4155):
     """Computes the error for bootstrap
 
     Args:
@@ -35,7 +36,7 @@ def Error_Complexity_boot(lamda, N, z_noise, n, seed=4155):
         mean_scale(X_train, X_test, z_train, z_test)
 
         z_pred, z_tilde = bootstrap(
-            X_train, X_test, z_train, z_test, B, "Ridge", lamda, include_train=True)
+            X_train, X_test, z_train, z_test, B, method, lamda, include_train=True)
         error_test[i] = np.mean(
             np.mean((z_test - z_pred)**2, axis=1, keepdims=True))
         error_train[i] = np.mean(
@@ -44,7 +45,7 @@ def Error_Complexity_boot(lamda, N, z_noise, n, seed=4155):
     return error_test, error_train
 
 
-def Error_Complexity_CV(lamda, N, z_noise, n, k_fold_number, seed=4155):
+def Error_Complexity_CV(lamda, N, z_noise, n, k_fold_number, method, seed=4155):
     """Computes the error for using cross validation to find the optimal model
 
     Args:
@@ -62,17 +63,16 @@ def Error_Complexity_CV(lamda, N, z_noise, n, k_fold_number, seed=4155):
     error_test, error_train = np.zeros(n + 1), np.zeros(n + 1)
     x, y, z = generate_data(N, z_noise, seed)
 
-
     for i in range(0, n + 1):
         X = create_X(x, y, i)
 
         error_test[i], error_train[i] = cross_validation(
-            X, z, k_fold_number, "Ridge", lamda, include_train=True)
+            X, z, k_fold_number, method, lamda, include_train=True)
 
     return error_test, error_train
 
 
-def MSE_Ridge_bootstrap(N, z_noise, n, lamda_values):
+def MSE_bootstrap(N, z_noise, n, B, lamda_values, method):
     """Calculates the mean squared error for ridge regression with bootstrap method
 
     Args:
@@ -87,12 +87,13 @@ def MSE_Ridge_bootstrap(N, z_noise, n, lamda_values):
 
         plt.subplot(2, 2, index + 1)
         error_test, error_train = Error_Complexity_boot(
-            lamda, N, z_noise, n,  seed=4155)
+            lamda, N, z_noise, n, B, method, seed=4155)
         n_arr = np.linspace(0, n, n + 1)
 
         #---Plotting---#
 
-        plt.title(r"Bootstrap MSE with $\lambda$ = {:.3f} ".format(lamda))
+        plt.title(
+            r"{} Bootstrap MSE with $\lambda$ = {:.3f} ".format(method, lamda))
         plt.plot(n_arr, error_test, label="Test")
         plt.plot(n_arr, error_train, label="Train")
         plt.legend(fontsize=13)
@@ -104,11 +105,12 @@ def MSE_Ridge_bootstrap(N, z_noise, n, lamda_values):
     plt.ylabel(r"MSE", fontsize=14)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig(f"../article/figures/MSE_Ridge_bootstrap.pdf", bbox_inches="tight")
+    plt.savefig(
+        f"../article/figures/MSE_{method}_bootstrap.pdf", bbox_inches="tight")
     plt.show()
 
 
-def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
+def MSE_CV(N, z_noise, n, lamda_values, k_fold_number, Method):
     """[summary]
 
     Args:
@@ -124,14 +126,14 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
 
         plt.subplot(2, 2, index + 1)
         error_test, error_train = Error_Complexity_CV(
-            lamda, N, z_noise, n, k_fold_number, seed=4155)
+            lamda, N, z_noise, n, k_fold_number, method, seed=4155)
         n_arr = np.linspace(0, n, n + 1)
 
         print("Minimum value for train is {:.3f} with lambda = {:.3f}".format(
             np.min(error_test), lamda))
         #---Plotting---#
 
-        plt.title(r"CV MSE with $\lambda$ = {:.3f} ".format(lamda))
+        plt.title(r"{} CV MSE with $\lambda$ = {:.3f} ".format(method, lamda))
         plt.plot(n_arr, error_test, label="Test")
         plt.plot(n_arr, error_train, label="Train")
         plt.legend(fontsize=13)
@@ -143,7 +145,7 @@ def MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number):
     plt.ylabel(r"MSE", fontsize=14)
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    #plt.savefig(f"../article/figures/MSE_Ridge_CV.pdf", bbox_inches="tight")
+    plt.savefig(f"../article/figures/MSE_{method}_CV.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -188,10 +190,10 @@ if __name__ == "__main__":
     # Bootstrap analysis with Ridge
     lamda_values = np.logspace(-5, -2, 4)
     method = "Ridge"
-    #MSE_Ridge_bootstrap(N, z_noise, n, lamda_values)
+    #MSE_bootstrap(N, z_noise, n, lamda_values, method)
 
     # Cross-validation with Ridge
-    #MSE_Ridge_CV(N, z_noise, n, lamda_values, k_fold_number)
+    #MSE_CV(N, z_noise, n, lamda_values, k_fold_number, method)
     # Bias-variance tradeoff with Ridge
 
     bias_variance_tradeoff(N, z_noise, n, B, method, lamda_values, plot=True)
