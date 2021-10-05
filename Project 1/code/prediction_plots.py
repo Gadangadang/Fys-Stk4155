@@ -34,6 +34,7 @@ def plot_3D(title, x, y, z, z_label, save_name, show = False, save = True):
     # Plot the surface.
     surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm,
                            linewidth=0.2, antialiased=False)
+                           
 
     # Customize the z axis.
     if not show:

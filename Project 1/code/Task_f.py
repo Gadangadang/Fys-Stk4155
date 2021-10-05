@@ -114,13 +114,15 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number):
 def evaluate_best_model(data_train, data_test, best_n, best_lmd):
     x_train, y_train, z_train = data_train
     x_test, y_test, z_test = data_test
-
+    max_iter = int(1e4)
 
     #--- X and scaling ---#
     scaler = StandardScaler()
 
     # Train
     X_F_train = create_X(x_train, y_train, best_n.max())
+    n = best_n.max()
+
     scaler.fit(X_F_train)
     X = scaler.transform(X_F_train)
     z_train = (z_train - np.mean(z_train))/np.std(z_train)
@@ -137,34 +139,35 @@ def evaluate_best_model(data_train, data_test, best_n, best_lmd):
     n = best_n[0]
     l = int((n + 1) * (n + 2) / 2)
     OLS.fit(X_F_train[:,:l], z_train)
-
-    ####### Working from this line and down ##############
-    OLS_predict = OLS.predict(X_F_train[:,:l], z_test)
+    OLS_predict = OLS.predict(X_F_test[:,:l])
 
 
     n, lmb = best_n[1], best_lmd[1]
     l = int((n + 1) * (n + 2) / 2)
     ridge = Ridge(alpha = lmb, max_iter = max_iter, normalize=True).fit(X_F_train[:,:l], z_train)
-    Ridge_predict = ridge.predict(X_test[:,:l])
+    Ridge_predict = ridge.predict(X_F_test[:,:l])
 
     n, lmb = best_n[2], best_lmd[2]
     l = int((n + 1) * (n + 2) / 2)
 
-    lasso = Lasso(alpha = lmb, max_iter = max_iter, normalize=True).fit(X_F_train[:,:l], z_train[:,:l])
-    Lasso_predict = lasso.predict(X_test[:,:l])
+    lasso = Lasso(alpha = lmb, max_iter = max_iter, normalize=True).fit(X_F_train[:,:l], z_train)
+    Lasso_predict = lasso.predict(X_F_test[:,:l])
 
     MSE_OLS_test, MSE_Ridge_test, MSE_Lasso_test = MSE(z_test, OLS_predict), MSE(z_test, Ridge_predict), MSE(z_test, Lasso_predict)
     print(f"MSE for varying methods: OLS = {MSE_OLS_test:.5f} -- Ridge = {MSE_Ridge_test:.5f} -- Lasso = {MSE_Lasso_test:.5f} ")
 
-    # OLS_predict = OLS_predict*z_test_std + z_test_mean
-    # Ridge_predict = Ridge_predict*z_test_std + z_test_mean
-    # Lasso_predict = Lasso_predict*z_test_std + z_test_mean
+    # Rescale predictions
+    OLS_predict   = OLS_predict   * z_test_std + z_test_mean
+    Ridge_predict = Ridge_predict * z_test_std + z_test_mean
+    Lasso_predict = Lasso_predict * z_test_std + z_test_mean
+
+    return OLS_predict, Ridge_predict, Lasso_predict
 
 
 
 
-
-def plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict):
+def plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict):
+    x_test, y_test, z_test = data_test
 
     N = np.sqrt(len(z_test))
     if N%int(N) == 0:
@@ -172,13 +175,22 @@ def plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict):
     else:
         print("length of z_test did not allow for squared reshape")
 
-
+    # Reshape
+    # print(x_test[:3])
+    # print(y_test[:3])
+    # zip_data = zip(x_test, y_test)
+    # print(zip)
+    # exit()
+    x_test = x_test.reshape(N, N)
+    y_test = y_test.reshape(N, N)
     z_test = z_test.reshape(N, N)
     OLS_predict = OLS_predict.reshape(N, N)
     Ridge_predict = Ridge_predict.reshape(N, N)
     Lasso_predict = Lasso_predict.reshape(N, N)
 
-    plot_3D("Real data", x, y, z_test, "z", "nan", show = True, save = False)
+    # 3D plots
+    plot_3D("Real data", x_test, y_test, z_test, "z", "nan", show = True, save = False)
+    # plot_3D("Real data", x_test, y_test, OLS_predict, "z", "nan", show = True, save = False)
 
     # "OLS-predict"
     # "Ridge-predict"
@@ -254,8 +266,8 @@ if __name__ == "__main__":
     best_n = np.array([7,7,7])
     best_lmd = np.array([np.nan, 1, 1])
 
-    evaluate_best_model(data_train, data_test, best_n, best_lmd)
-    # plot_approx(X_test, z_test, OLS_predict, Ridge_predict, Lasso_predict)
+    OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(data_train, data_test, best_n, best_lmd)
+    plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)
 
 
 
