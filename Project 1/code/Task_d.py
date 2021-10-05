@@ -180,13 +180,13 @@ def lamdaDependency(N, z_noise, n, lamda):
 
 if __name__ == "__main__":
     #--- settings ---#
-    N = 30           # Number of points in each dimension
+    N = 15           # Number of points in each dimension
     z_noise = 0.2     # Added noise to the z-value
     n = 14                 # Highest order of polynomial for X
     B = "N"           # Number of iterations in boostrap
     k_fold_number = 10
     # Bootstrap analysis with Ridge
-    lamda_values = np.logspace(-3, 2, 4)
+    lamda_values = np.logspace(-5, -2, 4)
     method = "Ridge"
     #MSE_Ridge_bootstrap(N, z_noise, n, lamda_values)
 
