@@ -123,7 +123,7 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
 
     # Save best hyper-parameter in order OLS, Ridge, Lasso
     best_n = [n_values[idx1], n_values[idx2[0]], n_values[idx3[0]] ]
-    best_lmd = [np.nan, n_values[idx2[1]], n_values[idx3[1]]]
+    best_lmd = [np.nan, lamda_values[idx2[1]], lamda_values[idx3[1]]]
 
 
 
@@ -235,17 +235,15 @@ if __name__ == "__main__":
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
 
-    lamda_values = np.logspace(-8, -1, 8)
-    n_values = range(0,5)
+    lamda_values = np.logspace(-10, -1, 10)
+    n_values = range(0,20)
     k_fold_number = 5
     max_iter = int(1e4)
     best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number, max_iter)
 
     print(best_n)
     print(best_lmd)
-    #tmp best
-    # best_n = np.array([7,7,7])
-    # best_lmd = np.array([np.nan, 1, 1])
+
 
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter)
     plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)

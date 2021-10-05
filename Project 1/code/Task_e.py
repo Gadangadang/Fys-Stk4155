@@ -31,7 +31,7 @@ def complexity_CV(data, n, k_fold_number, method, lamda = 0, plot=True, seed=415
                 plt.title(f"{method}: N = {N}", size=14)
             else:
                 plt.title(
-                    f"{method} $\lambda = ${lmb:.3f} : N = {N}", size=14)
+                    f"{method} $\lambda = ${lmb:.4f} : N = {N}", size=14)
             plt.plot(n_arr[1:], MSE_train[1:], label="Train")
             plt.plot(n_arr[1:], MSE_test[1:], label="Test")
             ax = plt.gca()
@@ -51,12 +51,12 @@ def complexity_CV(data, n, k_fold_number, method, lamda = 0, plot=True, seed=415
 
 if __name__ == "__main__":
     #--- settings ---#
-    N = 22          # Number of points in each dimension
+    N = 30          # Number of points in each dimension
     z_noise = 0.2     # Added noise to the z-value
     n = 15                # Highest order of polynomial for X
     B = "N"            # Number of training points
     method = "Lasso"
-    lamda = np.logspace(-3, 2, 4)
+    lamda = np.logspace(-3, -2.2, 4)
     k_fold_number = 5
 
     #bias_variance_tradeoff(N, z_noise, n, "N", method, lamda, plot=True)
