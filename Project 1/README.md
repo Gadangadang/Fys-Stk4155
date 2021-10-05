@@ -10,7 +10,11 @@ pip install -r requirements
 ```
 
 This project aims to understand linear regression, focusing on
-Ordinary Least Squares, Ridge, and Lasso regression. 
+Ordinary Least Squares, Ridge, and Lasso regression. We first test out
+the methods on the Franke Function, given in the project 1 task pdf.
+After some analysis we test our methods on a geographic area, in our case,
+a part of Saudi Arabia, to determine the best model, and for which 
+hyperparameters. 
 
 The folder is structured as follows:
 Functions.py holds the most general and used functions
