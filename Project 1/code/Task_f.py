@@ -29,8 +29,9 @@ def find_best_test_size(wanted_test_size, z):
     return split, z_test_len
 
 
+
 # @ignore_warnings(category=ConvergenceWarning)
-def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
+def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter, isFranke = False):
     MSE_OLS = np.zeros(len(n_values))
     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
     MSE_Lasso = np.zeros((len(n_values), len(lamda_values)))
@@ -38,12 +39,13 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
 
     # X and scaling
     X_F = create_X(x, y, n_values[-1])
-    scaler = StandardScaler()
-    scaler.fit(X_F)
-    X_F = scaler.transform(X_F)
-    z = (z - np.mean(z))/np.std(z) # standard scale
-
-
+    if isFranke:
+         mean_scale(z, X_F)
+    else:
+        scaler = StandardScaler()
+        scaler.fit(X_F)
+        X_F = scaler.transform(X_F)
+        z = (z - np.mean(z))/np.std(z) # standard scale
     OLS = LinearRegression()
     kfold = KFold(n_splits=k_fold_number)
     txt_info =  "Regression analysis:"
@@ -69,7 +71,7 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     # OLS
     fig_OLS = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.plot(n_values, MSE_OLS, "o--")
-    plt.ylim(MSE_OLS.min()*0.5,MSE_OLS.min()*15 )
+    #plt.ylim(MSE_OLS.min()*0.5,MSE_OLS.min()*15 )
     plt.title("OLS")
     plt.scatter(n_values[idx1], MSE_OLS[idx1],  s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.xlabel(r"$n$", fontsize=14)
@@ -222,13 +224,20 @@ if __name__ == "__main__":
     x_len, y_len = np.shape(z)
     x = np.linspace(0, x_len-1, x_len)
     y = np.linspace(0, y_len-1, y_len)
+    isFranke = True
 
 
     x,y = np.meshgrid(x,y)
     x_flat = x.reshape(x.shape[0] * x.shape[1])  # flattens x
     y_flat = y.reshape(y.shape[0] * y.shape[1])  # flattens y
     z_flat = z.reshape(z.shape[0]**2, 1)
-
+    if isFranke:
+        z_noise, N = 0.2, 50
+        x, y = generate_2D_mesh_grid(N)
+        z = FrankeFunction(x, y) + z_noise * np.random.randn(N, N)
+        z_flat = z.reshape(N**2, 1)
+        x_flat = x.reshape(x.shape[0] * x.shape[1])  # flattens x
+        y_flat = y.reshape(y.shape[0] * y.shape[1])  # flattens y
     x_train, y_train, z_train, x_test, y_test, z_test = train_test_split_data(x_flat, y_flat, z_flat, split = 0.2)
     data_train = [x_train, y_train, z_train]
     data_test = [x_test, y_test, z_test]
@@ -241,9 +250,6 @@ if __name__ == "__main__":
     k_fold_number = 5
     max_iter = int(2e6)
     best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number, max_iter)
-
-    print(best_n)
-    print(best_lmd)
 
 
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter)
