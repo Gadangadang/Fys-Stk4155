@@ -11,7 +11,7 @@ from sklearn.pipeline import make_pipeline
 from Functions import *
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
-# from plot_set import*
+from plot_set import*
 from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
 
@@ -55,7 +55,6 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
         for j in range(len(lamda_values)):
             print(f"\r{txt_info}: process: n = {i}/{len(n_values)-1}, lmb = {j}/{len(lamda_values)-1}", end="")
 
-
             ridge = Ridge(alpha = lamda_values[j], max_iter = max_iter, normalize=True)
             lasso = Lasso(alpha = lamda_values[j],  max_iter = max_iter, normalize=True)
             MSE_Ridge[i,j] = np.mean(-cross_val_score(ridge, X, z_train, scoring='neg_mean_squared_error', cv=kfold))
@@ -74,10 +73,12 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     plt.title("OLS")
     plt.scatter(n_values[idx1], MSE_OLS[idx1],  s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.xlabel(r"$n$", fontsize=14)
-    plt.ylabel(r"$MSE", fontsize=14)
+    plt.ylabel(r"MSE", fontsize=14)
     plt.legend(fontsize = 13)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     fig_OLS.savefig("../article/figures/real_data_best_OLS_map.pdf", bbox_inches="tight")
-
+    plt.show()
 
     # Colorbar settings
     cmap = mpl.cm.RdBu
@@ -95,8 +96,9 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.legend(fontsize = 13)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     fig_Ridge.savefig("../article/figures/real_data_best_Ridge_map.pdf", bbox_inches="tight")
-
 
 
     # Lasso
@@ -111,16 +113,15 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.legend(fontsize = 13)
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     fig_Lasso.savefig("../article/figures/real_data_best_Lasso_map.pdf", bbox_inches="tight")
 
     plt.show()
 
-
     # Save best hyper-parameter in order OLS, Ridge, Lasso
     best_n = [n_values[idx1], n_values[idx2[0]], n_values[idx3[0]] ]
     best_lmd = [np.nan, lamda_values[idx2[1]], lamda_values[idx3[1]]]
-
-
 
     return np.array(best_n), np.array(best_lmd)
 
@@ -230,8 +231,8 @@ if __name__ == "__main__":
 
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
 
-    lamda_values = np.logspace(-10, -1, 10)
-    n_values = range(0,5)
+    lamda_values = np.logspace(-15, -1, 10)
+    n_values = range(1,5)
     k_fold_number = 5
     max_iter = int(1e4)
     best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number, max_iter)
