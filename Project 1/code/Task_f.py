@@ -11,12 +11,12 @@ from sklearn.pipeline import make_pipeline
 from Functions import *
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
-# from plot_set import*
+from plot_set import*
 from matplotlib.ticker import MaxNLocator
 import matplotlib as mpl
-"""
-from sklearn.utils.testing import ignore_warnings
-from sklearn.exceptions import ConvergenceWarning"""
+
+# from sklearn.utils.testing import ignore_warnings
+# from sklearn.exceptions import ConvergenceWarning
 
 def find_best_test_size(wanted_test_size, z):
     """
@@ -29,7 +29,7 @@ def find_best_test_size(wanted_test_size, z):
     return split, z_test_len
 
 
-#@ignore_warnings(category=ConvergenceWarning)
+# @ignore_warnings(category=ConvergenceWarning)
 def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     MSE_OLS = np.zeros(len(n_values))
     MSE_Ridge = np.zeros((len(n_values), len(lamda_values)))
@@ -100,7 +100,6 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     fig_Ridge.savefig("../article/figures/real_data_best_Ridge_map.pdf", bbox_inches="tight")
 
-
     # Lasso
     fig_Lasso = plt.figure(num=2, dpi=80, facecolor='w', edgecolor='k')
     levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Lasso), np.max(MSE_Lasso))
@@ -164,7 +163,7 @@ def evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter):
     print(np.mean(-cross_val_score(ridge, X_F_test[:,:l], z_test, scoring='neg_mean_squared_error', cv=5)))
     print(np.mean(-cross_val_score(ridge, X_F_train[:,:l], z_train, scoring='neg_mean_squared_error', cv=5)))
 
-    exit()
+
     #Lasso
     n, lmb = best_n[2], best_lmd[2]
     l = int((n + 1) * (n + 2) / 2)
@@ -237,10 +236,10 @@ if __name__ == "__main__":
 
     # plot_3D_shuffled("Terrain data: Saudi Arabia", x_flat, y_flat, z_flat.ravel(), "z", "terrain_data", show = True, save = True)
 
-    lamda_values = np.logspace(-10, -1, 10)
-    n_values = range(1,5)
+    lamda_values = np.logspace(-6, -1, 5)
+    n_values = range(10,20)
     k_fold_number = 5
-    max_iter = int(1e4)
+    max_iter = int(2e6)
     best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number, max_iter)
 
     print(best_n)
