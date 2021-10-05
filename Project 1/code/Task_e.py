@@ -51,15 +51,15 @@ def complexity_CV(data, n, k_fold_number, method, lamda = 0, plot=True, seed=415
 
 if __name__ == "__main__":
     #--- settings ---#
-    N = 30          # Number of points in each dimension
+    N = 15          # Number of points in each dimension
     z_noise = 0.2     # Added noise to the z-value
     n = 15                # Highest order of polynomial for X
     B = "N"            # Number of training points
     method = "Lasso"
-    lamda = np.logspace(-3, -2.2, 4)
+    lamda = np.logspace(-5, -2, 4)
     k_fold_number = 5
 
-    #bias_variance_tradeoff(N, z_noise, n, "N", method, lamda, plot=True)
+    bias_variance_tradeoff(N, z_noise, n, "N", method, lamda, plot=True)
 
     #compaire_CV_B(N, z_noise, n, N * N, k_fold_number, method, lamda=1e-3)
-    complexity_CV(generate_data(N, z_noise, seed=4155), n, k_fold_number, method, lamda, plot=True, seed=4155)
+    #complexity_CV(generate_data(N, z_noise, seed=4155), n, k_fold_number, method, lamda, plot=True, seed=4155)
