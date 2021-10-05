@@ -172,11 +172,11 @@ def lamdaDependency(N, z_noise, n, lamda):
         i += 1
     for j in range(len(lamda)):
         plt.plot((lamda), beta_R[j, :])
-    plt.ylabel(r"$\beta$", size=16)
+    plt.ylabel(r"$\beta_i$", size=16)
     plt.xlabel(r"$\lambda$", size=16)
     plt.xscale('log')
     plt.title(
-        r"$\beta_i (\lambda)$ - [degree = {} and N = {}] ".format(n, N), size=16)
+        r"$\beta _i (\lambda)$ - [degree = {} and N = {}] ".format(n, N), size=16)
     plt.show()
 
 
@@ -184,18 +184,32 @@ if __name__ == "__main__":
     #--- settings ---#
     N = 15           # Number of points in each dimension
     z_noise = 0.2     # Added noise to the z-value
-    n = 14                 # Highest order of polynomial for X
+    n = 20                 # Highest order of polynomial for X
     B = "N"           # Number of iterations in boostrap
     k_fold_number = 10
     # Bootstrap analysis with Ridge
     lamda_values = np.logspace(-5, -2, 4)
     method = "Ridge"
-    #MSE_bootstrap(N, z_noise, n, lamda_values, method)
-
-    # Cross-validation with Ridge
-    #MSE_CV(N, z_noise, n, lamda_values, k_fold_number, method)
     # Bias-variance tradeoff with Ridge
+    #bias_variance_tradeoff(N, z_noise, n, B, method, lamda_values, plot=True)
 
-    bias_variance_tradeoff(N, z_noise, n, B, method, lamda_values, plot=True)
-    #compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = 1e-3)
-    #lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
+    lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
+    exit()
+    N = 30
+    z_noise = 0.2
+    n = 14
+    B = 100
+
+    method = "Ridge"
+
+    lmb = 1e-4
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
+
+    lmb = 1e-3
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
+
+    lmb = 1e-2
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
+
+    lmb = 1e2
+    compaire_CV_B(generate_data(N, z_noise, seed=4155), n, B, k_fold_number, method, lamda = lmb)
