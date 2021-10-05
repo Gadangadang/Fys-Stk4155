@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy.stats import norm
 from Functions import *
 from matplotlib.ticker import MaxNLocator
+from plot_set import *  # Specifies plotting settings
 
 
 def compaire_CV_B(data, n, B, k_fold_number, method, lamda=0):
@@ -48,18 +49,23 @@ def compaire_CV_B(data, n, B, k_fold_number, method, lamda=0):
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.plot(n_arr, error_CV, label="Cross validation ")
     plt.plot(n_arr, error_B, label="Bootstrap")
+    plt.plot()
 
     ax = plt.gca()
     # Force integer ticks on x-axis
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"MSE", fontsize=14)
-    plt.title(r"Bootstrap iterations: {}, K-folds: {}".format(B,
-                                                              k_fold_number), fontsize=16)
+    if method == "OLS":
+        plt.title(r"Bootstrap iterations with {}: {}, K-folds: {}".format(method,B,
+                                                      k_fold_number), fontsize=16)
+    else:
+        plt.title(r"Bootstrap-CV ({} and $\lambda$= {}): Folds: {}, B: {}".format(method,lamda,
+                                                      k_fold_number,B), fontsize=16)
     plt.legend(fontsize=13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig(
-        f"../article/figures/CV_boot_comparison_with_k{k_fold_number}.pdf", bbox_inches="tight")
+    #plt.savefig(
+    #    f"../article/figures/CV_boot_comparison_with_k{k_fold_number}.pdf", bbox_inches="tight")
 
     plt.show()
 
