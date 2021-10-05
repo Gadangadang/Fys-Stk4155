@@ -172,11 +172,11 @@ def lamdaDependency(N, z_noise, n, lamda):
         i += 1
     for j in range(len(lamda)):
         plt.plot((lamda), beta_R[j, :])
-    plt.ylabel(r"$\beta$", size=16)
+    plt.ylabel(r"$\beta_i$", size=16)
     plt.xlabel(r"$\lambda$", size=16)
     plt.xscale('log')
     plt.title(
-        r"$\beta_i (\lambda)$ - [degree = {} and N = {}] ".format(n, N), size=16)
+        r"$\beta _i (\lambda)$ - [degree = {} and N = {}] ".format(n, N), size=16)
     plt.show()
 
 
@@ -193,7 +193,8 @@ if __name__ == "__main__":
     # Bias-variance tradeoff with Ridge
     #bias_variance_tradeoff(N, z_noise, n, B, method, lamda_values, plot=True)
 
-    #lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
+    lamdaDependency(22, 0.2, 15, np.logspace(-5, 0, 20))
+    exit()
     N = 30
     z_noise = 0.2
     n = 14
