@@ -23,7 +23,7 @@ def find_best_test_size(wanted_test_size, z):
     """
     Find best test size which allow a even grid
     when reshaping back
-    
+
 
     Args:
         wanted_test_size ([type]): [description]
