@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 # from plot_set import*
 from matplotlib.ticker import MaxNLocator
-
+import matplotlib as mpl
 
 from sklearn.utils.testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
@@ -79,15 +79,17 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     fig_OLS.savefig("../article/figures/real_data_best_OLS_map.pdf", bbox_inches="tight")
 
 
+    # Colorbar settings
+    cmap = mpl.cm.RdBu
+    norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
     # Ridge
-    cmap = plt.get_cmap('RdBu') # Cmap
     fig_Ridge = plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
     levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
     plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
     plt.scatter(n_values[idx2[0]], lamda_values[idx2[1]], s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.yscale("log")
-    cbar1 = plt.colorbar(cmap = cmap)
+    cbar1 = plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap))
     cbar1.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
     plt.title("Ridge")
     plt.xlabel(r"$n$", fontsize=14)
@@ -103,7 +105,7 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
     plt.contourf(n_values,lamda_values, MSE_Lasso.T, vmin=np.min(MSE_Lasso), vmax=np.max(MSE_Lasso), cmap='RdBu',levels=levels)
     plt.scatter(n_values[idx3[0]], lamda_values[idx3[1]], s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.yscale("log")
-    cbar2 = plt.colorbar(cmap = cmap)
+    cbar2 = plt.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap))
     cbar2.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
     plt.title("Lasso")
     plt.xlabel(r"$n$", fontsize=14)
