@@ -68,43 +68,49 @@ def compare_OLS_R_L(data, n_values, lamda_values, k_fold_number, max_iter):
 
     #-- Plotting --#
     # OLS
-    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    fig_OLS = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.plot(n_values, MSE_OLS, "o--")
     plt.ylim(MSE_OLS.min()*0.5,MSE_OLS.min()*15 )
     plt.title("OLS")
     plt.scatter(n_values[idx1], MSE_OLS[idx1],  s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.xlabel(r"$n$", fontsize=14)
-    plt.ylabel(r"$\lambda$", fontsize=14)
+    plt.ylabel(r"$MSE", fontsize=14)
     plt.legend(fontsize = 13)
+    fig_OLS.savefig("../article/figures/real_data_best_OLS_map.pdf", bbox_inches="tight")
+
 
 
     # Ridge
     cmap = plt.get_cmap('RdBu') # Cmap
-    plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
+    fig_Ridge = plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
     levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Ridge), np.max(MSE_Ridge))
     plt.contourf(n_values,lamda_values, MSE_Ridge.T, vmin=np.min(MSE_Ridge), vmax=np.max(MSE_Ridge), cmap='RdBu',levels=levels)
     plt.scatter(n_values[idx2[0]], lamda_values[idx2[1]], s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.yscale("log")
-    cbar1 = plt.colorbar()
+    cbar1 = plt.colorbar(cmap = cmap)
     cbar1.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
     plt.title("Ridge")
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.legend(fontsize = 13)
+    fig_Ridge.savefig("../article/figures/real_data_best_Ridge_map.pdf", bbox_inches="tight")
+
 
 
     # Lasso
-    plt.figure(num=2, dpi=80, facecolor='w', edgecolor='k')
+    fig_Lasso = plt.figure(num=2, dpi=80, facecolor='w', edgecolor='k')
     levels = MaxNLocator(nbins=30).tick_values(np.min(MSE_Lasso), np.max(MSE_Lasso))
     plt.contourf(n_values,lamda_values, MSE_Lasso.T, vmin=np.min(MSE_Lasso), vmax=np.max(MSE_Lasso), cmap='RdBu',levels=levels)
     plt.scatter(n_values[idx3[0]], lamda_values[idx3[1]], s = 100, linewidths = 2, marker = "x", color = "black", label = "min MSE")
     plt.yscale("log")
-    cbar2 = plt.colorbar()
+    cbar2 = plt.colorbar(cmap = cmap)
     cbar2.set_label(r"MSE", fontsize=14, rotation=270, labelpad= 20)
     plt.title("Lasso")
     plt.xlabel(r"$n$", fontsize=14)
     plt.ylabel(r"$\lambda$", fontsize=14)
     plt.legend(fontsize = 13)
+    fig_Lasso.savefig("../article/figures/real_data_best_Lasso_map.pdf", bbox_inches="tight")
+
     plt.show()
 
 
@@ -223,7 +229,7 @@ if __name__ == "__main__":
     #plot_3D("Saudi", x, y, z, "Høyde", "save_name", show = True, save = False)
 
     lamda_values = np.logspace(-10, -1, 10)
-    n_values = range(0,15)
+    n_values = range(0,5)
     k_fold_number = 5
     max_iter = int(1e4)
     best_n, best_lmd = compare_OLS_R_L(data_train, n_values, lamda_values, k_fold_number, max_iter)
@@ -231,7 +237,7 @@ if __name__ == "__main__":
     print(best_n)
     print(best_lmd)
 
-
+    exit()
     OLS_predict, Ridge_predict, Lasso_predict = evaluate_best_model(data_train, data_test, best_n, best_lmd, max_iter)
     plot_predictions(data_test, OLS_predict, Ridge_predict, Lasso_predict)
 
