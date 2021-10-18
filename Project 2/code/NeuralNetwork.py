@@ -28,12 +28,21 @@ class NeuralNetwork:
         pass
     def backpropagation(self):
         pass
+
     def sigmoid_activation(self, x):
         return 1/(1 + np.exp(-x))
+
     def RELU_activation(self, x):
-        pass
-    def Leaky_RELU_activation(self):
-        pass
+        if x >0:
+            return x
+        else:
+            return x
+
+    def Leaky_RELU_activation(self, x):
+        if x > 0:
+            return x
+        else:
+            return 0.01*x
 
 
 if __name__ == "__main__":
