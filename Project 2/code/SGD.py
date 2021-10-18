@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import os, sys
 from sklearn.model_selection import train_test_split
 from tqdm import trange
@@ -30,7 +29,6 @@ def SGD(X, y):
 
 
 
-
 if __name__ == "__main__":
     # Get modules from project 1
     path = os.getcwd() # Current working directory
@@ -42,24 +40,16 @@ if __name__ == "__main__":
     N = 5               # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
     n = 2               # Highest order of polynomial for X
-    
+
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
-    X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-    mean_scale(X_train, X_test, z_train, z_test)
+    # X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
+    # mean_scale(X_train, X_test, z_train, z_test)
+    
+
 
     #--- Regression ---#
-    theta = SGD(X_train, z_train) # Stochastic Gradient Descent
-    theta_OLS = OLS_regression(X_train, z_train) # OLS regression
+    theta = SGD(X, z) # Stochastic Gradient Descent
+    theta_OLS = OLS_regression(X, z) # OLS regression
     print("SGD: ",theta)
     print("OLS:", theta_OLS)
-
-
-
-
-
-
-
-
-
-    # SGD()
