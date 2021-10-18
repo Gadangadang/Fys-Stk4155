@@ -9,7 +9,6 @@ class NeuralNetwork:
                  y,
                  num_hidden_layers=1,
                  num_hidden_nodes=50,
-                 epochs=10,
                  batch_size=100,
                  eta=0.1,
                  lmbd=0.0,
@@ -19,17 +18,28 @@ class NeuralNetwork:
         self.y = y  # Target
         self.num_hidden_layers = num_hidden_layers
         self.num_hidden_nodes = num_hidden_nodes
-        self.epochs = epochs
+        self.num_output = len(y)
         self.batch_size = batch_size
         self.eta = eta
         self.lmbd = lmbd
         self.seed = seed
 
+        self.hidden_layer = np.zeros((num_hidden_layers, num_hidden_nodes))
+
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
-        self.hidden_weights = np.random.randn(
-            self.X.shape[1], self.num_hidden_nodes)
-        self.hidden_bias = np.zeros(self.num_hidden_nodes) + 0.01
+        num_hidden_layers = self.num_hidden_layers
+        num_features = self.X.shape[1]
+        num_hidden_nodes = self.num_hidden_nodes
+        num_output = self.
+        bias_shift = 0.01
+
+        self.hidden_weights = np.random.randn(num_hidden_layers, num_features, num_hidden_nodes)
+        self.hidden_bias = np.zeros(num_hidden_layers, num_hidden_nodes) + bias_shift
+
+        self.output_weights = np.random.randn(num_hidden_nodes, num_output)
+        self.output_bias = np.zeros(self.n_categories) + 0.01
+
 
     def feed_forward(self):
         pass
