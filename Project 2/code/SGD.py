@@ -36,28 +36,21 @@ if __name__ == "__main__":
     path = os.getcwd() # Current working directory
     path += '/../../Project 1/code'
     sys.path.append(path)
-
     from Functions import *
+
     #--- Create data from Franke Function ---#
-
-    N = 5             # Number of points in each dimension
-    z_noise = 0.2      # Added noise to the z-value
-    n = 2              # Highest order of polynomial for X
-
-    # Create data and set up design matrix
+    N = 5               # Number of points in each dimension
+    z_noise = 0.2       # Added noise to the z-value
+    n = 2               # Highest order of polynomial for X
+    
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
-
-    # Split data into train and test data
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-
-    # Scale by subtracting mean
     mean_scale(X_train, X_test, z_train, z_test)
-    theta = SGD(X_train, z_train)
 
-    # OLS regression
-    theta_OLS = OLS_regression(X_train, z_train)
-
+    #--- Regression ---#
+    theta = SGD(X_train, z_train) # Stochastic Gradient Descent
+    theta_OLS = OLS_regression(X_train, z_train) # OLS regression
     print("SGD: ",theta)
     print("OLS:", theta_OLS)
 
