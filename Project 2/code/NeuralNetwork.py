@@ -11,7 +11,8 @@ class NeuralNetwork:
                     epochs=10,
                     batch_size=100,
                     eta=0.1,
-                    lmbd=0.0                ):
+                    lmbd=0.0
+                    seed=4155                ):
 
         self.X = X # Design matrix
         self.y = y  # Target
@@ -21,8 +22,11 @@ class NeuralNetwork:
         self.batch_size = batch_size
         self.eta = eta
         self.lmbd = lmbd
+        self.seed = seed
 
     def create_biases_and_weights(self):
+        np.random.seed(self.seed)
+
         pass
     def feed_forward(self):
         pass
