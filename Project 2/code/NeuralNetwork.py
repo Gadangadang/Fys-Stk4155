@@ -28,6 +28,8 @@ class NeuralNetwork:
         pass
     def backpropagation(self):
         pass
+    def activation(self, x):
+        return 1/(1 + np.exp(-x))
 
 
 if __name__ == "__main__":
