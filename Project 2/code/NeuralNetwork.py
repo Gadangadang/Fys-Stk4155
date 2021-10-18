@@ -1,20 +1,21 @@
 import numpy as np
-import os, sys
+import os
+import sys
 
 
 class NeuralNetwork:
-    def __init__(   self,
-                    X,
-                    y,
-                    num_hidden_layers = 1,
-                    num_hidden_nodes = 50,
-                    epochs=10,
-                    batch_size=100,
-                    eta=0.1,
-                    lmbd=0.0
-                    seed=4155                ):
+    def __init__(self,
+                 X,
+                 y,
+                 num_hidden_layers=1,
+                 num_hidden_nodes=50,
+                 epochs=10,
+                 batch_size=100,
+                 eta=0.1,
+                 lmbd=0.0,
+                 seed=4155):
 
-        self.X = X # Design matrix
+        self.X = X  # Design matrix
         self.y = y  # Target
         self.num_hidden_layers = num_hidden_layers
         self.num_hidden_nodes = num_hidden_nodes
@@ -26,32 +27,35 @@ class NeuralNetwork:
 
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
+        self.hidden_weights = np.random.randn(
+            self.X.shape[1], self.num_hidden_nodes)
+        self.hidden_bias = np.zeros(self.num_hidden_nodes) + 0.01
 
-        pass
     def feed_forward(self):
         pass
+
     def backpropagation(self):
         pass
 
-    def sigmoid_activation(self, x):
-        return 1/(1 + np.exp(-x))
+    def sigmoid_activation(self, value):
+        return 1 / (1 + np.exp(-value))
 
-    def RELU_activation(self, x):
-        if x >0:
-            return x
+    def RELU_activation(self, value):
+        if value > 0:
+            return value
         else:
-            return x
+            return value
 
-    def Leaky_RELU_activation(self, x):
-        if x > 0:
-            return x
+    def Leaky_RELU_activation(self, value):
+        if value > 0:
+            return value
         else:
-            return 0.01*x
+            return 0.01 * value
 
 
 if __name__ == "__main__":
     # Get modules from project 1
-    path = os.getcwd() # Current working directory
+    path = os.getcwd()  # Current working directory
     path += '/../../Project 1/code'
     sys.path.append(path)
     from Functions import *
@@ -65,15 +69,6 @@ if __name__ == "__main__":
     X = create_X(x, y, n)
 
     NN = NeuralNetwork(X, z)
-
-
-
-
-
-
-
-
-
 
 
 #
