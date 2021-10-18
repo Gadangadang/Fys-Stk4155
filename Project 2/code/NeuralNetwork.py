@@ -18,8 +18,6 @@ class NeuralNetwork:
         self.y = y  # Target
         self.num_hidden_layers = num_hidden_layers
         self.num_hidden_nodes = num_hidden_nodes
-        self.num_features = self.X.shape[1]
-
         self.num_output_nodes = len(y)
         self.batch_size = batch_size
         self.eta = eta
@@ -31,16 +29,16 @@ class NeuralNetwork:
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
         num_hidden_layers = self.num_hidden_layers
-        num_features = self.num_features
+        num_features = self.X.shape[1]
         num_hidden_nodes = self.num_hidden_nodes
-        num_output_nodes = self.num_output_nodes
+        #num_output = self.
         bias_shift = 0.01
 
         self.hidden_weights = np.random.randn(num_hidden_layers, num_features, num_hidden_nodes)
-        self.hidden_bias = np.zeros((num_hidden_layers, num_hidden_nodes)) + bias_shift
+        self.hidden_bias = np.zeros(num_hidden_layers, num_hidden_nodes) + bias_shift
 
-        self.output_weights = np.random.randn(num_hidden_nodes, num_output_nodes)
-        self.output_bias = np.zeros(num_output_nodes) + bias_shift
+        self.output_weights = np.random.randn(num_hidden_nodes, num_output)
+        self.output_bias = np.zeros(self.n_categories) + 0.01
 
 
     def feed_forward(self):
@@ -64,6 +62,15 @@ class NeuralNetwork:
         else:
             return 0.01 * value
 
+    def __str__(self):
+        text = "Information of the Neural Network \n"
+        text += "Hidden layers:      {} \n".format(self.hidden_layer.shape[0])
+        text += "Hidden nodes:       {} \n".format(self.hidden_layer.shape[1])
+        text += "Output nodes:       {} \n".format(self.num_output_nodes)
+        text += "Number of features: {} \n".format(self.X.shape[1])
+
+        return text
+
 
 if __name__ == "__main__":
     # Get modules from project 1
@@ -81,7 +88,7 @@ if __name__ == "__main__":
     X = create_X(x, y, n)
 
     NN = NeuralNetwork(X, z)
-    NN.create_biases_and_weights()
+    print(NN)
 
 
 #
