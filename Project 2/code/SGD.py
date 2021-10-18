@@ -75,11 +75,11 @@ def compare_SGD_OLS(X, z, eta):
         SGD_MSE_test[index] = test_err
 
     plotting(eta, OLS_MSE_train, SGD_MSE_train)
-    plotting(eta, OLS_MSE_test, SGD_MSE_test)
+    #plotting(eta, OLS_MSE_test, SGD_MSE_test)
 
 
 def plotting(eta, OLS_MSE, SGD_MSE):
-    plt.plot(eta, OLS_MSE, label="OLS")
+    plt.plot(eta, OLS_MSE, "--", label="OLS")
     plt.plot(eta, SGD_MSE, label="SGD")
     plt.xlabel(r"$\eta - Learning rate$")
     plt.ylabel("MSE")
@@ -101,9 +101,8 @@ if __name__ == "__main__":
     lamda = 0
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
-    # X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-    # mean_scale(X_train, X_test, z_train, z_test)
-    eta = np.linspace(0.001, 0.5, 15)
+
+    eta = np.linspace(0.001, 0.06, 15)
 
     #--- Regression ---#
     theta = SGD(X, z)  # Stochastic Gradient Descent
