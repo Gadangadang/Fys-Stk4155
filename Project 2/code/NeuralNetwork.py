@@ -40,12 +40,27 @@ class NeuralNetwork:
         self.output_weights = np.random.randn(num_hidden_nodes, num_output)
         self.output_bias = np.zeros(self.n_categories) + 0.01
 
+    def update_parameters(self, batch, eta):
+        nabla_b = [np.zeros(b.shape) for b in self.hidden_bias]
+        nabla_w = [np.zeros(w.shape) for w in self.hidden_weights]
+        for x, y in batch:
+            delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
+            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        self.hidden_weights = [w-(eta/len(mini_batch))*nw
+                        for w, nw in zip(self.hidden_weights, nabla_w)]
+        self.hidden_bias = [b-(eta/len(mini_batch))*nb
+                       for b, nb in zip(self.hidden_bias, nabla_b)]
+
 
     def feed_forward(self):
         pass
 
     def backpropagation(self):
-        pass
+        """
+        Returns the derivatives of the cost functions
+        """
+        return (delta_nabla_b , delta_nabla_w)
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))

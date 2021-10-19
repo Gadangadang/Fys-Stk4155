@@ -18,7 +18,7 @@ def SGD(X, y, eta_val=0.1):
     N = X.shape[0]                      # Number of data points
     m = 10                              # Size of each mini-batch
     num_epochs = int(1e4)                 # Number of epochs
-    theta = np.random.normal(0, 1, size=(X.shape[1], 1)) # Initialize theta with ones
+    theta = np.random.normal(0, 1, size=(X.shape[1], 1)) # Initialize theta with normal dist.
     def eta(epoch): return eta_val            # Learning rate (constant here)
     np.random.seed(4155)
 
