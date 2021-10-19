@@ -41,16 +41,26 @@ class NeuralNetwork:
         self.output_bias = np.zeros(self.n_categories) + 0.01
 
     def update_parameters(self, batch, eta):
-        nabla_b = [np.zeros(b.shape) for b in self.hidden_bias]
-        nabla_w = [np.zeros(w.shape) for w in self.hidden_weights]
-        for x, y in batch:
-            delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
-            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.hidden_weights = [w-(eta/len(mini_batch))*nw
-                        for w, nw in zip(self.hidden_weights, nabla_w)]
-        self.hidden_bias = [b-(eta/len(mini_batch))*nb
-                       for b, nb in zip(self.hidden_bias, nabla_b)]
+        nabla_hidden_b = [np.zeros(b.shape) for b in self.hidden_bias]
+        nabla_hidden_w = [np.zeros(w.shape) for w in self.hidden_weights]
+        nabla_output_b = [np.zeros(b.shape) for b in self.output_bias]
+        nabla_output_w = [np.zeros(w.shape) for w in self.output_weights]
+        x,y = batch
+        delta_nabla_output_b, delta_nabla_output_w, \
+        delta_nabla_hidden_b, delta_nabla_hidden_w = self.backpropagation(x, y)
+        nabla_hidden_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+        nabla_hidden_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+
+        self.output_weights = [w-(eta/len(mini_batch))*dw
+                        for w, dw in zip(self.output_weights, nabla_w)]
+        self.output_bias = [b-(eta/len(mini_batch))*db
+                       for b, db in zip(self.output_bias, nabla_b)]
+        self.hidden_weights = [w-(eta/len(mini_batch))*dw
+                        for w, dw in zip(self.hidden_weights, nabla_w)]
+        self.hidden_bias = [b-(eta/len(mini_batch))*db
+                       for b, db in zip(self.hidden_bias, nabla_b)]
+
+
 
 
     def feed_forward(self):
