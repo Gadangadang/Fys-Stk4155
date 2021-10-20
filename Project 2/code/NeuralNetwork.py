@@ -99,8 +99,7 @@ class NeuralNetwork:
             error = np.matmul(
                 error, self.weights[-i].T) * self.layers[-i - 1] * (1 - self.layers[-i - 1])
             self.delta_nabla_b[-i - 1] = np.sum(error, axis=0)[0]
-            self.delta_nabla_w[-i -
-                               1] = np.matmul(self.layers[-i - 2].T, error)
+            self.delta_nabla_w[-i - 1] = np.matmul(self.layers[-i - 2].T, error)
 
     def run_network(self, epochs):
         for epoch in range(epochs):
@@ -149,7 +148,6 @@ if __name__ == "__main__":
     X = create_X(x, y, n)
 
     beta = OLS_regression(X, z)
-
     z_ols = X @ beta
 
     NN = NeuralNetwork(X, z)
