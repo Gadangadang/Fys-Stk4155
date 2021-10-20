@@ -102,6 +102,8 @@ class NeuralNetwork:
         for epoch in range(epochs):
             self.feed_forward()
             self.update_parameters()
+    def predict(self,x):
+        seflf
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
