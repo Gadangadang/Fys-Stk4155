@@ -65,8 +65,8 @@ class NeuralNetwork:
 
     def feed_forward(self):
 
-        for i, _ in enumerate(self.layers-1):
-            print(self.layers[i+1], self.layers[i], self.weights[i])
+        for i in range(len(self.layers)-1):
+            
             self.layers[i+1] = np.matmul( self.layers[i], self.weights[i] ) + self.bias[i]
 
 
