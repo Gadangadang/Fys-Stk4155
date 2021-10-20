@@ -19,7 +19,7 @@ class NeuralNetwork:
         self.y = y  # Target
         self.num_hidden_layers = num_hidden_layers
         self.num_hidden_nodes = num_hidden_nodes
-        self.num_output_nodes = len(y)
+        self.num_output_nodes = y.shape[1]
         self.batch_size = batch_size
         self.eta = eta
         self.lmbd = lmbd
@@ -59,19 +59,19 @@ class NeuralNetwork:
         self.bias = np.ones(num_hidden_layers + 1) * bias_shift
 
 
-        self.delta_nabla_b =self.bias.copy()*0
-        self.delta_nabla_w = self.weights.copy()*0
+        self.delta_nabla_b = np.asarray(self.bias.copy())
+        self.delta_nabla_w = np.asarray(self.weights.copy())
 
         # self.output_weights = np.random.randn(num_hidden_nodes, num_output)
         # self.output_bias = np.zeros(self.n_categories) + 0.01
 
-    def update_parameters(self, batch, eta):
-        x,y = batch
-        self.backpropagation(x, y)
+    def update_parameters(self):
+        self.backpropagation()
+
         nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b)])
         nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w)])
-        self.weights = [w-eta*dw for w, dw in zip(self.weights, nabla_w)]
-        self.bias = [b-eta*db for b, db in zip(self.bias, nabla_b)]
+        self.weights = [w-self.eta*dw for w, dw in zip(self.weights, nabla_w)]
+        self.bias = [b-self.eta*db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
 
@@ -89,12 +89,19 @@ class NeuralNetwork:
         """
 
         error = self.layers[-1] - self.y
+        print(np.sum(error))
+        for i in range(self.num_hidden_layers):
 
-        for i in range(self.num_hidden_layers+1):
-            self.delta_nabla_b[-i-1] = np.matmul(self.layers[-i-1], error)
-            self.delta_nabla_w[-i-1] = np.sum(error, axis = 0)
-            error = np.matmul(error, self.weights)* self.layers[-i-1] * (1 - self.layers[-i-1])
-        pass
+            self.delta_nabla_b[-i-1] = np.sum(error)
+            self.delta_nabla_w[-i-1] = np.matmul(self.layers[-i-1].T, error)
+            error = np.matmul(error, self.weights[-i-1].T)* self.layers[-i-1] * (1 - self.layers[-i-1])
+
+    def run_network(self, epochs):
+
+        for epoch in range(epochs):
+            self.feed_forward()
+            self.update_parameters()
+
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
@@ -138,7 +145,7 @@ if __name__ == "__main__":
 
     NN = NeuralNetwork(X, z)
     NN.create_biases_and_weights()
-    NN.feed_forward()
+    NN.run_network(100)
 
 
 #
