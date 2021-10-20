@@ -7,10 +7,10 @@ class NeuralNetwork:
     def __init__(self,
                  X,
                  y,
-                 num_hidden_layers=3,
+                 num_hidden_layers=2,
                  num_hidden_nodes=50,
                  batch_size=100,
-                 eta=0.1,
+                 eta=0.001,
                  lmbd=0.0,
                  seed=4155,
                  activation = "sigmoid"):
@@ -67,13 +67,12 @@ class NeuralNetwork:
 
     def update_parameters(self):
         self.backpropagation()
-
+        
         nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b)])
         nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w)])
-        print(nabla_w)
-        exit()
         self.weights = [w-self.eta*dw for w, dw in zip(self.weights, nabla_w)]
         self.bias = [b-self.eta*db for b, db in zip(self.bias, nabla_b)]
+
 
     def feed_forward(self):
 
@@ -91,16 +90,15 @@ class NeuralNetwork:
         """
 
         error = self.layers[-1] - self.y
+        print(np.sum(error))
         self.delta_nabla_b[-1] = np.sum(error, axis = 0)[0]
         self.delta_nabla_w[-1] = np.matmul(self.layers[-2].T, error)
-        print(1/len(error)*np.sum(error))
-        for i in range(1,self.num_hidden_layers):
+        for i in range(1,self.num_hidden_layers+1):
             error = np.matmul(error, self.weights[-i].T) * self.layers[-i-1] * (1 - self.layers[-i-1])
             self.delta_nabla_b[-i-1] = np.sum(error, axis = 0)[0]
             self.delta_nabla_w[-i-1] = np.matmul(self.layers[-i-2].T, error)
 
     def run_network(self, epochs):
-
         for epoch in range(epochs):
             self.feed_forward()
             self.update_parameters()
