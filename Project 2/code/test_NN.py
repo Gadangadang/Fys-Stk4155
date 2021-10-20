@@ -14,9 +14,42 @@ def test_feed_forward():
                     [0, 1],
                     [0, 1]])
 
-    z = np.array([1, 2, 3]).reshape(3,1)
-    NN = NeuralNetwork(X, z)
+    y = np.array([1, 2, 3]).reshape(3,1)
+    num_hidden_layers = 1
+    num_hidden_nodes = 2
+    NN = NeuralNetwork(  X,
+                         y,
+                         num_hidden_layers=num_hidden_layers,
+                         num_hidden_nodes=num_hidden_nodes,
+                         batch_size=100,
+                         eta=0.1,
+                         lmbd=0.0,
+                         seed=4155,
+                         activation = "sigmoid")
+
     NN.create_biases_and_weights()
+
+    # Redefine weights and bias to simple numbers
+    W = 1
+    B = 1
+    for i in range(num_hidden_layers + 1):
+        NN.weights[i][:] = W
+        NN.bias[i] = B
+
+
+    NN.feed_forward()
+    layer1 = NN.layers[0]
+
+    print(X)
+    layer1[0] = 2
+    print(X)
+    # print(layer1)
+    con1 = layer1 == X
+    # con1 = (layer1 == X).all()
+
+    # print(con1)
+
+
 
 
 
