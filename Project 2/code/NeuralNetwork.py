@@ -68,10 +68,16 @@ class NeuralNetwork:
     def update_parameters(self):
         self.backpropagation()
 
-        nabla_b = np.asarray(
-            [db + self.lmbd * b for b, db in zip(self.bias, self.delta_nabla_b)])
-        nabla_w = np.asarray(
-            [dw + self.lmbd * w for w, dw in zip(self.weights, self.delta_nabla_w)])
+
+        # nabla_b = np.asarray(
+        #     [db + self.lmbd * b for b, db in zip(self.bias, self.delta_nabla_b)])
+        #
+        # nabla_w = np.asarray(
+        #     [dw + self.lmbd * w for w, dw in zip(self.weights, self.delta_nabla_w)])
+
+        nabla_b = [db + self.lmbd * b for b, db in zip(self.bias, self.delta_nabla_b)]
+        nabla_w = [dw + self.lmbd * w for w, dw in zip(self.weights, self.delta_nabla_w)]
+
         self.weights = [w - self.eta * dw for w,
                         dw in zip(self.weights, nabla_w)]
         self.bias = [b - self.eta * db for b, db in zip(self.bias, nabla_b)]
@@ -79,12 +85,14 @@ class NeuralNetwork:
     def feed_forward(self):
 
         for i in range(self.num_hidden_layers):
+
+
             self.layers[i + 1] = self.activation(
                 np.matmul(self.layers[i], self.weights[i]) + self.bias[i])
-
         #-- No activation for last layer --#
         self.layers[-1] = np.matmul(self.layers[-2],
                                     self.weights[-1]) + self.bias[-1]
+
 
     def backpropagation(self):
         """
@@ -114,6 +122,7 @@ class NeuralNetwork:
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
+
 
     def RELU_activation(self, value):
         if value > 0:
@@ -152,11 +161,13 @@ if __name__ == "__main__":
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
+
     beta = OLS_regression(X, z)
 
     z_ols = X @ beta
 
-    NN = NeuralNetwork(X, z)
+    NN = NeuralNetwork(X, z, num_hidden_layers=1,
+    num_hidden_nodes=2)
     NN.run_network(100)
 
     print("Neural Network", MSE(z, NN.predict(X)))
