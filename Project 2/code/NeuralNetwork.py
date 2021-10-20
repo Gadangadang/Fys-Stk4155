@@ -34,34 +34,23 @@ class NeuralNetwork:
         #num_output = self.
         bias_shift = 0.01
 
-        self.hidden_weights = np.random.randn(num_hidden_layers, num_features, num_hidden_nodes)
-        self.hidden_bias = np.zeros(num_hidden_layers, num_hidden_nodes) + bias_shift
+        self.weights = np.random.randn(num_hidden_layers, num_features, num_hidden_nodes)
+        self.bias = np.zeros(num_hidden_layers, num_hidden_nodes) + bias_shift
 
-        self.output_weights = np.random.randn(num_hidden_nodes, num_output)
-        self.output_bias = np.zeros(self.n_categories) + 0.01
+        #self.output_weights = np.random.randn(num_hidden_nodes, num_output)
+        #self.output_bias = np.zeros(self.n_categories) + 0.01
 
     def update_parameters(self, batch, eta):
-        nabla_hidden_b = [np.zeros(b.shape) for b in self.hidden_bias]
-        nabla_hidden_w = [np.zeros(w.shape) for w in self.hidden_weights]
-        nabla_output_b = [np.zeros(b.shape) for b in self.output_bias]
-        nabla_output_w = [np.zeros(w.shape) for w in self.output_weights]
+        nabla_b = [np.zeros(b.shape) for b in self.bias]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
         x,y = batch
-        delta_nabla_output_b, delta_nabla_output_w, \
-        delta_nabla_hidden_b, delta_nabla_hidden_w = self.backpropagation(x, y)
-        nabla_hidden_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-        nabla_hidden_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-
-        self.output_weights = [w-(eta/len(mini_batch))*dw
-                        for w, dw in zip(self.output_weights, nabla_w)]
-        self.output_bias = [b-(eta/len(mini_batch))*db
-                       for b, db in zip(self.output_bias, nabla_b)]
-        self.hidden_weights = [w-(eta/len(mini_batch))*dw
-                        for w, dw in zip(self.hidden_weights, nabla_w)]
-        self.hidden_bias = [b-(eta/len(mini_batch))*db
-                       for b, db in zip(self.hidden_bias, nabla_b)]
-
-
-
+        delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
+        nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+        nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        self.weights = [w-(eta/len(batch[0]))*dw
+                        for w, dw in zip(self.weights, nabla_w)]
+        self.bias = [b-(eta/len(batch[0]))*db
+                       for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
         pass
