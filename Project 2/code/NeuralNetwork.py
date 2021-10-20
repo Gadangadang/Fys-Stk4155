@@ -49,14 +49,17 @@ class NeuralNetwork:
 
         self.bias = np.ones(num_hidden_layers+1) * bias_shift
 
+        self.delta_nabla_b = np.zeros(np.shape(self.bias))
+        self.delta_nabla_w = np.zeros(np.shape(self.weights))
+
         # self.output_weights = np.random.randn(num_hidden_nodes, num_output)
         # self.output_bias = np.zeros(self.n_categories) + 0.01
 
     def update_parameters(self, batch, eta):
         x,y = batch
-        delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
-        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, delta_nabla_b])
-        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, delta_nabla_w])
+        self.backpropagation(x, y)
+        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b])
+        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w])
         self.weights = [w-eta*dw for w, dw in zip(self.weights, nabla_w)]
         self.bias = [b-eta*db for b, db in zip(self.bias, nabla_b)]
 
@@ -72,7 +75,12 @@ class NeuralNetwork:
         """
         Returns the derivatives of the cost functions
         """
-        return (delta_nabla_b, delta_nabla_w)
+        error = self.layers[-1] - self.y
+        for i, _ in enumerate(self.layers-1):
+            self.delta_nabla_b[-i-1] = np.matmul(self.layers[-i-1], error)
+            self.delta_nabla_w[-i-1] = np.sum(error, axis = 0)
+            error = np.matmul(error, self.weights)* self.layers[-i-1] * (1 - self.layers[-i-1])
+        pass
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
