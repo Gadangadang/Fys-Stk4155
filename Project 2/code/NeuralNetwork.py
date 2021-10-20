@@ -40,7 +40,7 @@ class NeuralNetwork:
         bias_shift = 0.01
 
         self.weights = [np.random.randn(num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
-
+        
         self.weights.insert(0, np.random.randn(
             num_features, num_hidden_nodes))
 
