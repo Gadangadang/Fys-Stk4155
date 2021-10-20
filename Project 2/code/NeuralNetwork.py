@@ -58,8 +58,9 @@ class NeuralNetwork:
 
         self.bias = np.ones(num_hidden_layers + 1) * bias_shift
 
-        self.delta_nabla_b = np.zeros(np.shape(self.bias))
-        self.delta_nabla_w = np.zeros(np.shape(self.weights))
+
+        self.delta_nabla_b =self.bias.copy()*0
+        self.delta_nabla_w = self.weights.copy()*0
 
         # self.output_weights = np.random.randn(num_hidden_nodes, num_output)
         # self.output_bias = np.zeros(self.n_categories) + 0.01
@@ -67,25 +68,29 @@ class NeuralNetwork:
     def update_parameters(self, batch, eta):
         x,y = batch
         self.backpropagation(x, y)
-        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b])
-        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w])
+        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b)])
+        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w)])
         self.weights = [w-eta*dw for w, dw in zip(self.weights, nabla_w)]
         self.bias = [b-eta*db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
+
         for i in range(self.num_hidden_layers):
             self.layers[i + 1] = self.activation(
                 np.matmul(self.layers[i], self.weights[i]) + self.bias[i])
 
         #-- No activation for last layer --#
-        self.layers[-1] = np.matmul(self.layers[-2], self.weights[-1]) + self.bias[-1])
+        self.layers[-1] = np.matmul(self.layers[-2], self.weights[-1]) + self.bias[-1]
+
 
     def backpropagation(self):
         """
         Returns the derivatives of the cost functions
         """
+
         error = self.layers[-1] - self.y
-        for i, _ in enumerate(self.layers-1):
+
+        for i in range(self.num_hidden_layers+1):
             self.delta_nabla_b[-i-1] = np.matmul(self.layers[-i-1], error)
             self.delta_nabla_w[-i-1] = np.sum(error, axis = 0)
             error = np.matmul(error, self.weights)* self.layers[-i-1] * (1 - self.layers[-i-1])
