@@ -60,9 +60,8 @@ class NeuralNetwork:
         self.bias = np.ones(num_hidden_layers + 1) * bias_shift
 
 
-        self.delta_nabla_b = np.asarray(self.bias.copy())
+        self.delta_nabla_b = self.bias.copy()
         self.delta_nabla_w = self.weights.copy()
-
 
 
 
@@ -90,10 +89,11 @@ class NeuralNetwork:
         """
 
         error = self.layers[-1] - self.y
-        print(np.sum(error))
+
         for i in range(self.num_hidden_layers):
 
-            self.delta_nabla_b[-i-1] = np.sum(error)
+            self.delta_nabla_b[-i-1] = np.sum(error, axis = 0)[0]
+            exit()
             self.delta_nabla_w[-i-1] = np.matmul(self.layers[-i-1].T, error)
             error = np.matmul(error, self.weights[-i-1].T)* self.layers[-i-1] * (1 - self.layers[-i-1])
 
