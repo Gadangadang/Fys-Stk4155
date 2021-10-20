@@ -72,9 +72,12 @@ class NeuralNetwork:
         self.bias = [b - eta * db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
-        for i in range(self.num_hidden_layers + 1):
+        for i in range(self.num_hidden_layers):
             self.layers[i + 1] = self.activation(
                 np.matmul(self.layers[i], self.weights[i]) + self.bias[i])
+                
+        #-- No activation for last layer --#
+        self.layers[-1] = np.matmul(self.layers[-2], self.weights[-1]) + self.bias[-1])
 
     def backpropagation(self):
         """
