@@ -12,7 +12,8 @@ class NeuralNetwork:
                  batch_size=100,
                  eta=0.1,
                  lmbd=0.0,
-                 seed=4155):
+                 seed=4155,
+                 activation = "sigmoid"):
 
         self.X = X  # Design matrix
         self.y = y  # Target
@@ -31,6 +32,13 @@ class NeuralNetwork:
         self.layers.append(
             np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
 
+        if activation == "sigmoid":
+            self.activation = self.sigmoid_activation
+        elif activation == "relu":
+            self.activation = self.RELU_activation
+        elif activation == "leaky_relu":
+            self.activation = self.Leaky_RELU_activation
+
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
         num_hidden_layers = self.num_hidden_layers
@@ -39,7 +47,8 @@ class NeuralNetwork:
         # num_output = self.
         bias_shift = 0.01
 
-        self.weights = [np.random.randn(num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
+        self.weights = [np.random.randn(
+            num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
 
         self.weights.insert(0, np.random.randn(
             num_features, num_hidden_nodes))
@@ -47,25 +56,25 @@ class NeuralNetwork:
         self.weights.append(np.random.randn(
             num_hidden_nodes, self.num_output_nodes))
 
-        self.bias = np.ones(num_hidden_layers+1) * bias_shift
+        self.bias = np.ones(num_hidden_layers + 1) * bias_shift
 
         # self.output_weights = np.random.randn(num_hidden_nodes, num_output)
         # self.output_bias = np.zeros(self.n_categories) + 0.01
 
     def update_parameters(self, batch, eta):
-        x,y = batch
+        x, y = batch
         delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
-        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, delta_nabla_b)])
-        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, delta_nabla_w)])
-        self.weights = [w-eta*dw for w, dw in zip(self.weights, nabla_w)]
-        self.bias = [b-eta*db for b, db in zip(self.bias, nabla_b)]
+        nabla_b = np.asarray(
+            [db + self.lmbd * b for b, db in zip(self.bias, delta_nabla_b)])
+        nabla_w = np.asarray(
+            [dw + self.lmbd * w for w, dw in zip(self.weights, delta_nabla_w)])
+        self.weights = [w - eta * dw for w, dw in zip(self.weights, nabla_w)]
+        self.bias = [b - eta * db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
-        for i in range(self.num_hidden_layers+1):
-
-            self.layers[i+1] = np.matmul( self.layers[i], self.weights[i] ) + self.bias[i]
-
-
+        for i in range(self.num_hidden_layers + 1):
+            self.layers[i + 1] = self.activation(
+                np.matmul(self.layers[i], self.weights[i]) + self.bias[i])
 
     def backpropagation(self):
         """
@@ -116,7 +125,6 @@ if __name__ == "__main__":
     NN = NeuralNetwork(X, z)
     NN.create_biases_and_weights()
     NN.feed_forward()
-
 
 
 #
