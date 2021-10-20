@@ -116,16 +116,12 @@ class NeuralNetwork:
         return 1 / (1 + np.exp(-value))
 
     def RELU_activation(self, value):
-        if value > 0:
-            return value
-        else:
-            return value
+        vals = np.where(value > 0, value, 0)
+        return vals
 
     def Leaky_RELU_activation(self, value):
-        if value > 0:
-            return value
-        else:
-            return 0.01 * value
+        vals = np.where(value > 0, value, 0.01 * value)
+        return vals
 
     def __str__(self):
         text = "Information of the Neural Network \n"
@@ -157,11 +153,11 @@ if __name__ == "__main__":
     z_ols = X @ beta
 
     NN = NeuralNetwork(X, z)
-    NN.run_network(100)
+    NN.run_network(int(100))
 
     print("Neural Network", MSE(z, NN.predict(X)))
 
-    print("OLS", MSE(z_ols, z))
+    print("     OLS      ", MSE(z_ols, z))
 
 
 #
