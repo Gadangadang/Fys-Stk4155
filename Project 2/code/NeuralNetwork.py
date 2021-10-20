@@ -90,8 +90,8 @@ class NeuralNetwork:
 
     def __str__(self):
         text = "Information of the Neural Network \n"
-        text += "Hidden layers:      {} \n".format(self.hidden_layer.shape[0])
-        text += "Hidden nodes:       {} \n".format(self.hidden_layer.shape[1])
+        text += "Hidden layers:      {} \n".format(self.num_hidden_layer)
+        text += "Hidden nodes:       {} \n".format(self.num_hidden_nodes)
         text += "Output nodes:       {} \n".format(self.num_output_nodes)
         text += "Number of features: {} \n".format(self.X.shape[1])
 
