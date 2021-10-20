@@ -25,7 +25,6 @@ class NeuralNetwork:
         self.lmbd = lmbd
         self.seed = seed
         self.lmbd = 0
-
         self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
                        for i in range(self.num_hidden_layers)]
         self.layers.insert(0, self.X)
@@ -47,6 +46,7 @@ class NeuralNetwork:
         # num_output = self.
         bias_shift = 0.01
 
+
         self.weights = [np.random.randn(
             num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
 
@@ -56,11 +56,13 @@ class NeuralNetwork:
         self.weights.append(np.random.randn(
             num_hidden_nodes, self.num_output_nodes))
 
+
         self.bias = np.ones(num_hidden_layers + 1) * bias_shift
 
 
         self.delta_nabla_b = np.asarray(self.bias.copy())
-        self.delta_nabla_w = np.asarray(self.weights.copy())
+        self.delta_nabla_w = self.weights.copy()
+
 
 
 

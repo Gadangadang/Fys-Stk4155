@@ -8,11 +8,15 @@ import seaborn as sns
 
 
 
-def test_intialize():
-    pass
 
 def test_feed_forward():
-    pass
+    X = np.array(  [[0, 1],
+                    [0, 1],
+                    [0, 1]])
+
+    z = np.array([1, 2, 3]).reshape(3,1)
+    NN = NeuralNetwork(X, z)
+    NN.create_biases_and_weights()
 
 
 
@@ -119,8 +123,7 @@ def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_c
 
 
 if __name__ == "__main__":
-    # sklearn_network_Morten(X, y_OR)
-    pass
+    test_feed_forward()
 
 
 
