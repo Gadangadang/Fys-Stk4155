@@ -160,14 +160,10 @@ if __name__ == "__main__":
     beta = OLS_regression(X, z)
     z_ols = X @ beta
 
-<<<<<<< HEAD
-    NN = NeuralNetwork(X, z, num_hidden_layers=1,
-    num_hidden_nodes=2)
-    NN.run_network(100)
-=======
+
     NN = NeuralNetwork(X, z)
     NN.run_network(int(100))
->>>>>>> fc053b0a8ccc9ad109b87e09a712c5af21e2201c
+
 
     print("Neural Network", MSE(z, NN.predict(X)))
 
