@@ -12,13 +12,14 @@ class NeuralNetwork:
                  batch_size=100,
                  eta=0.1,
                  lmbd=0.0,
-                 seed=4155):
+                 seed=4155,
+                 activation = "sigmoid"):
 
         self.X = X  # Design matrix
         self.y = y  # Target
         self.num_hidden_layers = num_hidden_layers
         self.num_hidden_nodes = num_hidden_nodes
-        self.num_output_nodes = len(y)
+        self.num_output_nodes = y.shape[1]
         self.batch_size = batch_size
         self.eta = eta
         self.lmbd = lmbd
@@ -31,6 +32,13 @@ class NeuralNetwork:
         self.layers.append(
             np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
 
+        if activation == "sigmoid":
+            self.activation = self.sigmoid_activation
+        elif activation == "relu":
+            self.activation = self.RELU_activation
+        elif activation == "leaky_relu":
+            self.activation = self.Leaky_RELU_activation
+
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
         num_hidden_layers = self.num_hidden_layers
@@ -39,7 +47,8 @@ class NeuralNetwork:
         # num_output = self.
         bias_shift = 0.01
 
-        self.weights = [np.random.randn(num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
+        self.weights = [np.random.randn(
+            num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
 
         self.weights.insert(0, np.random.randn(
             num_features, num_hidden_nodes))
@@ -47,30 +56,51 @@ class NeuralNetwork:
         self.weights.append(np.random.randn(
             num_hidden_nodes, self.num_output_nodes))
 
-        self.bias = np.ones(num_hidden_layers+1) * bias_shift
+        self.bias = np.ones(num_hidden_layers + 1) * bias_shift
+
+
+        self.delta_nabla_b = np.asarray(self.bias.copy())
+        self.delta_nabla_w = np.asarray(self.weights.copy())
 
 
 
-    def update_parameters(self, batch, eta):
-        x,y = batch
-        delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
-        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, delta_nabla_b)])
-        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, delta_nabla_w)])
-        self.weights = [w-eta*dw for w, dw in zip(self.weights, nabla_w)]
-        self.bias = [b-eta*db for b, db in zip(self.bias, nabla_b)]
+    def update_parameters(self):
+        self.backpropagation()
+
+        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b)])
+        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w)])
+        self.weights = [w-self.eta*dw for w, dw in zip(self.weights, nabla_w)]
+        self.bias = [b-self.eta*db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
-        for i in range(self.num_hidden_layers+1):
 
-            self.layers[i+1] = np.matmul( self.layers[i], self.weights[i] ) + self.bias[i]
+        for i in range(self.num_hidden_layers):
+            self.layers[i + 1] = self.activation(
+                np.matmul(self.layers[i], self.weights[i]) + self.bias[i])
 
+        #-- No activation for last layer --#
+        self.layers[-1] = np.matmul(self.layers[-2], self.weights[-1]) + self.bias[-1]
 
 
     def backpropagation(self):
         """
         Returns the derivatives of the cost functions
         """
-        return (delta_nabla_b, delta_nabla_w)
+
+        error = self.layers[-1] - self.y
+        print(np.sum(error))
+        for i in range(self.num_hidden_layers):
+
+            self.delta_nabla_b[-i-1] = np.sum(error)
+            self.delta_nabla_w[-i-1] = np.matmul(self.layers[-i-1].T, error)
+            error = np.matmul(error, self.weights[-i-1].T)* self.layers[-i-1] * (1 - self.layers[-i-1])
+
+    def run_network(self, epochs):
+
+        for epoch in range(epochs):
+            self.feed_forward()
+            self.update_parameters()
+
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
@@ -89,8 +119,8 @@ class NeuralNetwork:
 
     def __str__(self):
         text = "Information of the Neural Network \n"
-        text += "Hidden layers:      {} \n".format(self.hidden_layer.shape[0])
-        text += "Hidden nodes:       {} \n".format(self.hidden_layer.shape[1])
+        text += "Hidden layers:      {} \n".format(self.num_hidden_layer)
+        text += "Hidden nodes:       {} \n".format(self.num_hidden_nodes)
         text += "Output nodes:       {} \n".format(self.num_output_nodes)
         text += "Number of features: {} \n".format(self.X.shape[1])
 
@@ -114,8 +144,7 @@ if __name__ == "__main__":
 
     NN = NeuralNetwork(X, z)
     NN.create_biases_and_weights()
-    NN.feed_forward()
-
+    NN.run_network(100)
 
 
 #
