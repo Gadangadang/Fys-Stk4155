@@ -55,15 +55,14 @@ class NeuralNetwork:
     def update_parameters(self, batch, eta):
         x,y = batch
         delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
-        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, delta_nabla_b])
-        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, delta_nabla_w])
+        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, delta_nabla_b)])
+        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, delta_nabla_w)])
         self.weights = [w-eta*dw for w, dw in zip(self.weights, nabla_w)]
         self.bias = [b-eta*db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
+        for i in range(self.num_hidden_layers+1):
 
-        for i, _ in enumerate(self.layers-1):
-            print(self.layers[i+1], self.layers[i], self.weights[i])
             self.layers[i+1] = np.matmul( self.layers[i], self.weights[i] ) + self.bias[i]
 
 
