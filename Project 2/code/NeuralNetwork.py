@@ -28,7 +28,7 @@ class NeuralNetwork:
 
         self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
                        for i in range(self.num_hidden_layers)]
-        self.layers.insert(0, self.X)
+        self.layers.insert(0, self.X.copy())
         self.layers.append(
             np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
 
@@ -69,6 +69,8 @@ class NeuralNetwork:
 
         nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b)])
         nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w)])
+        print(nabla_w)
+        exit()
         self.weights = [w-self.eta*dw for w, dw in zip(self.weights, nabla_w)]
         self.bias = [b-self.eta*db for b, db in zip(self.bias, nabla_b)]
 
@@ -88,13 +90,13 @@ class NeuralNetwork:
         """
 
         error = self.layers[-1] - self.y
-
-        for i in range(self.num_hidden_layers):
-
+        self.delta_nabla_b[-1] = np.sum(error, axis = 0)[0]
+        self.delta_nabla_w[-1] = np.matmul(self.layers[-2].T, error)
+        print(1/len(error)*np.sum(error))
+        for i in range(1,self.num_hidden_layers):
+            error = np.matmul(error, self.weights[-i].T) * self.layers[-i-1] * (1 - self.layers[-i-1])
             self.delta_nabla_b[-i-1] = np.sum(error, axis = 0)[0]
-            exit()
-            self.delta_nabla_w[-i-1] = np.matmul(self.layers[-i-1].T, error)
-            error = np.matmul(error, self.weights[-i-1].T)* self.layers[-i-1] * (1 - self.layers[-i-1])
+            self.delta_nabla_w[-i-1] = np.matmul(self.layers[-i-2].T, error)
 
     def run_network(self, epochs):
 
