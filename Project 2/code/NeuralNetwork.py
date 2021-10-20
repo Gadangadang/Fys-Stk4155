@@ -107,8 +107,7 @@ class NeuralNetwork:
             error = np.matmul(
                 error, self.weights[-i].T) * self.layers[-i - 1] * (1 - self.layers[-i - 1])
             self.delta_nabla_b[-i - 1] = np.sum(error, axis=0)[0]
-            self.delta_nabla_w[-i -
-                               1] = np.matmul(self.layers[-i - 2].T, error)
+            self.delta_nabla_w[-i - 1] = np.matmul(self.layers[-i - 2].T, error)
 
     def run_network(self, epochs):
         for epoch in range(epochs):
@@ -125,16 +124,12 @@ class NeuralNetwork:
 
 
     def RELU_activation(self, value):
-        if value > 0:
-            return value
-        else:
-            return value
+        vals = np.where(value > 0, value, 0)
+        return vals
 
     def Leaky_RELU_activation(self, value):
-        if value > 0:
-            return value
-        else:
-            return 0.01 * value
+        vals = np.where(value > 0, value, 0.01 * value)
+        return vals
 
     def __str__(self):
         text = "Information of the Neural Network \n"
@@ -163,16 +158,20 @@ if __name__ == "__main__":
 
 
     beta = OLS_regression(X, z)
-
     z_ols = X @ beta
 
+<<<<<<< HEAD
     NN = NeuralNetwork(X, z, num_hidden_layers=1,
     num_hidden_nodes=2)
     NN.run_network(100)
+=======
+    NN = NeuralNetwork(X, z)
+    NN.run_network(int(100))
+>>>>>>> fc053b0a8ccc9ad109b87e09a712c5af21e2201c
 
     print("Neural Network", MSE(z, NN.predict(X)))
 
-    print("OLS", MSE(z_ols, z))
+    print("     OLS      ", MSE(z_ols, z))
 
 
 #
