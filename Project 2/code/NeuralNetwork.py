@@ -26,11 +26,7 @@ class NeuralNetwork:
         self.lmbd = lmbd
         self.seed = seed
         self.lmbd = 0
-        self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
-                       for i in range(self.num_hidden_layers)]
-        self.layers.insert(0, self.X.copy())
-        self.layers.append(
-            np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
+        self.create_layers()
 
         if activation == "sigmoid":
             self.activation = self.sigmoid_activation
@@ -38,6 +34,16 @@ class NeuralNetwork:
             self.activation = self.RELU_activation
         elif activation == "leaky_relu":
             self.activation = self.Leaky_RELU_activation
+
+        self.create_biases_and_weights()
+
+    def create_layers(self):
+        self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
+                       for i in range(self.num_hidden_layers)]
+        self.layers.insert(0, self.X.copy())
+        self.layers.append(
+            np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
+
 
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
@@ -105,6 +111,8 @@ class NeuralNetwork:
     def predict(self,x):
         seflf
 
+        self.feed_forward()
+
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
 
@@ -150,7 +158,6 @@ if __name__ == "__main__":
     z_ols = X @ beta
 
     NN = NeuralNetwork(X, z)
-    NN.create_biases_and_weights()
     NN.run_network(100)
     z_nn = NN.layers[-1]
 
