@@ -1,19 +1,20 @@
 import numpy as np
 import os
 import sys
+np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 class NeuralNetwork:
     def __init__(self,
                  X,
                  y,
-                 num_hidden_layers=3,
-                 num_hidden_nodes=50,
+                 num_hidden_layers=10,
+                 num_hidden_nodes=60,
                  batch_size=100,
-                 eta=0.1,
+                 eta=0.001,
                  lmbd=0.0,
                  seed=4155,
-                 activation = "sigmoid"):
+                 activation="sigmoid"):
 
         self.X = X  # Design matrix
         self.y = y  # Target
@@ -46,7 +47,6 @@ class NeuralNetwork:
         # num_output = self.
         bias_shift = 0.01
 
-
         self.weights = [np.random.randn(
             num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
 
@@ -56,24 +56,21 @@ class NeuralNetwork:
         self.weights.append(np.random.randn(
             num_hidden_nodes, self.num_output_nodes))
 
-
         self.bias = np.ones(num_hidden_layers + 1) * bias_shift
-
 
         self.delta_nabla_b = self.bias.copy()
         self.delta_nabla_w = self.weights.copy()
 
-
-
     def update_parameters(self):
         self.backpropagation()
 
-        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, self.delta_nabla_b)])
-        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, self.delta_nabla_w)])
-        print(nabla_w)
-        exit()
-        self.weights = [w-self.eta*dw for w, dw in zip(self.weights, nabla_w)]
-        self.bias = [b-self.eta*db for b, db in zip(self.bias, nabla_b)]
+        nabla_b = np.asarray(
+            [db + self.lmbd * b for b, db in zip(self.bias, self.delta_nabla_b)])
+        nabla_w = np.asarray(
+            [dw + self.lmbd * w for w, dw in zip(self.weights, self.delta_nabla_w)])
+        self.weights = [w - self.eta * dw for w,
+                        dw in zip(self.weights, nabla_w)]
+        self.bias = [b - self.eta * db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
 
@@ -82,8 +79,8 @@ class NeuralNetwork:
                 np.matmul(self.layers[i], self.weights[i]) + self.bias[i])
 
         #-- No activation for last layer --#
-        self.layers[-1] = np.matmul(self.layers[-2], self.weights[-1]) + self.bias[-1]
-
+        self.layers[-1] = np.matmul(self.layers[-2],
+                                    self.weights[-1]) + self.bias[-1]
 
     def backpropagation(self):
         """
@@ -91,20 +88,24 @@ class NeuralNetwork:
         """
 
         error = self.layers[-1] - self.y
-        self.delta_nabla_b[-1] = np.sum(error, axis = 0)[0]
+        # print(np.sum(error))
+        self.delta_nabla_b[-1] = np.sum(error, axis=0)[0]
         self.delta_nabla_w[-1] = np.matmul(self.layers[-2].T, error)
-        print(1/len(error)*np.sum(error))
-        for i in range(1,self.num_hidden_layers):
-            error = np.matmul(error, self.weights[-i].T) * self.layers[-i-1] * (1 - self.layers[-i-1])
-            self.delta_nabla_b[-i-1] = np.sum(error, axis = 0)[0]
-            self.delta_nabla_w[-i-1] = np.matmul(self.layers[-i-2].T, error)
+        for i in range(1, self.num_hidden_layers + 1):
+            error = np.matmul(
+                error, self.weights[-i].T) * self.layers[-i - 1] * (1 - self.layers[-i - 1])
+            self.delta_nabla_b[-i - 1] = np.sum(error, axis=0)[0]
+            self.delta_nabla_w[-i -
+                               1] = np.matmul(self.layers[-i - 2].T, error)
 
     def run_network(self, epochs):
-
         for epoch in range(epochs):
             self.feed_forward()
             self.update_parameters()
-
+    def predict(self,X):
+        self.layers[0] = X
+        self.feed_forward()
+        return self.layers[-1]
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
@@ -146,9 +147,18 @@ if __name__ == "__main__":
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
+    beta = OLS_regression(X, z)
+
+    z_ols = X @ beta
+
     NN = NeuralNetwork(X, z)
     NN.create_biases_and_weights()
     NN.run_network(100)
+
+
+    print("Neural Network", MSE(z, NN.predict(X)))
+
+    print("OLS", MSE(z_ols, z))
 
 
 #
