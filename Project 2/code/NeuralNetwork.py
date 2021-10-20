@@ -23,6 +23,7 @@ class NeuralNetwork:
         self.eta = eta
         self.lmbd = lmbd
         self.seed = seed
+        self.lmbd = 0
 
         self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
                        for i in range(self.num_hidden_layers)]
@@ -53,16 +54,12 @@ class NeuralNetwork:
         # self.output_bias = np.zeros(self.n_categories) + 0.01
 
     def update_parameters(self, batch, eta):
-        nabla_b = [np.zeros(b.shape) for b in self.bias]
-        nabla_w = [np.zeros(w.shape) for w in self.weights]
-        x, y = batch
+        x,y = batch
         delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
-        nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-        nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w - (eta / len(batch[0])) * dw
-                        for w, dw in zip(self.weights, nabla_w)]
-        self.bias = [b - (eta / len(batch[0])) * db
-                     for b, db in zip(self.bias, nabla_b)]
+        nabla_b = np.asarray([db + self.lmbd*b for b, db in zip(self.bias, delta_nabla_b])
+        nabla_w = np.asarray([dw + self.lmbd*w for w, dw in  zip(self.weights, delta_nabla_w])
+        self.weights = [w-eta*dw for w, dw in zip(self.weights, nabla_w)]
+        self.bias = [b-eta*db for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
 
