@@ -7,7 +7,7 @@ class NeuralNetwork:
     def __init__(self,
                  X,
                  y,
-                 num_hidden_layers=1,
+                 num_hidden_layers=3,
                  num_hidden_nodes=50,
                  batch_size=100,
                  eta=0.1,
@@ -24,42 +24,58 @@ class NeuralNetwork:
         self.lmbd = lmbd
         self.seed = seed
 
-        self.hidden_layer = np.zeros((num_hidden_layers, num_hidden_nodes))
+        self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
+                       for i in range(self.num_hidden_layers)]
+        self.layers.insert(0, self.X)
+        self.layers.append(
+            np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
 
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
         num_hidden_layers = self.num_hidden_layers
         num_features = self.X.shape[1]
         num_hidden_nodes = self.num_hidden_nodes
-        #num_output = self.
+        # num_output = self.
         bias_shift = 0.01
 
-        self.weights = np.random.randn(num_hidden_layers, num_features, num_hidden_nodes)
-        self.bias = np.zeros(num_hidden_layers, num_hidden_nodes) + bias_shift
+        self.weights = [np.random.randn(
+            (num_hidden_nodes, num_hidden_nodes)) for i in range(self.num_hidden_layers - 1)]
 
-        #self.output_weights = np.random.randn(num_hidden_nodes, num_output)
-        #self.output_bias = np.zeros(self.n_categories) + 0.01
+        self.weights.insert(0, np.random.randn(
+            num_features, num_hidden_nodes))
+
+        self.weights.append(np.random.randn(
+            num_hidden_nodes, self.num_output_nodes))
+
+        self.bias = np.ones(self.hidden_layer+1) * bias_shift
+
+        # self.output_weights = np.random.randn(num_hidden_nodes, num_output)
+        # self.output_bias = np.zeros(self.n_categories) + 0.01
 
     def update_parameters(self, batch, eta):
         nabla_b = [np.zeros(b.shape) for b in self.bias]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
-        x,y = batch
+        x, y = batch
         delta_nabla_b, delta_nabla_w = self.backpropagation(x, y)
-        nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-        nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-(eta/len(batch[0]))*dw
+        nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+        nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        self.weights = [w - (eta / len(batch[0])) * dw
                         for w, dw in zip(self.weights, nabla_w)]
-        self.bias = [b-(eta/len(batch[0]))*db
-                       for b, db in zip(self.bias, nabla_b)]
+        self.bias = [b - (eta / len(batch[0])) * db
+                     for b, db in zip(self.bias, nabla_b)]
 
     def feed_forward(self):
+
+        for index, layer in enumerate(self.layers):
+            layer
+
         pass
 
     def backpropagation(self):
         """
         Returns the derivatives of the cost functions
         """
-        return (delta_nabla_b , delta_nabla_w)
+        return (delta_nabla_b, delta_nabla_w)
 
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
@@ -102,7 +118,8 @@ if __name__ == "__main__":
     X = create_X(x, y, n)
 
     NN = NeuralNetwork(X, z)
-    print(NN)
+    NN.create_biases_and_weights()
+    print(NN.weights.shape)
 
 
 #
