@@ -10,11 +10,13 @@ import seaborn as sns
 
 
 def test_feed_forward():
-    X = np.array(  [[0, 1],
-                    [0, 1],
-                    [0, 1]])
-
+    # Create test data
+    X = np.array(  [[0, 1, 2],
+                    [0, 1, 2],
+                    [0, 1, 2]])
     y = np.array([1, 2, 3]).reshape(3,1)
+
+    # Set up NN
     num_hidden_layers = 1
     num_hidden_nodes = 2
     NN = NeuralNetwork(  X,
@@ -28,26 +30,47 @@ def test_feed_forward():
                          activation = "sigmoid")
 
     NN.create_biases_and_weights()
-
     # Redefine weights and bias to simple numbers
-    W = 1
-    B = 1
-    for i in range(num_hidden_layers + 1):
-        NN.weights[i][:] = W
-        NN.bias[i] = B
+    W0 = 1
+    W1 = 2
+    W3 = 3
+    NN.weights[0][:,0] = W0
+    NN.weights[0][:,1] = W1
+    NN.weights[1][:,0] = W3
 
 
+    # Get computed values after feed forward
     NN.feed_forward()
-    layer1 = NN.layers[0]
+    layer1_computed = NN.layers[0]
+    layer2_computed = NN.layers[1]
+    layer3_computed = NN.layers[2]
 
-    print(X)
-    layer1[0] = 2
-    print(X)
-    # print(layer1)
-    con1 = layer1 == X
-    # con1 = (layer1 == X).all()
+    # Calculate expected feed forward values
+    layer1_expected = X
 
-    # print(con1)
+    layer2_expected = np.zeros((3,2))
+    layer2_expected[:,0] = X[:,0]*W0 + X[:,1]*W0 + X[:,2]*W0
+    layer2_expected[:,1] = X[:,0]*W1 + X[:,1]*W1 + X[:,2]*W1
+    layer2_expected = NN.sigmoid_activation(layer2_expected)
+
+    layer3_expected = layer2_expected[:,0]*W3 + layer2_expected[:,1]*W3
+
+
+    # Evaluate computed vs expected
+    tol = 1e-10
+    con1 = (layer1_expected - layer1_computed < tol).all()
+    con2 = (layer2_expected - layer2_computed < tol).all()
+    con3 = (layer3_expected - layer3_computed < tol).all()
+
+    success = np.array([con1, con2, con3]).all()
+    msg = f"Feed forward failed to reproduxe expected results"
+
+    assert success, msg
+
+
+
+
+
 
 
 
