@@ -38,8 +38,7 @@ class NeuralNetwork:
         # num_output = self.
         bias_shift = 0.01
 
-        self.weights = [np.random.randn(
-            (num_hidden_nodes, num_hidden_nodes)) for i in range(self.num_hidden_layers - 1)]
+        self.weights = [np.random.randn(num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
 
         self.weights.insert(0, np.random.randn(
             num_features, num_hidden_nodes))
@@ -47,7 +46,7 @@ class NeuralNetwork:
         self.weights.append(np.random.randn(
             num_hidden_nodes, self.num_output_nodes))
 
-        self.bias = np.ones(self.hidden_layer+1) * bias_shift
+        self.bias = np.ones(num_hidden_layers+1) * bias_shift
 
         # self.output_weights = np.random.randn(num_hidden_nodes, num_output)
         # self.output_bias = np.zeros(self.n_categories) + 0.01
@@ -66,10 +65,11 @@ class NeuralNetwork:
 
     def feed_forward(self):
 
-        for index, layer in enumerate(self.layers):
-            layer
+        for i, _ in enumerate(self.layers-1):
+            print(self.layers[i+1], self.layers[i], self.weights[i])
+            self.layers[i+1] = np.matmul( self.layers[i], self.weights[i] ) + self.bias[i]
 
-        pass
+
 
     def backpropagation(self):
         """
@@ -119,7 +119,8 @@ if __name__ == "__main__":
 
     NN = NeuralNetwork(X, z)
     NN.create_biases_and_weights()
-    print(NN.weights.shape)
+    NN.feed_forward()
+
 
 
 #
