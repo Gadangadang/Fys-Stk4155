@@ -14,7 +14,8 @@ class NeuralNetwork:
                  eta=0.001,
                  lmbd=0.0,
                  seed=4155,
-                 activation="sigmoid"):
+                 activation="sigmoid",
+                 cost = "difference"):
 
         self.X = X  # Design matrix
         self.y = y  # Target
@@ -35,6 +36,9 @@ class NeuralNetwork:
             self.activation = self.RELU_activation
         elif activation == "leaky_relu":
             self.activation = self.Leaky_RELU_activation
+        if cost == "difference":
+            self.cost = self.difference
+
 
     def create_layers(self):
         self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
@@ -90,7 +94,7 @@ class NeuralNetwork:
         Returns the derivatives of the cost functions
         """
 
-        error = self.layers[-1] - self.y
+        error = self.cost()
         self.delta_nabla_b[-1] = np.sum(error, axis=0)[0]
         self.delta_nabla_w[-1] = np.matmul(self.layers[-2].T, error)
         for i in range(1, self.num_hidden_layers + 1):
@@ -125,6 +129,8 @@ class NeuralNetwork:
             return 1
         else:
             return 0
+    def difference(self):
+        return self.layers[-1] - self.y
 
     def __str__(self):
         text = "Information of the Neural Network \n"
