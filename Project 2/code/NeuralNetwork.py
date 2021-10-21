@@ -14,8 +14,7 @@ class NeuralNetwork:
                  eta=0.001,
                  lmbd=0.0,
                  seed=4155,
-                 activation="sigmoid",
-                 cost = "difference"):
+                 activation="sigmoid"):
 
         self.X = X  # Design matrix
         self.y = y  # Target
@@ -36,8 +35,6 @@ class NeuralNetwork:
             self.activation = self.RELU_activation
         elif activation == "leaky_relu":
             self.activation = self.Leaky_RELU_activation
-        if cost == "difference":
-            self.cost = self.difference
 
     def create_layers(self):
         self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
@@ -93,7 +90,7 @@ class NeuralNetwork:
         Returns the derivatives of the cost functions
         """
 
-        error = self.cost()
+        error = self.layers[-1] - self.y
         self.delta_nabla_b[-1] = np.sum(error, axis=0)[0]
         self.delta_nabla_w[-1] = np.matmul(self.layers[-2].T, error)
         for i in range(1, self.num_hidden_layers + 1):
@@ -112,8 +109,6 @@ class NeuralNetwork:
         self.feed_forward()
         return self.layers[-1]
 
-    def difference(self):
-        return self.layers[-1] - self.y
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
 
@@ -124,6 +119,12 @@ class NeuralNetwork:
     def Leaky_RELU_activation(self, value):
         vals = np.where(value > 0, value, 0.01 * value)
         return vals
+
+    def indicator(self, ti, yi):
+        if t1 == y1:
+            return 1
+        else:
+            return 0
 
     def __str__(self):
         text = "Information of the Neural Network \n"
@@ -154,8 +155,11 @@ if __name__ == "__main__":
     z_ols = X @ beta
 
     NN = NeuralNetwork(X, z)
-    NN.run_network(int(1e2))
+    NN.run_network(int(100))
 
     print("Neural Network", MSE(z, NN.predict(X)))
 
     print("     OLS      ", MSE(z_ols, z))
+
+
+#
