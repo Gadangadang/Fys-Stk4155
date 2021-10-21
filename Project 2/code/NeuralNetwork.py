@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import sys
+from autograd import grad
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
@@ -32,6 +33,7 @@ class NeuralNetwork:
 
         if activation == "sigmoid":
             self.activation = self.sigmoid_activation
+            self.activation_der = grad(self.sigmoid_activation)
         elif activation == "relu":
             self.activation = self.RELU_activation
         elif activation == "leaky_relu":
@@ -40,8 +42,10 @@ class NeuralNetwork:
             self.activation = self.soft_max_activation
         if cost == "difference":
             self.cost = self.difference
+            self.cost_der = grad(self.difference)
         elif cost == "binary_difference":
             self.cost = self.binary_difference
+            self.cost_der = grad(self.binary_difference)
 
 
     def create_layers(self):
@@ -50,6 +54,7 @@ class NeuralNetwork:
         self.layers.insert(0, self.X.copy())
         self.layers.append(
             np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
+        self.layers_UA = self.layers.copy()
 
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
@@ -86,8 +91,9 @@ class NeuralNetwork:
     def feed_forward(self, weights, bias):
 
         for i in range(self.num_hidden_layers):
-            self.layers[i + 1] = self.activation(
-                np.matmul(self.layers[i], weights[i]) + bias[i])
+            val = np.matmul(self.layers[i], weights[i]) + bias[i]
+            self.layers[i + 1] = self.activation(val)
+            self.layers_UA[i+1] = val
         #-- No activation for last layer --#
         self.layers[-1] = np.matmul(self.layers[-2],
                                     weights[-1]) + bias[-1]
@@ -96,18 +102,17 @@ class NeuralNetwork:
         """
         Returns the derivatives of the cost functions
         """
+        delta = self.cost_der(self.layers_UA[-1],self.y)*self.activation_der(self.layers_UA[-1])
+        self.delta_nabla_b[-1] = delta
+        self.delta_nabla_w[-1] = np.matmul(delta, self.layers[-2].T)
+        for i in range(2, self.num_hidden_layers ):
+            delta = np.matmul(delta, self.weights[-i+1].T)
+            self.delta_nabla_b[-i - 1] = delta
+            self.delta_nabla_w[-i - 1] = np.matmul(delta, self.layers[-i-1].T)
 
-        error = self.cost(self.weights, self.bias)
-        self.delta_nabla_b[-1] = np.sum(error, axis=0)[0]
-        self.delta_nabla_w[-1] = np.matmul(self.layers[-2].T, error)
-        for i in range(1, self.num_hidden_layers + 1):
-            error = np.matmul(
-                error, self.weights[-i].T) * self.layers[-i - 1] * (1 - self.layers[-i - 1])
-            self.delta_nabla_b[-i - 1] = np.sum(error, axis=0)[0]
-            self.delta_nabla_w[-i - 1] = np.matmul(self.layers[-i - 2].T, error)
-
-    def predict(self, X, weights, bias):
-        self.layers[0] = X
+    def predict(self, weights, bias, X = None):
+        if X != None:
+            self.layers[0] = X
         self.feed_forward(weights, bias)
         return self.layers[-1]
 
@@ -142,10 +147,10 @@ class NeuralNetwork:
     Cost funtions
     """
     def difference(self, weights, bias):
-        return self.predict(self.x, weights, bias) - self.y
+        return self.predict(weights, bias) - self.y
 
     def binary_difference(self, weights, bias):
-        y_pred = self.predict(self.x, weights, bias)
+        y_pred = self.predict( weights, bias)
         return -(self.y*np.log(y_pred)+ (1-self.y)*np.log(1-y_pred))
 
 
@@ -180,7 +185,7 @@ if __name__ == "__main__":
     NN = NeuralNetwork(X, z)
     NN.run_network(int(100))
 
-    print("Neural Network", MSE(z, NN.predict(X, NN.weights, NN.bias)))
+    print("Neural Network", MSE(z, NN.predict( NN.weights, NN.bias, X)))
 
     print("     OLS      ", MSE(z_ols, z))
 
