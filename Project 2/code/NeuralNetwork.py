@@ -1,7 +1,7 @@
-import numpy as np
+import autograd.numpy as np
 import os
 import sys
-from autograd import grad
+from autograd import elementwise_grad as grad
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
@@ -54,6 +54,7 @@ class NeuralNetwork:
         self.layers.insert(0, self.X.copy())
         self.layers.append(
             np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
+
         self.layers_UA = self.layers.copy()
 
     def create_biases_and_weights(self):
@@ -91,7 +92,11 @@ class NeuralNetwork:
     def feed_forward(self, weights, bias):
 
         for i in range(self.num_hidden_layers):
-            val = np.matmul(self.layers[i], weights[i]) + bias[i]
+            val = np.dot(self.layers[i], weights[i]) + bias[i]
+            for i in range(len(val)):
+                val[i] = val[i]._value
+            print(np.exp(np.asarray(val)))
+            exit()
             self.layers[i + 1] = self.activation(val)
             self.layers_UA[i+1] = val
         #-- No activation for last layer --#
@@ -188,6 +193,10 @@ if __name__ == "__main__":
     print("Neural Network", MSE(z, NN.predict( NN.weights, NN.bias, X)))
 
     print("     OLS      ", MSE(z_ols, z))
+
+    """a = np.zeros(10, dtype=np.float64)
+
+    print(np.exp(a))"""
 
 
 #
