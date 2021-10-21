@@ -125,10 +125,8 @@ class NeuralNetwork:
         return vals
 
     def indicator(self, ti, yi):
-        if t1 == y1:
-            return 1
-        else:
-            return 0
+        val = np.where(ti == y1, 1, 0)
+        return val
     def difference(self):
         return self.layers[-1] - self.y
 
