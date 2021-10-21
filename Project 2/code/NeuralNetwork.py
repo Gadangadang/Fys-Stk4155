@@ -36,6 +36,8 @@ class NeuralNetwork:
             self.activation = self.RELU_activation
         elif activation == "leaky_relu":
             self.activation = self.Leaky_RELU_activation
+        elif activation == "soft_max":
+            self.activation = self.soft_max_activation
         if cost == "difference":
             self.cost = self.difference
         elif cost == "binary_difference":
@@ -125,15 +127,19 @@ class NeuralNetwork:
     def Leaky_RELU_activation(self, value):
         vals = np.where(value > 0, value, 0.01 * value)
         return vals
+    def soft_max_activation(self, value):
+        val_exp = np.exp(value)
+        return val_exp/(np.sum(val_exp))
 
-    def indicator(self, ti, yi):
-        val = np.where(ti == y1, 1, 0)
+    def indicator(self):
+        val = np.sum(self.layers[-1] == self.y)/len(self.y)
         return val
     def difference(self):
         return self.layers[-1] - self.y
 
     def binary_difference(self):
         return -(self.y*np.log(self.layers[-1])+ (1-self.y)*np.log(1-self.layers[-1]))
+
 
     def __str__(self):
         text = "Information of the Neural Network \n"
