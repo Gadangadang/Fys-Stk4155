@@ -83,22 +83,21 @@ class NeuralNetwork:
                         dw in zip(self.weights, nabla_w)]
         self.bias = [b - self.eta * db for b, db in zip(self.bias, nabla_b)]
 
-    def feed_forward(self):
+    def feed_forward(self, weights, bias):
 
         for i in range(self.num_hidden_layers):
             self.layers[i + 1] = self.activation(
-                np.matmul(self.layers[i], self.weights[i]) + self.bias[i])
+                np.matmul(self.layers[i], weights[i]) + bias[i])
         #-- No activation for last layer --#
         self.layers[-1] = np.matmul(self.layers[-2],
-                                    self.weights[-1]) + self.bias[-1]
-
+                                    weights[-1]) + bias[-1]
 
     def backpropagation(self):
         """
         Returns the derivatives of the cost functions
         """
 
-        error = self.cost()
+        error = self.cost(self.weights, self.bias)
         self.delta_nabla_b[-1] = np.sum(error, axis=0)[0]
         self.delta_nabla_w[-1] = np.matmul(self.layers[-2].T, error)
         for i in range(1, self.num_hidden_layers + 1):
@@ -107,16 +106,19 @@ class NeuralNetwork:
             self.delta_nabla_b[-i - 1] = np.sum(error, axis=0)[0]
             self.delta_nabla_w[-i - 1] = np.matmul(self.layers[-i - 2].T, error)
 
-    def run_network(self, epochs):
-        for epoch in range(epochs):
-            self.feed_forward()
-            self.update_parameters()
-
-    def predict(self, X):
+    def predict(self, X, weights, bias):
         self.layers[0] = X
-        self.feed_forward()
+        self.feed_forward(weights, bias)
         return self.layers[-1]
 
+    def run_network(self, epochs):
+        for epoch in range(epochs):
+            self.update_parameters()
+
+
+    """
+    Activation funtions
+    """
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
 
@@ -134,11 +136,17 @@ class NeuralNetwork:
     def indicator(self):
         val = np.sum(self.layers[-1] == self.y)/len(self.y)
         return val
-    def difference(self):
-        return self.layers[-1] - self.y
 
-    def binary_difference(self):
-        return -(self.y*np.log(self.layers[-1])+ (1-self.y)*np.log(1-self.layers[-1]))
+
+    """
+    Cost funtions
+    """
+    def difference(self, weights, bias):
+        return self.predict(self.x, weights, bias) - self.y
+
+    def binary_difference(self, weights, bias):
+        y_pred = self.predict(self.x, weights, bias)
+        return -(self.y*np.log(y_pred)+ (1-self.y)*np.log(1-y_pred))
 
 
     def __str__(self):
@@ -172,7 +180,7 @@ if __name__ == "__main__":
     NN = NeuralNetwork(X, z)
     NN.run_network(int(100))
 
-    print("Neural Network", MSE(z, NN.predict(X)))
+    print("Neural Network", MSE(z, NN.predict(X, NN.weights, NN.bias)))
 
     print("     OLS      ", MSE(z_ols, z))
 
