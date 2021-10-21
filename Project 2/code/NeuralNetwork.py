@@ -38,6 +38,8 @@ class NeuralNetwork:
             self.activation = self.Leaky_RELU_activation
         if cost == "difference":
             self.cost = self.difference
+        elif cost == "binary_difference":
+            self.cost = self.binary_difference
 
 
     def create_layers(self):
@@ -129,6 +131,9 @@ class NeuralNetwork:
         return val
     def difference(self):
         return self.layers[-1] - self.y
+
+    def binary_difference(self):
+        return -(self.y*np.log(self.layers[-1])+ (1-self.y)*np.log(1-self.layers[-1]))
 
     def __str__(self):
         text = "Information of the Neural Network \n"
