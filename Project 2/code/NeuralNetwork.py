@@ -54,7 +54,7 @@ class NeuralNetwork:
         self.layers.insert(0, self.X.copy())
         self.layers.append(
             np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
-
+        self.layers = np.asarray(self.layers)
         self.layers_UA = self.layers.copy()
 
     def create_biases_and_weights(self):
@@ -75,28 +75,23 @@ class NeuralNetwork:
             num_hidden_nodes, self.num_output_nodes))
 
         self.bias = np.ones(num_hidden_layers + 1) * bias_shift
-
+        self.weights = np.asarray(self.weights)
         self.delta_nabla_b = self.bias.copy()
         self.delta_nabla_w = self.weights.copy()
 
     def update_parameters(self):
         self.backpropagation()
+        nabla_b = np.asarray([db + self.lmbd * b for b, db in zip(self.bias, self.delta_nabla_b)])
+        nabla_w = np.asarray([dw + self.lmbd * w for w, dw in zip(self.weights, self.delta_nabla_w)])
 
-        nabla_b = [db + self.lmbd * b for b, db in zip(self.bias, self.delta_nabla_b)]
-        nabla_w = [dw + self.lmbd * w for w, dw in zip(self.weights, self.delta_nabla_w)]
-
-        self.weights = [w - self.eta * dw for w,
-                        dw in zip(self.weights, nabla_w)]
-        self.bias = [b - self.eta * db for b, db in zip(self.bias, nabla_b)]
+        self.weights = np.asarray([w - self.eta * dw for w,
+                        dw in zip(self.weights, nabla_w)])
+        self.bias = np.asarray([b - self.eta * db for b, db in zip(self.bias, nabla_b)])
 
     def feed_forward(self, weights, bias):
 
         for i in range(self.num_hidden_layers):
             val = np.dot(self.layers[i], weights[i]) + bias[i]
-            for i in range(len(val)):
-                val[i] = val[i]._value
-            print(np.exp(np.asarray(val)))
-            exit()
             self.layers[i + 1] = self.activation(val)
             self.layers_UA[i+1] = val
         #-- No activation for last layer --#
@@ -123,6 +118,7 @@ class NeuralNetwork:
 
     def run_network(self, epochs):
         for epoch in range(epochs):
+            self.feed_forward(self.weights, self.bias)
             self.update_parameters()
 
 
