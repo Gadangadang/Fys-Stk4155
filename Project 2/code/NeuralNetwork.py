@@ -55,7 +55,7 @@ class NeuralNetwork:
         self.layers.append(
             np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
         self.layers = np.asarray(self.layers)
-        self.layers_UA = self.layers.copy()
+        self.layers_UA = np.copy(self.layers)
 
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
@@ -88,21 +88,25 @@ class NeuralNetwork:
                         dw in zip(self.weights, nabla_w)])
         self.bias = np.asarray([b - self.eta * db for b, db in zip(self.bias, nabla_b)])
 
-    def feed_forward(self, weights, bias):
+    def feed_forward(self):
 
         for i in range(self.num_hidden_layers):
-            val = np.dot(self.layers[i], weights[i]) + bias[i]
+            val = np.dot(self.layers[i], self.weights[i]) + self.bias[i]
             self.layers[i + 1] = self.activation(val)
             self.layers_UA[i+1] = val
         #-- No activation for last layer --#
         self.layers[-1] = np.matmul(self.layers[-2],
-                                    weights[-1]) + bias[-1]
+                                    self.weights[-1]) + self.bias[-1]
 
     def backpropagation(self):
         """
         Returns the derivatives of the cost functions
         """
-        delta = self.cost_der(self.layers_UA[-1],self.y)*self.activation_der(self.layers_UA[-1])
+        print(self.layers_UA[-1])
+        print(self.activation_der(np.zeros(10)))
+        exit()
+        delta = self.cost_der(self.layers[-1])*self.activation_der(self.layers_UA[-1])
+
         self.delta_nabla_b[-1] = delta
         self.delta_nabla_w[-1] = np.matmul(delta, self.layers[-2].T)
         for i in range(2, self.num_hidden_layers ):
@@ -110,15 +114,15 @@ class NeuralNetwork:
             self.delta_nabla_b[-i - 1] = delta
             self.delta_nabla_w[-i - 1] = np.matmul(delta, self.layers[-i-1].T)
 
-    def predict(self, weights, bias, X = None):
+    def predict(self, X = None):
         if X != None:
             self.layers[0] = X
-        self.feed_forward(weights, bias)
+        self.feed_forward()
         return self.layers[-1]
 
     def run_network(self, epochs):
         for epoch in range(epochs):
-            self.feed_forward(self.weights, self.bias)
+            self.feed_forward()
             self.update_parameters()
 
 
@@ -127,6 +131,9 @@ class NeuralNetwork:
     """
     def sigmoid_activation(self, value):
         return 1 / (1 + np.exp(-value))
+    def sigmoid_activation_man_der(self, value):
+        sig = self.sigmoid_activation(value)
+        return sig*(sig-1)
 
     def RELU_activation(self, value):
         vals = np.where(value > 0, value, 0)
@@ -147,8 +154,8 @@ class NeuralNetwork:
     """
     Cost funtions
     """
-    def difference(self, weights, bias):
-        return self.predict(weights, bias) - self.y
+    def difference(self, y_tilde):
+        return  y_tilde - self.y
 
     def binary_difference(self, weights, bias):
         y_pred = self.predict( weights, bias)
@@ -186,7 +193,7 @@ if __name__ == "__main__":
     NN = NeuralNetwork(X, z)
     NN.run_network(int(100))
 
-    print("Neural Network", MSE(z, NN.predict( NN.weights, NN.bias, X)))
+    print("Neural Network", MSE(z, NN.predict( X)))
 
     print("     OLS      ", MSE(z_ols, z))
 
