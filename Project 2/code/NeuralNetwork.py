@@ -121,6 +121,7 @@ class NeuralNetwork:
         return self.layers[-1]
 
     def run_network(self, epochs):
+        "Herroo"
         for epoch in range(epochs):
             self.feed_forward()
             self.update_parameters()
