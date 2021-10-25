@@ -12,23 +12,21 @@ class NeuralNetwork:
                  t,
                  num_hidden_layers=2,
                  num_hidden_nodes=10,
-                 batch_size=0,
+                 batch_size=1,
                  eta=0.001,
                  lmbd=0.0,
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE"):
 
+        self.X = X  # Design matrix shape: N x features --> features x N
+        self.t = t  # Target, shape: categories x N
+        self.T = np.copy(t)
+
         self.N = X.shape[0]
         self.num_features = X.shape[1]
         self.num_categories = t.shape[1]
 
-        if batch_size == 0:
-            self.X = X  # Design matrix shape: N x features --> features x N
-            self.t = t  # Target, shape: categories x N
-        else:
-            self.X = X[:batch_size,:]  # Design matrix shape: N x features --> features x N
-            self.t = t[:batch_size,:]  # Target, shape: categories x N
         # Make clever function to check shapes please (Saki)
 
         self.num_hidden_layers = num_hidden_layers
@@ -107,7 +105,7 @@ class NeuralNetwork:
         for l in range(1, self.L):
             # this should be batch length
             self.weights[l] -= self.eta * \
-                (self.local_gradient[l].T @ self.layers_a[l - 1]) / self.N
+                (self.local_gradient[l].T @ self.layers_a[l - 1]) / self.batch_size
             self.bias[l] -= self.eta * np.mean(self.local_gradient[l], axis=0)
 
     def feed_forward(self):
@@ -134,23 +132,15 @@ class NeuralNetwork:
         self.feed_forward()
         return self.layers_a[-1]
 
-    def run_network(self, epochs):
-        for _ in range(epochs):
-            self.feed_forward()
-            self.update_parameters()
-
-    def run_network_stochastic(self, epochs, iterations):
+    def run_network_stochastic(self, epochs):
         data_indices = np.arange(self.N)
         for _ in range(epochs):
-            for _ in range(iterations):
-                batch_indeces = np.random.choice(
-                    data_indices, size= self.batch_size, replace=False)
-                self.layers_a[0] = X[data_indices]
-                self.t = self.t[data_indices]
-
-                self.feed_forward()
-                self.update_parameters()
-
+            batch_indeces = np.random.choice(
+                data_indices, size = self.batch_size, replace=False)
+            self.layers_a[0] = self.X[batch_indeces]
+            self.t = self.T[batch_indeces]
+            self.feed_forward()
+            self.update_parameters()
 
     """
     Activation funtions
@@ -210,12 +200,12 @@ if __name__ == "__main__":
     import autograd.numpy as np
 
     #--- Create data from Franke Function ---#
-    N = 12               # Number of points in each dimension
+    N = 10               # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
     n = 8               # Highest order of polynomial for X
     epochs = 100
-    iterations = 10
-    batch_size = int(N*N/10)
+    iterations = 1
+    batch_size = int(N*N*0.8)
 
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
@@ -225,13 +215,19 @@ if __name__ == "__main__":
     beta = OLS_regression(X_train, Z_train)
     z_ols = X_test @ beta
 
-    NN = NeuralNetwork(X_train, Z_train)
-    NN.run_network(epochs)
+    MM = NeuralNetwork( X_train,
+                        Z_train,
+                        num_hidden_layers=2,
+                        num_hidden_nodes=10,
+                        batch_size=batch_size,
+                        eta=0.001,
+                        lmbd=0.0,
+                        seed=4155,
+                        activation="sigmoid",
+                        cost="MSE")
 
-    MM = NeuralNetwork(X_train, Z_train, batch_size)
-    MM.run_network_stochastic(epochs, iterations)
+    MM.run_network_stochastic(epochs)
 
-    print("      Neural Network     ", MSE(Z_test, NN.predict(X_test)))
 
     print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
 
