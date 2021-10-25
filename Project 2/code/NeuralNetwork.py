@@ -112,7 +112,7 @@ class NeuralNetwork:
         self.delta_nabla_b[-1] = delta
         self.delta_nabla_w[-1] = np.matmul(delta, self.layers[-2].T)
         for i in range(2, self.num_hidden_layers ):
-            delta = np.matmul(delta, self.weights[-i+1].T)
+            delta = np.matmul(delta, self.weights[-i+1].T)*self.activation_der(self.layers_UA[-1+1])
             self.delta_nabla_b[-i - 1] = delta
             self.delta_nabla_w[-i - 1] = np.matmul(delta, self.layers[-i-1].T)
 
