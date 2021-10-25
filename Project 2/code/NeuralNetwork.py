@@ -61,14 +61,14 @@ class NeuralNetwork:
         layers_a: contain activation values of all nodes
         layers_z: contain weighted sum z / unactivated values of all nodes
         """
-        self.layers_a = [np.zeros((self.num_hidden_nodes, self.N), dtype=np.float64)
+        self.layers_a = [np.zeros((self.N, self.num_hidden_nodes), dtype=np.float64)
                        for i in range(self.num_hidden_layers)] # Intialized with the hidden layers
 
         self.layers_a.insert(0, self.X.copy()) # Add input layer
         self.layers_a.append(
         np.zeros((np.shape(self.t)), dtype=np.float64)) # Add output layer
-        self.layers_a = np.asarray(self.layers_a)
-        self.layers_z = np.copy(self.layers_a)
+        self.layers_z = self.layers_a.copy()
+
 
 
 
@@ -101,7 +101,7 @@ class NeuralNetwork:
 
         # self.delta_nabla_w = self.weights.copy()
         # self.delta_nabla_b = self.bias.copy()
-        self.local_gradient = self.layers_a.copy()*0 #also called error
+        self.local_gradient = self.layers_a.copy() #also called error
 
 
     def update_parameters(self):
@@ -115,14 +115,10 @@ class NeuralNetwork:
 
     def feed_forward(self):
         for l in range(1, self.L):
-
-            Z_l = self.layers_a[l-1] @self.weights[l].T  + self.bias[l][np.newaxis, :]
+            Z_l = self.layers_a[l-1] @self.weights[l].T # + self.bias[l][np.newaxis, :]
             self.layers_z[l] = Z_l
             self.layers_a[l] = self.activation(Z_l)
-            print(self.layers_a[l-1] @self.weights[l].T)
-            print(self.bias[l][np.newaxis, :])
-            print(Z_l)
-            exit()
+
     def backpropagation(self):
         """
         Returns the gradient of the cost function
@@ -136,18 +132,20 @@ class NeuralNetwork:
         # self.delta_nabla_b[-1] = delta
         # self.delta_nabla_w[-1] = np.matmul(delta, self.layers_a[-2].T)
         for l in reversed(range(self.L-1)):
-            print(np.shape( self.weights[l+1]))
-            print(np.shape( self.local_gradient[l+1]))
-
+            print(np.shape(self.weights[l+1].T))
+            print(np.shape(self.local_gradient[l+1]))
+            print(np.shape(self.local_gradient[l+1]))
             print(np.shape(self.activation_der(self.layers_z[l])))
             exit()
-            self.local_gradient[l] = self.weights[l+1].T @ self.local_gradient[l+1] * self.activation_der(self.layers_z[l])
 
-        exit()
-        for i in range(2, self.num_hidden_layers ):
-            delta = np.matmul(delta, self.weights[-i+1].T)
-            self.delta_nabla_b[-i - 1] = delta
-            self.delta_nabla_w[-i - 1] = np.matmul(delta, self.layers_a[-i-1].T)
+
+            self.local_gradient[l] = self.weights[l+1].T @ self.local_gradient[l+1] * self.activation_der(self.layers_z[l])
+            exit()
+
+        # for i in range(2, self.num_hidden_layers ):
+        #     delta = np.matmul(delta, self.weights[-i+1].T)
+        #     self.delta_nabla_b[-i - 1] = delta
+        #     self.delta_nabla_w[-i - 1] = np.matmul(delta, self.layers_a[-i-1].T)
 
     def predict(self, X = None):
         if X != None:
