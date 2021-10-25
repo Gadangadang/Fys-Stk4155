@@ -1,16 +1,16 @@
 import os
 import sys
 import autograd.numpy as np
-from autograd import grad
+from autograd import elementwise_grad
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 class NeuralNetwork:
     def __init__(self,
                  X,
-                 y,
-                 num_hidden_layers=10,
-                 num_hidden_nodes=60,
+                 t,
+                 num_hidden_layers=2,
+                 num_hidden_nodes=10,
                  batch_size=100,
                  eta=0.001,
                  lmbd=0.0,
@@ -18,11 +18,19 @@ class NeuralNetwork:
                  activation="sigmoid",
                  cost = "MSE"):
 
-        self.X = X  # Design matrix
-        self.y = y  # Target
+        self.N = X.shape[0]
+        self.num_features = X.shape[1]
+        self.num_categories = t.shape[1]
+
+        self.X = X  # Design matrix shape: N x features --> features x N
+        self.t = t  # Target, shape: categories x N
+        # Make clever function to check shapes please (Saki)
+
         self.num_hidden_layers = num_hidden_layers
         self.num_hidden_nodes = num_hidden_nodes
-        self.num_output_nodes = y.shape[1]
+        self.num_output_nodes = self.num_categories
+        self.L = self.num_hidden_layers + 2 # number of layer in total
+
         self.batch_size = batch_size
         self.eta = eta
         self.lmbd = lmbd
@@ -33,7 +41,7 @@ class NeuralNetwork:
 
         if activation == "sigmoid":
             self.activation = self.sigmoid_activation
-            self.activation_der = grad(self.sigmoid_activation)
+            self.activation_der = elementwise_grad(self.sigmoid_activation)
         elif activation == "relu":
             self.activation = self.RELU_activation
         elif activation == "leaky_relu":
@@ -42,44 +50,59 @@ class NeuralNetwork:
             self.activation = self.soft_max_activation
         if cost == "MSE":
             self.cost = self.MSE
-            self.cost_der = grad(self.MSE)
+            self.cost_der = elementwise_grad(self.MSE)
         elif cost == "binary_difference":
             self.cost = self.binary_difference
-            self.cost_der = grad(self.binary_difference)
+            self.cost_der = elementwise_grad(self.binary_difference)
 
 
     def create_layers(self):
-        self.layers = [np.zeros((self.X.shape[1], self.num_hidden_nodes), dtype=np.float64)
-                       for i in range(self.num_hidden_layers)]
-        self.layers.insert(0, self.X.copy())
-        self.layers.append(
-            np.zeros((self.num_output_nodes, self.X.shape[1]), dtype=np.float64))
-        self.layers = np.asarray(self.layers)
-        self.layers_UA = np.copy(self.layers)
+        """
+        layers_a: contain activation values of all nodes
+        layers_z: contain weighted sum z / unactivated values of all nodes
+        """
+        self.layers_a = [np.zeros((self.num_hidden_nodes, self.N), dtype=np.float64)
+                       for i in range(self.num_hidden_layers)] # Intialized with the hidden layers
+
+        self.layers_a.insert(0, self.X.copy()) # Add input layer
+        self.layers_a.append(
+        np.zeros((np.shape(self.t)), dtype=np.float64)) # Add output layer
+        self.layers_a = np.asarray(self.layers_a)
+        self.layers_z = np.copy(self.layers_a)
+
+
+
 
     def create_biases_and_weights(self):
         np.random.seed(self.seed)
         num_hidden_layers = self.num_hidden_layers
-        num_features = self.X.shape[1]
+        num_features = self.num_features
         num_hidden_nodes = self.num_hidden_nodes
-
+        num_categories = self.num_categories
         bias_shift = 0.01
 
-        self.weights = [np.random.randn(
-            num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
+        self.weights = [np.random.randn(num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
+        # self.weights.insert(0, np.random.randn(num_features, num_hidden_nodes))
+        self.weights.insert(0, np.random.randn(num_hidden_nodes, num_features))
 
-        self.weights.insert(0, np.random.randn(
-            num_features, num_hidden_nodes))
+        self.weights.insert(0, np.nan) # insert unused weight to get nice indexes
+        # self.weights.append(np.random.randn(num_hidden_nodes, self.num_output_nodes))
+        self.weights.append(np.random.randn(self.num_output_nodes, num_hidden_nodes))
 
-        self.weights.append(np.random.randn(
-            num_hidden_nodes, self.num_output_nodes))
 
-        self.bias = np.ones(num_hidden_layers + 1) * bias_shift
+        # Add individual biases?
+        self.bias = [np.ones(num_hidden_nodes) for i in range(self.num_hidden_layers)]
+        self.bias.insert(0, np.nan) # insert unused bias to get nice indexes
+        self.bias.append(np.ones(num_categories))
+
+        # Asarray?!?! (Willy check)
+        self.bias = np.asarray(self.bias)
         self.weights = np.asarray(self.weights)
-        self.delta_nabla_b = self.bias.copy()
-        self.delta_nabla_w = self.weights.copy()
 
-        self.local_gradient = self.weights.copy()
+        # self.delta_nabla_w = self.weights.copy()
+        # self.delta_nabla_b = self.bias.copy()
+        self.local_gradient = self.layers_a.copy()*0 #also called error
+
 
     def update_parameters(self):
         self.backpropagation()
@@ -91,36 +114,46 @@ class NeuralNetwork:
         self.bias = np.asarray([b - self.eta * db for b, db in zip(self.bias, nabla_b)])
 
     def feed_forward(self):
+        for l in range(1, self.L):
 
-        for i in range(self.num_hidden_layers):
-            val = np.dot(self.layers[i], self.weights[i]) + self.bias[i]
-            self.layers[i + 1] = self.activation(val)
-            self.layers_UA[i+1] = val #z
-        #-- No activation for last layer --#
-        self.layers[-1] = np.matmul(self.layers[-2],
-                                    self.weights[-1]) + self.bias[-1]
-
+            Z_l = self.layers_a[l-1] @self.weights[l].T  + self.bias[l][np.newaxis, :]
+            self.layers_z[l] = Z_l
+            self.layers_a[l] = self.activation(Z_l)
+            print(self.layers_a[l-1] @self.weights[l].T)
+            print(self.bias[l][np.newaxis, :])
+            print(Z_l)
+            exit()
     def backpropagation(self):
         """
         Returns the gradient of the cost function
         """
+        print("Backpropagation")
 
+        self.local_gradient[-1] = self.cost_der(self.layers_a[-1])*self.activation_der(self.layers_z[-1])
+
+
+
+        # self.delta_nabla_b[-1] = delta
+        # self.delta_nabla_w[-1] = np.matmul(delta, self.layers_a[-2].T)
+        for l in reversed(range(self.L-1)):
+            print(np.shape( self.weights[l+1]))
+            print(np.shape( self.local_gradient[l+1]))
+
+            print(np.shape(self.activation_der(self.layers_z[l])))
+            exit()
+            self.local_gradient[l] = self.weights[l+1].T @ self.local_gradient[l+1] * self.activation_der(self.layers_z[l])
 
         exit()
-        delta = self.cost_der(self.layers[-1])*self.activation_der(self.layers_UA[-1])
-
-        self.delta_nabla_b[-1] = delta
-        self.delta_nabla_w[-1] = np.matmul(delta, self.layers[-2].T)
         for i in range(2, self.num_hidden_layers ):
             delta = np.matmul(delta, self.weights[-i+1].T)
             self.delta_nabla_b[-i - 1] = delta
-            self.delta_nabla_w[-i - 1] = np.matmul(delta, self.layers[-i-1].T)
+            self.delta_nabla_w[-i - 1] = np.matmul(delta, self.layers_a[-i-1].T)
 
     def predict(self, X = None):
         if X != None:
-            self.layers[0] = X
+            self.layers_a[0] = X
         self.feed_forward()
-        return self.layers[-1]
+        return self.layers_a[-1]
 
     def run_network(self, epochs):
         for epoch in range(epochs):
@@ -149,7 +182,7 @@ class NeuralNetwork:
         return val_exp/(np.sum(val_exp))
 
     def indicator(self):
-        val = np.sum(self.layers[-1] == self.y)/len(self.y)
+        val = np.sum(self.layers_a[-1] == self.y)/len(self.y)
         return val
 
 
@@ -159,7 +192,7 @@ class NeuralNetwork:
 
 
     def MSE(self, y_tilde):
-        return (y_tilde - 1)**2
+        return (y_tilde - self.t)**2
 
     def binary_difference(self, weights, bias):
         y_pred = self.predict( weights, bias)
@@ -197,14 +230,14 @@ if __name__ == "__main__":
     beta = OLS_regression(X, z)
     z_ols = X @ beta
 
+
     NN = NeuralNetwork(X, z)
+    NN.feed_forward()
     NN.backpropagation()
 
-
-    exit()
-    print("Neural Network", MSE(z, NN.predict( X)))
-
-    print("     OLS      ", MSE(z_ols, z))
+    # print("Neural Network", MSE(z, NN.predict( X)))
+    #
+    # print("     OLS      ", MSE(z_ols, z))
 
 
 
