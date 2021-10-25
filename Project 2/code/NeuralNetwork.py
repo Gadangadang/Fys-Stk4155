@@ -2,6 +2,7 @@ import os
 import sys
 import autograd.numpy as np
 from autograd import elementwise_grad
+from sklearn.model_selection import train_test_split
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
@@ -11,7 +12,7 @@ class NeuralNetwork:
                  t,
                  num_hidden_layers=2,
                  num_hidden_nodes=10,
-                 batch_size=100,
+                 batch_size=0,
                  eta=0.001,
                  lmbd=0.0,
                  seed=4155,
@@ -22,8 +23,12 @@ class NeuralNetwork:
         self.num_features = X.shape[1]
         self.num_categories = t.shape[1]
 
-        self.X = X  # Design matrix shape: N x features --> features x N
-        self.t = t  # Target, shape: categories x N
+        if batch_size == 0:
+            self.X = X  # Design matrix shape: N x features --> features x N
+            self.t = t  # Target, shape: categories x N
+        else:
+            self.X = X[:batch_size,:]  # Design matrix shape: N x features --> features x N
+            self.t = t[:batch_size,:]  # Target, shape: categories x N
         # Make clever function to check shapes please (Saki)
 
         self.num_hidden_layers = num_hidden_layers
@@ -130,9 +135,22 @@ class NeuralNetwork:
         return self.layers_a[-1]
 
     def run_network(self, epochs):
-        for epoch in range(epochs):
+        for _ in range(epochs):
             self.feed_forward()
             self.update_parameters()
+
+    def run_network_stochastic(self, epochs, iterations):
+        data_indices = np.arange(self.N)
+        for _ in range(epochs):
+            for _ in range(iterations):
+                batch_indeces = np.random.choice(
+                    data_indices, size= self.batch_size, replace=False)
+                self.layers_a[0] = X[data_indices]
+                self.t = self.t[data_indices]
+
+                self.feed_forward()
+                self.update_parameters()
+
 
     """
     Activation funtions
@@ -192,22 +210,31 @@ if __name__ == "__main__":
     import autograd.numpy as np
 
     #--- Create data from Franke Function ---#
-    N = 5               # Number of points in each dimension
+    N = 12               # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
-    n = 2               # Highest order of polynomial for X
+    n = 8               # Highest order of polynomial for X
+    epochs = 100
+    iterations = 10
+    batch_size = int(N*N/10)
 
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
-    beta = OLS_regression(X, z)
-    z_ols = X @ beta
+    X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
 
-    NN = NeuralNetwork(X, z)
-    NN.run_network(10000)
+    beta = OLS_regression(X_train, Z_train)
+    z_ols = X_test @ beta
 
-    print("Neural Network", MSE(z, NN.predict(X)))
+    NN = NeuralNetwork(X_train, Z_train)
+    NN.run_network(epochs)
 
-    print("     OLS      ", MSE(z_ols, z))
+    MM = NeuralNetwork(X_train, Z_train, batch_size)
+    MM.run_network_stochastic(epochs, iterations)
 
+    print("      Neural Network     ", MSE(Z_test, NN.predict(X_test)))
+
+    print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
+
+    print("           OLS           ", MSE(Z_test, z_ols))
 
 #
