@@ -24,6 +24,7 @@ class NeuralNetwork:
         self.T = np.copy(t)
 
         self.N = X.shape[0]
+        self.data_indices = np.arange(self.N)
         self.num_features = X.shape[1]
         self.num_categories = t.shape[1]
 
@@ -39,6 +40,7 @@ class NeuralNetwork:
         self.lmbd = lmbd
         self.seed = seed
         self.lmbd = 0
+
         self.create_layers()
         self.create_biases_and_weights()
 
@@ -133,14 +135,18 @@ class NeuralNetwork:
         return self.layers_a[-1]
 
     def run_network_stochastic(self, epochs):
-        data_indices = np.arange(self.N)
         for _ in range(epochs):
-            batch_indeces = np.random.choice(
-                data_indices, size = self.batch_size, replace=False)
-            self.layers_a[0] = self.X[batch_indeces]
-            self.t = self.T[batch_indeces]
+            self.SGD()
             self.feed_forward()
             self.update_parameters()
+
+
+    def SGD(self):
+        batch_indices = np.random.choice(
+            self.data_indices, size = self.batch_size, replace=False)
+        self.layers_a[0] = self.X[batch_indices]
+        self.t = self.T[batch_indices]
+
 
     """
     Activation funtions
@@ -232,5 +238,3 @@ if __name__ == "__main__":
     print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
 
     print("           OLS           ", MSE(Z_test, z_ols))
-
-#
