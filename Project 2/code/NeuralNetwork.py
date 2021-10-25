@@ -1,7 +1,7 @@
-import autograd.numpy as np
 import os
 import sys
-from autograd import elementwise_grad as grad
+import autograd.numpy as np
+from autograd import grad
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
@@ -16,7 +16,7 @@ class NeuralNetwork:
                  lmbd=0.0,
                  seed=4155,
                  activation="sigmoid",
-                 cost = "difference"):
+                 cost = "MSE"):
 
         self.X = X  # Design matrix
         self.y = y  # Target
@@ -40,9 +40,9 @@ class NeuralNetwork:
             self.activation = self.Leaky_RELU_activation
         elif activation == "soft_max":
             self.activation = self.soft_max_activation
-        if cost == "difference":
-            self.cost = self.difference
-            self.cost_der = grad(self.difference)
+        if cost == "MSE":
+            self.cost = self.MSE
+            self.cost_der = grad(self.MSE)
         elif cost == "binary_difference":
             self.cost = self.binary_difference
             self.cost_der = grad(self.binary_difference)
@@ -62,7 +62,7 @@ class NeuralNetwork:
         num_hidden_layers = self.num_hidden_layers
         num_features = self.X.shape[1]
         num_hidden_nodes = self.num_hidden_nodes
-        # num_output = self.
+
         bias_shift = 0.01
 
         self.weights = [np.random.randn(
@@ -79,6 +79,8 @@ class NeuralNetwork:
         self.delta_nabla_b = self.bias.copy()
         self.delta_nabla_w = self.weights.copy()
 
+        self.local_gradient = self.weights.copy()
+
     def update_parameters(self):
         self.backpropagation()
         nabla_b = np.asarray([db + self.lmbd * b for b, db in zip(self.bias, self.delta_nabla_b)])
@@ -93,17 +95,17 @@ class NeuralNetwork:
         for i in range(self.num_hidden_layers):
             val = np.dot(self.layers[i], self.weights[i]) + self.bias[i]
             self.layers[i + 1] = self.activation(val)
-            self.layers_UA[i+1] = val
+            self.layers_UA[i+1] = val #z
         #-- No activation for last layer --#
         self.layers[-1] = np.matmul(self.layers[-2],
                                     self.weights[-1]) + self.bias[-1]
 
     def backpropagation(self):
         """
-        Returns the derivatives of the cost functions
+        Returns the gradient of the cost function
         """
-        print(self.layers_UA[-1])
-        print(self.activation_der(np.zeros(10)))
+
+
         exit()
         delta = self.cost_der(self.layers[-1])*self.activation_der(self.layers_UA[-1])
 
@@ -130,7 +132,7 @@ class NeuralNetwork:
     Activation funtions
     """
     def sigmoid_activation(self, value):
-        return 1 / (1 + np.exp(-value))
+        return 1.0 / (1.0 + np.exp(-value))
     def sigmoid_activation_man_der(self, value):
         sig = self.sigmoid_activation(value)
         return sig*(sig-1)
@@ -154,8 +156,10 @@ class NeuralNetwork:
     """
     Cost funtions
     """
-    def difference(self, y_tilde):
-        return  y_tilde - self.y
+
+
+    def MSE(self, y_tilde):
+        return (y_tilde - 1)**2
 
     def binary_difference(self, weights, bias):
         y_pred = self.predict( weights, bias)
@@ -178,6 +182,9 @@ if __name__ == "__main__":
     path += '/../../Project 1/code'
     sys.path.append(path)
     from Functions import *
+    # The above imports numpy as np so we have to redefine:
+    import autograd.numpy as np
+
 
     #--- Create data from Franke Function ---#
     N = 5               # Number of points in each dimension
@@ -191,15 +198,15 @@ if __name__ == "__main__":
     z_ols = X @ beta
 
     NN = NeuralNetwork(X, z)
-    NN.run_network(int(100))
+    NN.backpropagation()
 
+
+    exit()
     print("Neural Network", MSE(z, NN.predict( X)))
 
     print("     OLS      ", MSE(z_ols, z))
 
-    """a = np.zeros(10, dtype=np.float64)
 
-    print(np.exp(a))"""
 
 
 #
