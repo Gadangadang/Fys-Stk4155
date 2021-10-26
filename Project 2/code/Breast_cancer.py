@@ -23,14 +23,21 @@ if __name__ == "__main__":
     labels=cancer.feature_names[0:30]
     x = inputs
     y = outputs.reshape((len(outputs), 1))
+    temp1=np.reshape(x[:,1],(len(x[:,1]),1))
+    temp2=np.reshape(x[:,2],(len(x[:,2]),1))
+    X=np.hstack((temp1,temp2))
+    temp=np.reshape(x[:,5],(len(x[:,5]),1))
+    X=np.hstack((X,temp))
+    temp=np.reshape(x[:,8],(len(x[:,8]),1))
+    X=np.hstack((X,temp))
     num_hidden_layers = 2
     num_hidden_nodes = 10
     n_categories = 1
-    eta = 1e-1
+    eta = 1e-5
     lmbd = 0
-    epochs = 10000
-    batch_size = len(x)
-    NN = NeuralNetwork( x,
+    epochs = int(1e5)
+    batch_size = len(X)
+    NN = NeuralNetwork( X,
                         y,
                         num_hidden_layers,
                         num_hidden_nodes,
