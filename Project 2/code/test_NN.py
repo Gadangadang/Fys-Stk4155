@@ -129,7 +129,7 @@ def test_NN_Franke():
 
     MSE_NN = MSE(z, NN_pred)
     MSE_tf = MSE(z, tf_pred)
-    tol = 1e-1*
+
 
     success = MSE_NN < MSE_tf + tol
     msg = f"Neural Network learning is noticeable worse than acchived with tensorflow \n\
@@ -155,28 +155,22 @@ def WIP_test_logical_gates():
 
     y_gates = [y_AND, y_OR, y_XOR]
 
-    num_hidden_layers = 1
-    num_hidden_nodes = 2
+    num_hidden_layers = 2
+    num_hidden_nodes = 10
     n_categories = 1
 
-    eta = 1e-1
+    eta = 1e-2
     lmbd = 0
     epochs = 10000
     batch_size = 4
-    # sklearn_network_Morten(X, y_AND)
-    # exit()
 
-    # NN = NeuralNetwork(X, y_AND.reshape(4,1), num_hidden_layers, num_hidden_nodes, batch_size, eta, lmbd, seed=4155, activation = "sigmoid")
-    # NN.run_network(epochs)
-    # exit()
     for i, y in enumerate(y_gates):
         sklearn_pred, sklearn_accuracy = sklearn_NN(X, y_OR, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
-        NN = NeuralNetwork(X, y.reshape(4,1), num_hidden_layers, num_hidden_nodes, batch_size, eta, lmbd, seed=4155, activation = "sigmoid")
-        NN.run_network(epochs)
-        NN_pred = NN.predict(X)
-        print(sklearn_pred)
-        print(NN_pred)
-        exit()
+        NN = NeuralNetwork(X, y.reshape(4,1), num_hidden_layers, num_hidden_nodes, batch_size, eta, lmbd, seed=4155, activation = "sigmoid", cost = "binary_difference")
+        NN.run_network_stochastic(epochs)
+        print(np.around(NN.layers_a[-1]))
+        accuracy = NN.accuracy_score()
+        print(f"{int(accuracy*len(NN.t))} / {len(NN.t)} accurate predictions")
 
     success = True
     msg = "..."
@@ -260,10 +254,9 @@ def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_c
 
 
 if __name__ == "__main__":
-    pass
     # test_logical_gates()
     # test_NN_Franke()
-
+    WIP_test_logical_gates()
 
 
 

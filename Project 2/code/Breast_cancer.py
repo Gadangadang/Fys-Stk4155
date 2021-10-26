@@ -23,7 +23,23 @@ if __name__ == "__main__":
     labels=cancer.feature_names[0:30]
     x = inputs
     y = outputs.reshape((len(outputs), 1))
-    
-    NN = NeuralNetwork(x, y)
-    NN.run_network(int(100))
-    print(NN.indicator())
+    num_hidden_layers = 2
+    num_hidden_nodes = 10
+    n_categories = 1
+    eta = 1e-1
+    lmbd = 0
+    epochs = 10000
+    batch_size = len(x)
+    NN = NeuralNetwork( x,
+                        y,
+                        num_hidden_layers,
+                        num_hidden_nodes,
+                        batch_size,
+                        eta,
+                        lmbd,
+                        4155,
+                        "sigmoid",
+                        "binary_difference")
+    NN.run_network_stochastic(int(100))
+    accuracy = NN.accuracy_score()
+    print(f"{int(accuracy*len(NN.t))} / {len(NN.t)} accurate predictions")

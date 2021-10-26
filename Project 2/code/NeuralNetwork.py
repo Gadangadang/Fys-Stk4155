@@ -92,10 +92,10 @@ class NeuralNetwork:
             self.num_output_nodes, num_hidden_nodes))
 
         # Add individual biases?
-        self.bias = [np.ones(num_hidden_nodes)
+        self.bias = [np.ones(num_hidden_nodes)*bias_shift
                      for i in range(self.num_hidden_layers)]
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
-        self.bias.append(np.ones(num_categories))
+        self.bias.append(np.ones(num_categories)*bias_shift)
 
         self.local_gradient = self.layers_a.copy()  # also called error
         self.local_gradient[0] = np.nan  # don't use first
@@ -167,10 +167,10 @@ class NeuralNetwork:
 
     def soft_max_activation(self, value):
         val_exp = np.exp(value)
-        return val_exp / (np.sum(val_exp))
+        return val_exp / (np.sum(val_exp, axis = 1, keepdims = True))
 
-    def indicator(self):
-        val = np.sum(self.layers_a[-1] == self.y) / len(self.y)
+    def accuracy_score(self):
+        val = np.sum(np.around(self.layers_a[-1]) == self.t) / len(self.t)
         return val
 
     """
@@ -180,9 +180,8 @@ class NeuralNetwork:
     def MSE(self, y_tilde):
         return (y_tilde - self.t)**2
 
-    def binary_difference(self, weights, bias):
-        y_pred = self.predict(weights, bias)
-        return -(self.y * np.log(y_pred) + (1 - self.y) * np.log(1 - y_pred))
+    def binary_difference(self, y_tilde):
+        return -(self.t * np.log(y_tilde) + (1 - self.t) * np.log(1 - y_tilde))
 
     def __str__(self):
         text = "Information of the Neural Network \n"
@@ -207,7 +206,7 @@ if __name__ == "__main__":
     N = 10               # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
     n = 8               # Highest order of polynomial for X
-    epochs = 10000
+    epochs = 1000
     iterations = 1
     batch_size = int(N * N * 0.8)
 
@@ -235,5 +234,3 @@ if __name__ == "__main__":
     print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
 
     print("           OLS           ", MSE(Z_test, z_ols))
-
-    test_accuracy_nn()  # Test accuracy of network
