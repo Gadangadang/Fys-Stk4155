@@ -3,11 +3,17 @@ __Fys-Stk4155__
 This is the project repository for the course Fys-Stk4155.
 
 Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst.
-Sakarias Frette is doing a master thesis in Computational Physics on Unsupervised Learning on particle collision data. \n
-William Hirst is doing a master thesis in Computational Physics on Supervised Learning on particle collision data. \n
-Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures. \n
+Sakarias Frette is doing a master thesis in Computational Physics on Unsupervised Learning on particle collision data. <br />
+William Hirst is doing a master thesis in Computational Physics on Supervised Learning on particle collision data. <br />
+Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures. <br />
+<br />
+Project 1 explores three different linear regression models, OLS, Ridge and Lasso, and studies their accuracy approximating the famous 
+Franke Function. <br />
+<br />
+Project 2 explores neural networks, and compares self made ones to networks from Tensorflow, as well as linear and logistic 
+regression models on the Franke Function. <br />
 
-
+<br />
 To install requirements do:
 ```
 pip install -r requirements
