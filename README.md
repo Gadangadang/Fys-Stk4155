@@ -2,7 +2,8 @@ __Fys-Stk4155__
 
 This is the project repository for the course Fys-Stk4155.
 
-Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst.
+Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst. <br />
+<br />
 Sakarias Frette is doing a master thesis in Computational Physics on Unsupervised Learning on particle collision data. <br />
 William Hirst is doing a master thesis in Computational Physics on Supervised Learning on particle collision data. <br />
 Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures. <br />
