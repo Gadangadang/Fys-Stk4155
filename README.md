@@ -2,14 +2,20 @@ __Fys-Stk4155__
 
 This is the project repository for the course Fys-Stk4155.
 
-Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst
+Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst.
+Sakarias Frette is doing a master thesis in Computational Physics on Unsupervised Learning on particle collision data. 
+William Hirst is doing a master thesis in Computational Physics on Supervised Learning on particle collision data. 
+Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures.
+
 
 To install requirements do:
 pip install -r requirements
 
-If one is using the Macbook M1 laptops, (Air/Pro), one needs to take a few more steps 
-in order to run tensorflow. Assuming one does not have macOS 12.0+ installed, 
-run the following commands:
+
+
+If one is using the Macbook M1 laptops, (Air or Pro), one needs to take a few more steps 
+in order to run tensorflow. Assuming one does not have macOS 12.0+ installed, follow these 
+steps here. If one have that version, simple follow the steps listed in the source at the bottom of the page. 
 
 First, remove current conda software, and install conda with miniforge
 ```
