@@ -78,7 +78,7 @@ class NeuralNetwork:
         num_features = self.num_features
         num_hidden_nodes = self.num_hidden_nodes
         num_categories = self.num_categories
-        bias_shift = 0.01
+        bias_shift = 0.1
 
         self.weights = [np.random.randn(
             num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
@@ -167,7 +167,7 @@ class NeuralNetwork:
 
     def soft_max_activation(self, value):
         val_exp = np.exp(value)
-        return val_exp / (np.sum(val_exp, axis = 1, keepdims = True))
+        return val_exp / (np.sum(val_exp, axis = 0, keepdims = True))
 
     def accuracy_score(self):
         val = np.sum(np.around(self.layers_a[-1]) == self.t) / len(self.t)

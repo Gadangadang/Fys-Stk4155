@@ -33,10 +33,10 @@ if __name__ == "__main__":
     num_hidden_layers = 2
     num_hidden_nodes = 10
     n_categories = 1
-    eta = 1e-5
-    lmbd = 0
-    epochs = int(1e5)
-    batch_size = len(X)
+    eta = 1e-2
+    lmbd = 0.01
+    epochs = int(1e4)
+    batch_size = int(len(X)/4)
     NN = NeuralNetwork( X,
                         y,
                         num_hidden_layers,
@@ -47,6 +47,8 @@ if __name__ == "__main__":
                         4155,
                         "sigmoid",
                         "binary_difference")
-    NN.run_network_stochastic(int(100))
+    NN.run_network_stochastic(int(epochs))
+    print(NN.layers_a[-1])
+
     accuracy = NN.accuracy_score()
-    print(f"{int(accuracy*len(NN.t))} / {len(NN.t)} accurate predictions")
+    print(f"{int(accuracy*len(NN.t))} / {len(NN.t)} ({100*accuracy:.0f}%) accurate predictions. ")
