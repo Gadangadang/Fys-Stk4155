@@ -3,14 +3,15 @@ __Fys-Stk4155__
 This is the project repository for the course Fys-Stk4155.
 
 Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst.
-Sakarias Frette is doing a master thesis in Computational Physics on Unsupervised Learning on particle collision data. 
-William Hirst is doing a master thesis in Computational Physics on Supervised Learning on particle collision data. 
-Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures.
+Sakarias Frette is doing a master thesis in Computational Physics on Unsupervised Learning on particle collision data. \n
+William Hirst is doing a master thesis in Computational Physics on Supervised Learning on particle collision data. \n
+Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures. \n
 
 
 To install requirements do:
+```
 pip install -r requirements
-
+```
 
 
 If one is using the Macbook M1 laptops, (Air or Pro), one needs to take a few more steps 
