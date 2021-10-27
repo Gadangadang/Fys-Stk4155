@@ -16,9 +16,10 @@ regression models on the Franke Function. <br />
 
 <br />
 To install requirements do:
+
 ```
 pip install -r requirements
-```
+
 
 
 If one is using the Macbook M1 laptops, (Air or Pro), one needs to take a few more steps 
