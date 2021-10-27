@@ -1,3 +1,8 @@
 tqdm==4.62.3
 tensorflow
 autograd
+scikit-learn
+numpy
+matplotlib
+seaborn
+
