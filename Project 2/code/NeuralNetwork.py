@@ -8,6 +8,8 @@ np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 class NeuralNetwork:
+    """[summary]
+    """
     def __init__(self,
                  X,
                  t,
@@ -19,7 +21,20 @@ class NeuralNetwork:
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE"):
+        """[summary]
 
+        Args:
+            X ([type]): [description]
+            t ([type]): [description]
+            num_hidden_layers (int, optional): [description]. Defaults to 2.
+            num_hidden_nodes (int, optional): [description]. Defaults to 10.
+            batch_size (int, optional): [description]. Defaults to 1.
+            eta (float, optional): [description]. Defaults to 0.001.
+            lmbd (float, optional): [description]. Defaults to 0.0.
+            seed (int, optional): [description]. Defaults to 4155.
+            activation (str, optional): [description]. Defaults to "sigmoid".
+            cost (str, optional): [description]. Defaults to "MSE".
+        """
         self.X = X  # Design matrix shape: N x features --> features x N
         self.t = t  # Target, shape: categories x N
         self.T = np.copy(t)
@@ -63,6 +78,7 @@ class NeuralNetwork:
         """
         layers_a: contain activation values of all nodes
         layers_z: contain weighted sum z / unactivated values of all nodes
+        
         """
         self.layers_a = [np.zeros((self.N, self.num_hidden_nodes), dtype=np.float64)
                          for i in range(self.num_hidden_layers)]  # Intialized with the hidden layers
@@ -73,6 +89,8 @@ class NeuralNetwork:
         self.layers_z = self.layers_a.copy()
 
     def create_biases_and_weights(self):
+        """[summary]
+        """
         np.random.seed(self.seed)
         num_hidden_layers = self.num_hidden_layers
         num_features = self.num_features
@@ -101,6 +119,8 @@ class NeuralNetwork:
         self.local_gradient[0] = np.nan  # don't use first
 
     def update_parameters(self):
+        """[summary]
+        """
         self.backpropagation()
 
         for l in range(1, self.L):
@@ -111,6 +131,8 @@ class NeuralNetwork:
             self.bias[l] -= self.eta * np.mean(self.local_gradient[l], axis=0)
 
     def feed_forward(self):
+        """[summary]
+        """
         for l in range(1, self.L):
             Z_l = self.layers_a[l - 1] @ self.weights[l].T + \
                 self.bias[l][np.newaxis, :]
@@ -130,17 +152,31 @@ class NeuralNetwork:
                 @ self.weights[l + 1] * self.activation_der(self.layers_z[l])
 
     def predict(self, X):
+        """[summary]
+
+        Args:
+            X ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         self.layers_a[0] = X
         self.feed_forward()
         return self.layers_a[-1]
 
     def run_network_stochastic(self, epochs):
+        """[summary]
+
+        Args:
+            epochs ([type]): [description]
+        """
         for _ in range(epochs):
             self.SGD()
             self.feed_forward()
             self.update_parameters()
 
     def SGD(self):
+        """[summary]"""
         batch_indices = np.random.choice(
             self.data_indices, size=self.batch_size, replace=False)
         self.layers_a[0] = self.X[batch_indices]
@@ -151,25 +187,66 @@ class NeuralNetwork:
     """
 
     def sigmoid_activation(self, value):
+        """[summary]
+
+        Args:
+            value ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return 1.0 / (1.0 + np.exp(-value))
 
     def sigmoid_activation_man_der(self, value):
+        """[summary]
+
+        Args:
+            value ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         sig = self.sigmoid_activation(value)
         return sig * (sig - 1)
 
     def RELU_activation(self, value):
+        """[summary]
+
+        Args:
+            value ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         vals = np.where(value > 0, value, 0)
         return vals
 
     def Leaky_RELU_activation(self, value):
+        """[summary]
+
+        Args:
+            value ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         vals = np.where(value > 0, value, 0.01 * value)
         return vals
 
     def soft_max_activation(self, value):
+        """[summary]
+
+        Args:
+            value ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         val_exp = np.exp(value)
         return val_exp / (np.sum(val_exp, axis = 0, keepdims = True))
 
     def accuracy_score(self):
+        """[summary]"""
         val = np.sum(np.around(self.layers_a[-1]) == self.t) / len(self.t)
         return val
 
@@ -178,9 +255,25 @@ class NeuralNetwork:
     """
 
     def MSE(self, y_tilde):
+        """[summary]
+
+        Args:
+            y_tilde ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return (y_tilde - self.t)**2
 
     def binary_difference(self, y_tilde):
+        """[summary]
+
+        Args:
+            y_tilde ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         return -(self.t * np.log(y_tilde) + (1 - self.t) * np.log(1 - y_tilde))
 
     def __str__(self):
