@@ -10,6 +10,7 @@ np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 class NeuralNetwork:
     """[summary]
     """
+
     def __init__(self,
                  X,
                  t,
@@ -74,11 +75,12 @@ class NeuralNetwork:
             self.cost = self.binary_difference
         self.activation_der = elementwise_grad(self.activation)
         self.cost_der = elementwise_grad(self.cost)
+
     def create_layers(self):
         """
         layers_a: contain activation values of all nodes
         layers_z: contain weighted sum z / unactivated values of all nodes
-        
+
         """
         self.layers_a = [np.zeros((self.N, self.num_hidden_nodes), dtype=np.float64)
                          for i in range(self.num_hidden_layers)]  # Intialized with the hidden layers
@@ -110,10 +112,10 @@ class NeuralNetwork:
             self.num_output_nodes, num_hidden_nodes))
 
         # Add individual biases?
-        self.bias = [np.ones(num_hidden_nodes)*bias_shift
+        self.bias = [np.ones(num_hidden_nodes) * bias_shift
                      for i in range(self.num_hidden_layers)]
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
-        self.bias.append(np.ones(num_categories)*bias_shift)
+        self.bias.append(np.ones(num_categories) * bias_shift)
 
         self.local_gradient = self.layers_a.copy()  # also called error
         self.local_gradient[0] = np.nan  # don't use first
@@ -243,7 +245,7 @@ class NeuralNetwork:
             [type]: [description]
         """
         val_exp = np.exp(value)
-        return val_exp / (np.sum(val_exp, axis = 0, keepdims = True))
+        return val_exp / (np.sum(val_exp, axis=0, keepdims=True))
 
     def accuracy_score(self):
         """[summary]"""
