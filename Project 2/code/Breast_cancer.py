@@ -3,6 +3,9 @@ import os
 import sys
 from NeuralNetwork import NeuralNetwork
 from sklearn.datasets import load_breast_cancer
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
+from test_NN import sklearn_NN
 
 
 if __name__ == "__main__":
@@ -23,20 +26,23 @@ if __name__ == "__main__":
     labels=cancer.feature_names[0:30]
     x = inputs
     y = outputs.reshape((len(outputs), 1))
-    temp1=np.reshape(x[:,1],(len(x[:,1]),1))
-    temp2=np.reshape(x[:,2],(len(x[:,2]),1))
-    X=np.hstack((temp1,temp2))
-    temp=np.reshape(x[:,5],(len(x[:,5]),1))
-    X=np.hstack((X,temp))
-    temp=np.reshape(x[:,8],(len(x[:,8]),1))
-    X=np.hstack((X,temp))
+
+    #Sampling only certain features.
+    X = np.reshape(x[:,1],(len(x[:,1]),1))
+    features = [2,5,8]
+    for i in features:
+        temp = np.reshape(x[:,i],(len(x[:,i]),1))
+        X=np.hstack((X,temp))
+
     num_hidden_layers = 2
     num_hidden_nodes = 10
     n_categories = 1
     eta = 1e-2
-    lmbd = 0.01
-    epochs = int(1e4)
-    batch_size = int(len(X)/4)
+    lmbd = 0.0
+    epochs = int(2e4)
+    batch_size = int(200)
+    #X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
+    sklearn_pred, sklearn_accuracy = sklearn_NN(X, y.ravel(), eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
     NN = NeuralNetwork( X,
                         y,
                         num_hidden_layers,
@@ -48,7 +54,8 @@ if __name__ == "__main__":
                         "sigmoid",
                         "binary_difference")
     NN.run_network_stochastic(int(epochs))
-    print(NN.layers_a[-1])
+    print(np.asarray(NN.layers_a[-1]).ravel())
 
-    accuracy = NN.accuracy_score()
-    print(f"{int(accuracy*len(NN.t))} / {len(NN.t)} ({100*accuracy:.0f}%) accurate predictions. ")
+    accuracy = NN.accuracy_score(X,y)
+    print(f"{100*accuracy:.0f}% NN accuracy -- {int(accuracy*len(NN.t))} / {len(NN.t)} accurate predictions. ")
+    print(f"{100*sklearn_accuracy:.0f}% Sklearn accuracy")

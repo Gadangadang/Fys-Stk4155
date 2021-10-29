@@ -18,7 +18,7 @@ class NeuralNetwork:
                  num_hidden_nodes=10,
                  batch_size=1,
                  eta=0.001,
-                 lmbd=0.0,
+                 lmbd=0.00,
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE"):
@@ -56,7 +56,6 @@ class NeuralNetwork:
         self.eta = eta
         self.lmbd = lmbd
         self.seed = seed
-        self.lmbd = 0
 
         self.create_layers()
         self.create_biases_and_weights()
@@ -124,12 +123,11 @@ class NeuralNetwork:
         """[summary]
         """
         self.backpropagation()
-
         for l in range(1, self.L):
             # this should be batch length
             self.weights[l] -= self.eta * \
                 (self.local_gradient[l].T @
-                 self.layers_a[l - 1]) / self.batch_size
+                 self.layers_a[l - 1] + self.weights[l]*self.lmbd) / self.batch_size
             self.bias[l] -= self.eta * np.mean(self.local_gradient[l], axis=0)
 
     def feed_forward(self):
@@ -247,9 +245,10 @@ class NeuralNetwork:
         val_exp = np.exp(value)
         return val_exp / (np.sum(val_exp, axis=0, keepdims=True))
 
-    def accuracy_score(self):
+    def accuracy_score(self, X, target):
         """[summary]"""
-        val = np.sum(np.around(self.layers_a[-1]) == self.t) / len(self.t)
+
+        val = np.sum(np.around(self.predict(X)) == target) / len(target)
         return val
 
     """
