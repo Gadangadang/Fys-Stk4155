@@ -10,7 +10,7 @@ class SGD:
     Stochastic Gradient Descent
     with mini batches
     """
-    def __init__(self, X, y, eta_val=0.1, m = 0, num_epochs = int(1e4)):
+    def __init__(self, X, y, eta_val=0.1, m = 0, num_epochs = int(1e4),  gradient_func = "Ridge"):
         self.X = X
         self.N = X.shape[0] # Number of data points
         self.y = y
@@ -27,7 +27,13 @@ class SGD:
         self.lmbd = 0
 
         # Set default gradient and learning rate functions
-        self.gradient_func = self.gradient_Ridge
+
+        if gradient_func == "logistic":
+            self.gradient_func = self.gradient_Logistic
+
+        else:
+            self.gradient_func = self.gradient_Ridge
+
         self.eta_func = self.eta_const
 
         # Initializa theta and set epoch = 1
@@ -74,6 +80,10 @@ class SGD:
 
     def eta_const(self, epoch): # Constant learning rate
         return self.eta_val
+
+    def gradient_Logistic(self, X, y): # Ridge gradient
+        g = -X.T @ (y - np.exp(X @ self.theta)/(1+np.exp(X @ self.theta)))
+        return g
 
     def gradient_Ridge(self, X, y): # Ridge gradient
         g = 2*(1/self.N * X.T @ ((X @ self.theta) - y) + self.lmbd*self.theta)
