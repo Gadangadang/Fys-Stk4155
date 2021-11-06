@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from test_NN import sklearn_NN
 from sklearn.preprocessing import StandardScaler
+from SGD import SGD
 
 
 def find_hyperparameters(etas, lmbds, X, z, activation, cost_func, name):
@@ -91,7 +92,6 @@ if __name__ == "__main__":
 
     #Scaling of data
 
-
     X_train, X_test, Z_train, Z_test = train_test_split(X, y, test_size=0.2)
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
@@ -133,7 +133,15 @@ if __name__ == "__main__":
     accuracy = NN.accuracy_score(X_test,Z_test)
     print(f"{100*accuracy:.0f}% NN accuracy -- {int(accuracy*len(NN.t))} / {len(NN.t)} accurate predictions. ")
     #print(f"{100*sklearn_accuracy:.0f}% Sklearn accuracy")
+
+    #run for logistic regression.
+    solver = SGD(X_train, Z_train, eta_val=0.001, m = 100, num_epochs = int(1e4), gradient_func = "Logistic")
+
+    theta_SGD = solver.SGD_train()
+
+    print(f"{solver.accuracy_score(X_test,Z_test)*100:.0f}%")
     """
+
     etas = np.logspace(-4, 1, 10)
     lmbds = np.logspace(-4, 1, 10)
 
