@@ -130,7 +130,7 @@ if __name__ == "__main__":
                         lmbd,
                         4155,
                         "sigmoid",
-                        "binary_difference")
+                        "cross_entropy")
     NN.run_network_stochastic(int(epochs))
     #print(np.asarray(NN.layers_a[-1]).ravel())
 
