@@ -45,30 +45,35 @@ def SGD_optimization_test(X, y):
     # Split and scale data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     X_train, X_test, y_train, y_test = mean_scale_new(X_train, X_test, y_train, y_test)
-    # X_train, X_test, y_train, y_test = standard_scale(X_train, X_test, y_train, y_test)
     N = X_train.shape[0]
 
 
-    eta_vals = np.logspace(-6, -1, 6)
-    # eta_vals = np.linspace(0.13, 0.1, 2)
-    bsp_vals = np.linspace(0.001,1, 5) # batch size procent
+    eta_vals = np.logspace(-6, -1, 6)  # eta_vals = np.linspace(0.13, 0.1, 2)
+    bsp_vals = np.linspace(0.01,1, 5) # batch size procent
+    num_epochs = int(1e4)
+
+
+    SGD_regression = SGD(X_train, y_train, eta_vals[0], m=0, num_epochs = num_epochs)
 
 
     train_MSE = np.zeros((len(eta_vals), len(bsp_vals)))
     test_MSE = np.zeros((len(eta_vals), len(bsp_vals)))
-
-
     for i, eta_val in enumerate(eta_vals):
         for j, bsp_pct in enumerate(bsp_vals):
             print(f"\r({i},{j})/({len(eta_vals)-1},{len(bsp_vals)-1})", end = "")
             m = int(bsp_pct*N)
 
             # Find theta
-            theta = SGD(X_train, y_train, eta_val, m, num_epochs = int(1e3))
+            SGD_regression.reset()
+            SGD_regression.initialize_theta_normal()
+            SGD_regression.eta_val = eta_val
+            SGD_regression.m = m
+            theta_SGD = SGD_regression.SGD_run()      # Stochastic Gradient Descent
+
 
             # Make prediction
-            ztilde_theta = (X_train @ theta).ravel()
-            zpredict_theta = (X_test @ theta).ravel()
+            ztilde_theta = (X_train @ theta_SGD).ravel()
+            zpredict_theta = (X_test @ theta_SGD).ravel()
 
 
             # Error
@@ -248,9 +253,7 @@ if __name__ == "__main__":
 
 
 
-
-
     #--- Validation / testing ---#
-    # SGD_optimization_test(X, z)
+    SGD_optimization_test(X, z)
     # SGD_test_learning_rate(X, z)
     # SGD_VS_OLS()

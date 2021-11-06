@@ -24,14 +24,18 @@ class SGD:
         else: # user defined m
             self.m = m
         self.num_epochs = num_epochs
-        self.epoch = 1
         self.lmbd = 0
 
         # Set default gradient and learning rate functions
         self.gradient_func = self.gradient_Ridge
         self.eta_func = self.eta_const
 
-        # Initializa theta (default settings)
+        # Initializa theta and set epoch = 1
+        self.reset()
+
+
+    def reset(self):
+        self.epoch = 1
         self.initialize_theta_normal()
 
 
