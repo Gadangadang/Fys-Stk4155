@@ -2,7 +2,8 @@ from SGD import *
 import seaborn as sns; sns.set_theme()
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from matplotlib.ticker import FormatStrFormatter
+from matplotlib.ticker import MaxNLocator
+from plot_set import*
 
 # Get modules from project 1
 path = os.getcwd()  # Current working directory
@@ -48,8 +49,9 @@ def SGD_optimization_test(X, y):
     N = X_train.shape[0]
 
 
-    eta_vals = np.logspace(-6, -1, 6)  # eta_vals = np.linspace(0.13, 0.1, 2)
-    bsp_vals = np.linspace(0.01,1, 5) # batch size procent
+    eta_vals = np.logspace(-6, -1, 6)
+    eta_vals = np.linspace(0.1, 0.14, 2)
+    c
     num_epochs = int(1e4)
 
 
@@ -68,7 +70,7 @@ def SGD_optimization_test(X, y):
             SGD_regression.initialize_theta_normal()
             SGD_regression.eta_val = eta_val
             SGD_regression.m = m
-            theta_SGD = SGD_regression.SGD_run()      # Stochastic Gradient Descent
+            theta_SGD = SGD_regression.SGD_train()      # Stochastic Gradient Descent
 
 
             # Make prediction
@@ -87,7 +89,7 @@ def SGD_optimization_test(X, y):
 
     fig, ax = plt.subplots(figsize=(7, 7))
     # df = pd.DataFram(test_MSE), columns
-    ax = sns.heatmap(train_MSE, xticklabels = bsp_vals, yticklabels = np.log10(eta_vals), annot=True, ax=ax, cmap="viridis")
+    ax = sns.heatmap(test_MSE, xticklabels = bsp_vals, yticklabels = np.log10(eta_vals), annot=True, ax=ax, cmap="viridis")
     # ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 
     ax.set_title("Test MSE")
@@ -109,47 +111,153 @@ def SGD_test_learning_rate(X, y):
     N = X_train.shape[0]
 
     # eta_vals = np.logspace(-6, -2, 5)
-    eta_vals = np.linspace(0.001, 1, 10)
-    num_epochs = int(1e5)
-
-
-    train_MSE = np.zeros(len(eta_vals))
-    test_MSE = np.zeros(len(eta_vals))
-
+    eta_vals = np.linspace(0.01, 1.2, 10)
+    num_epochs = int(1e4)
     m = int(1*N)
+
+    SGD_regression = SGD(X_train, y_train, eta_vals[0], m=m, num_epochs = num_epochs)
+
+
+    SGD_MSE_train = np.zeros(len(eta_vals))
+    SGD_MSE_test = np.zeros(len(eta_vals))
     for i, eta_val in enumerate(eta_vals):
         print(f"\r{i}/{len(eta_vals)-1}", end = "")
 
         # Find theta
         theta = SGD(X_train, y_train, eta_val, m, num_epochs = num_epochs)
+        SGD_regression.reset()
+        SGD_regression.eta_val = eta_val
+        theta_SGD = SGD_regression.SGD_train()
 
         # Make prediction
-        ztilde_theta = (X_train @ theta).ravel()
-        zpredict_theta = (X_test @ theta).ravel()
+        ztilde_theta = (X_train @ theta_SGD).ravel()
+        zpredict_theta = (X_test @ theta_SGD).ravel()
 
 
         # Error
-        train_MSE[i] = MSE(ztilde_theta, y_train)
-        test_MSE[i] = MSE(zpredict_theta, y_test)
+        SGD_MSE_train[i] = MSE(ztilde_theta, y_train)
+        SGD_MSE_test[i] = MSE(zpredict_theta, y_test)
     print()
+
     # OLS regression
-    beta_OLS = OLS_regression(X_train, y_train)
-    ztilde = (X_train @ beta_OLS).ravel()
-    zpredict = (X_test @ beta_OLS).ravel()
+    theta_OLS = OLS_regression(X_train, y_train)
+    ztilde = (X_train @ theta_OLS).ravel()
+    zpredict = (X_test @ theta_OLS).ravel()
 
     # MSE for OLS
-    MSE_train = MSE(ztilde, y_train)
-    MSE_test = MSE(zpredict, y_test)
+    OLS_MSE_train = np.ones(len(eta_vals)) * MSE(ztilde, y_train)
+    OLS_MSE_test = np.ones(len(eta_vals)) * MSE(zpredict, y_test)
 
-    OLS_MSE_train = np.ones(len(eta_vals)) * MSE_train
-    OLS_MSE_test = np.ones(len(eta_vals)) * MSE_test
 
-    plt.plot(eta_vals, train_MSE, label = "train MSE SGD")
-    plt.plot(eta_vals, test_MSE, label = "test MSE SGD")
-    plt.plot(eta_vals, OLS_MSE_train, label = "train MSE OLS")
-    plt.plot(eta_vals, OLS_MSE_test, label = "test MSE OLS")
-    plt.legend()
+    #--- Plotting ---#
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.plot(eta_vals, SGD_MSE_train, label = "SGD train")
+    plt.plot(eta_vals, SGD_MSE_test, label = "SGD test")
+    plt.plot(eta_vals, OLS_MSE_train, label = "OLS train MSE")
+    plt.plot(eta_vals, OLS_MSE_test, label = "OLS test")
+
+    plt.xlabel(r"$\eta$", fontsize=14)
+    plt.ylabel(r"MSE", fontsize=14)
+    plt.legend(fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
     plt.show()
+
+
+def SGD_convergence_speed(X, y):
+    #--- Create data from Franke Function ---#
+    num_epochs = 500
+    eta_val = 0.1
+    N = X.shape[0]
+
+
+
+
+    #--- Variation of batch size ---#
+    bsp_vals = np.array([0.01, 0.02, 0.05, 0.5, 1])
+    SGD_regression = SGD(X, y, eta_val, m=0, num_epochs = num_epochs)
+
+    MSE_arr = np.zeros((len(bsp_vals), num_epochs))
+
+
+    theta_OLS = OLS_regression(X, y)
+    ytilde_OLS = (X @ theta_OLS).ravel()
+    MSE_OLS =  MSE(ytilde_OLS, y)
+
+
+    fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.hlines(MSE_OLS, 1, num_epochs, linestyle = "--", color = "black", label = "OLS MSE")
+
+    epoch_arr = np.linspace(1, num_epochs, num_epochs)
+    for i, bsp_pct in enumerate(bsp_vals):
+        np.random.seed(41550) #RN Seed
+        SGD_regression.reset()
+        SGD_regression.m = int(bsp_pct*N)
+
+        for j in range(num_epochs):
+            SGD_regression.SGD_evolve()
+            ytilde = (X @ SGD_regression.theta).ravel()
+            MSE_arr[i,j] = MSE(ytilde, y)
+        plt.plot(epoch_arr, MSE_arr[i], label = f"m = {bsp_pct*100:.0f}%")
+
+
+    ax = plt.gca()
+    a=ax.get_xticks().tolist()
+    a[1]=1
+    ax.set_xticklabels(a)
+
+    plt.xlabel(r"epoch", fontsize=14)
+    plt.ylabel(r"MSE", fontsize=14)
+    plt.yscale("log")
+    plt.legend(fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.legend()
+    plt.savefig("../article/figures/SGD_batch_size_convergence.pdf", bbox_inches="tight")
+    plt.clf()
+    # plt.show()
+
+
+    #--- Variation of learning rate ---#
+    fig = plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
+    plt.hlines(MSE_OLS, 1, num_epochs, linestyle = "--", color = "black", label = "OLS MSE")
+    eta_vals = np.array([0.05, 0.01, 0.001])
+    SGD_regression = SGD(X, y, eta_val, m=0, num_epochs = num_epochs)
+
+    MSE_arr = np.zeros((len(bsp_vals), num_epochs))
+    epoch_arr = np.linspace(1, num_epochs, num_epochs)
+    for i, eta_val in enumerate(eta_vals):
+        np.random.seed(41550) #RN Seed
+        SGD_regression.reset()
+        SGD_regression.eta_val = eta_val
+
+        for j in range(num_epochs):
+            SGD_regression.SGD_evolve()
+            ytilde = (X @ SGD_regression.theta).ravel()
+            MSE_arr[i,j] = MSE(ytilde, y)
+        plt.plot(epoch_arr, MSE_arr[i], label = f"m = {eta_val:g}")
+
+
+    ax = plt.gca()
+    a=ax.get_xticks().tolist()
+    a[1]=1
+    ax.set_xticklabels(a)
+
+    plt.xlabel(r"epoch", fontsize=14)
+    plt.ylabel(r"MSE", fontsize=14)
+    # plt.yscale("log")
+    plt.legend(fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.legend()
+    plt.savefig("../article/figures/SGD_learning_rate_convergence.pdf", bbox_inches="tight")
+    # plt.clear()
+    plt.show()
+
+
+
+
+
+
+
 
 
 def SGD_VS_OLS():
@@ -165,7 +273,7 @@ def SGD_VS_OLS():
 
     n_max = 12
     split = 0.2
-    num_epochs = int(1e5)
+    num_epochs = int(1e4)
     X_full = create_X(x, y, n_max)
     X_F_train, X_F_test, y_train, y_test = train_test_split(X_full, z, test_size=split)
     X_F_train, X_F_test, y_train, y_test = mean_scale_new(X_F_train, X_F_test, y_train, y_test)
@@ -214,16 +322,6 @@ def SGD_VS_OLS():
     plt.show()
 
 
-# def SGD_convergence_speed():
-#     #--- Create data from Franke Function ---#
-#     N = 10             # Number of points in each dimension
-#     z_noise = 0.2       # Added noise to the z-value
-#     n_max = 10
-#     x, y, z = generate_data(N, z_noise)
-#
-#     n_max = 12
-#
-#
 
 
 
@@ -244,7 +342,7 @@ if __name__ == "__main__":
 
 
     #--- Create data from Franke Function ---#
-    N = 10             # Number of points in each dimension
+    N = 100             # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
     n = 5               # Highest order of polynomial for X
     lamda = 0
@@ -254,6 +352,7 @@ if __name__ == "__main__":
 
 
     #--- Validation / testing ---#
-    SGD_optimization_test(X, z)
+    # SGD_optimization_test(X, z)
     # SGD_test_learning_rate(X, z)
+    SGD_convergence_speed(X, z)
     # SGD_VS_OLS()

@@ -17,3 +17,12 @@ def color_cycle(num_color):
         use as: color = color_cycle(3) """
     color = plt.rcParams['axes.prop_cycle'].by_key()['color']
     return color[num_color]
+
+
+#--- Plot commands ---#
+# plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+# plt.xlabel(r"$x$", fontsize=14)
+# plt.ylabel(r"$y$", fontsize=14)
+# plt.legend(fontsize = 13)
+# plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+# plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
