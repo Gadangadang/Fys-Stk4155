@@ -70,8 +70,8 @@ class NeuralNetwork:
             self.activation = self.soft_max_activation
         if cost == "MSE":
             self.cost = self.MSE
-        elif cost == "binary_difference":
-            self.cost = self.binary_difference
+        elif cost == "cross_entropy":
+            self.cost = self.cross_entropy
         self.activation_der = elementwise_grad(self.activation)
         self.cost_der = elementwise_grad(self.cost)
 
@@ -171,11 +171,11 @@ class NeuralNetwork:
             epochs ([type]): [description]
         """
         for _ in range(epochs):
-            self.SGD()
+            self.choose_mini_batch()
             self.feed_forward()
             self.update_parameters()
 
-    def SGD(self):
+    def choose_mini_batch(self):
         """[summary]"""
         batch_indices = np.random.choice(
             self.data_indices, size=self.batch_size, replace=False)
@@ -266,7 +266,7 @@ class NeuralNetwork:
         """
         return (y_tilde - self.t)**2
 
-    def binary_difference(self, y_tilde):
+    def cross_entropy(self, y_tilde):
         """[summary]
 
         Args:
