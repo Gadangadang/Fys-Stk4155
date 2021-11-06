@@ -28,7 +28,7 @@ class SGD:
 
         # Set default gradient and learning rate functions
 
-        if gradient_func == "logistic":
+        if gradient_func == "Logistic":
             self.gradient_func = self.gradient_Logistic
 
         else:
@@ -65,7 +65,7 @@ class SGD:
         self.theta -= self.eta_func(self.epoch) * g  # Update theta
 
 
-    def SGD_run(self):
+    def SGD_train(self):
         """
         Run all epochs of SGD
         """
@@ -74,14 +74,22 @@ class SGD:
             self.epoch +=1
 
         return self.theta.ravel()
+    def predict(self, X):
+        prediction = np.exp(X @ self.theta)/(1+np.exp(X @ self.theta))
+        return prediction
 
+    def accuracy_score(self, X, target):
+
+        val = np.sum(np.around(self.predict(X)) == target) / len(target)
+        return val
 
     # --- eta and gradient functions --- #
 
     def eta_const(self, epoch): # Constant learning rate
         return self.eta_val
 
-    def gradient_Logistic(self, X, y): # Ridge gradient
+    def gradient_Logistic(self, X, y): # Logistic gradient
+
         g = -X.T @ (y - np.exp(X @ self.theta)/(1+np.exp(X @ self.theta)))
         return g
 
@@ -198,7 +206,7 @@ if __name__ == "__main__":
 
     #--- Regression ---#
     solver = SGD(X, z, eta_val=0.1, m = 10, num_epochs = int(1e5))
-    theta_SGD = solver.SGD_run()      # Stochastic Gradient Descent
+    theta_SGD = solver.SGD_train()      # Stochastic Gradient Descent
     theta_OLS = OLS_regression(X, z)  # OLS regression
 
 

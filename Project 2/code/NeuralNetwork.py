@@ -164,7 +164,7 @@ class NeuralNetwork:
         self.feed_forward()
         return self.layers_a[-1]
 
-    def run_network_stochastic(self, epochs):
+    def train_network_stochastic(self, epochs):
         """[summary]
 
         Args:
@@ -323,7 +323,7 @@ if __name__ == "__main__":
                        activation="sigmoid",
                        cost="MSE")
 
-    MM.run_network_stochastic(epochs)
+    MM.train_network_stochastic(epochs)
 
     print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
 
