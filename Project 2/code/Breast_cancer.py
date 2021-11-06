@@ -10,9 +10,10 @@ from test_NN import sklearn_NN
 from sklearn.preprocessing import StandardScaler
 
 
-def find_hyperparameters(etas, lmbds, X, z, activation, cost_func):
+def find_hyperparameters(etas, lmbds, X, z, activation, cost_func, name):
     from sklearn.model_selection import train_test_split
     import seaborn as sns
+    import matplotlib.ticker as tkr
     import matplotlib.pyplot as plt
 
     sns.set()
@@ -45,10 +46,16 @@ def find_hyperparameters(etas, lmbds, X, z, activation, cost_func):
             test_accuracy[i][j] = NN.accuracy_score(X_test, Z_test)
 
     fig, ax = plt.subplots(figsize = (10, 10))
-    sns.heatmap(test_accuracy, annot=True, ax=ax, cmap="viridis")
+    sns.heatmap(test_accuracy, xticklabels = np.log10(lmbds), yticklabels = np.log10(etas), annot=True, ax=ax, cmap="viridis")
+    ax.yaxis.set_major_formatter(tkr.FuncFormatter(lambda y, p: f'{y:.1f}'))
+    ax.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, p: f'{x:.1f}'))
     ax.set_title("Test Accuracy")
-    ax.set_ylabel("$\eta$")
-    ax.set_xlabel("$\lambda$")
+    ax.set_ylabel("$log_{10}(\eta)$")
+    ax.set_xlabel("$log_{10}(\lambda)$")
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.subplots_adjust(hspace=0.3)
+    plt.savefig(f"../article/figures/hyper_param_{name}.pdf",
+                bbox_inches="tight")
     plt.show()
 
 
@@ -132,5 +139,5 @@ if __name__ == "__main__":
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
-
-    find_hyperparameters(etas, lmbds, X, y, activation, cost_func)
+    name="breast_cancer"
+    find_hyperparameters(etas, lmbds, X, y, activation, cost_func, name)
