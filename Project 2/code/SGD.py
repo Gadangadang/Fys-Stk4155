@@ -38,7 +38,6 @@ class SGD:
 
         # Initializa theta and set epoch = 1
         self.reset()
-        self.get_batches()
 
 
     def reset(self):
@@ -58,20 +57,22 @@ class SGD:
         np.random.shuffle(idx)
         int_max = self.N//self.m
         batches = [idx[i*self.m:(i+1)*self.m] for i in range(int_max)]
-        batches.append(idx[int_max*self.m:])
+        if self.N%self.m != 0:
+            batches.append(idx[int_max*self.m:])
         return batches
 
 
 
     def SGD_evolve(self):
         """
-        Evolve gradient with one step
+        Evolve gradient with one epoch
         """
-        batch = np.random.choice(self.N, self.m, replace=False)
-        X = self.X[batch]
-        y = self.y[batch]
-        g = self.gradient_func(X,y)
-        self.theta -= self.eta_func(self.epoch) * g  # Update theta
+        batches = self.get_batches()
+        for batch in batches:
+            X = self.X[batch]
+            y = self.y[batch]
+            g = self.gradient_func(X,y)
+            self.theta -= self.eta_func(self.epoch) * g  # Update theta
 
 
     def SGD_train(self):
@@ -214,7 +215,7 @@ if __name__ == "__main__":
     m = 0 # m=0 gives full gradient descent
 
     #--- Regression ---#
-    solver = SGD(X, z, eta_val=0.1, m = 7, num_epochs = int(1e5))
+    solver = SGD(X, z, eta_val=0.1, m = 10, num_epochs = int(1e4))
     theta_SGD = solver.SGD_train()      # Stochastic Gradient Descent
     theta_OLS = OLS_regression(X, z)  # OLS regression
 
