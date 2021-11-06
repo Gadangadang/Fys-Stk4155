@@ -26,7 +26,6 @@ def find_hyperparameters(etas, lmbds, X, z, activation, cost_func):
     X_test = scaler.transform(X_test)
 
     #Setup arrays for accuracy score
-    train_accuracy = np.zeros((len(etas), len(lmbds)))
     test_accuracy = np.zeros((len(etas), len(lmbds)))
 
     for i, eta in enumerate(etas):
@@ -43,17 +42,7 @@ def find_hyperparameters(etas, lmbds, X, z, activation, cost_func):
                                 cost_func)
             NN.run_network_stochastic(int(epochs))
 
-
-            train_accuracy[i][j] = NN.accuracy_score(X_train, Z_train)
             test_accuracy[i][j] = NN.accuracy_score(X_test, Z_test)
-
-
-    fig, ax = plt.subplots(figsize = (10, 10))
-    sns.heatmap(train_accuracy, annot=True, ax=ax, cmap="viridis")
-    ax.set_title("Train Accuracy")
-    ax.set_ylabel("$\eta$")
-    ax.set_xlabel("$\lambda$")
-    plt.show()
 
     fig, ax = plt.subplots(figsize = (10, 10))
     sns.heatmap(test_accuracy, annot=True, ax=ax, cmap="viridis")
@@ -142,6 +131,6 @@ if __name__ == "__main__":
     lmbds = np.logspace(-4, 1, 10)
 
     activation = "sigmoid"
-    cost_func = "binary_difference"
+    cost_func = "cross_entropy"
 
     find_hyperparameters(etas, lmbds, X, y, activation, cost_func)
