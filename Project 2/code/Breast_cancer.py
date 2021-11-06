@@ -6,6 +6,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
 from test_NN import sklearn_NN
+from sklearn.model_selection import train_test_split
+
 
 
 if __name__ == "__main__":
@@ -41,7 +43,7 @@ if __name__ == "__main__":
     lmbd = 0.0
     epochs = int(2e4)
     batch_size = int(200)
-    #X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
+    #X, X_test, Y, Y_test = train_test_split(X, y, test_size=0.2)
     sklearn_pred, sklearn_accuracy = sklearn_NN(X, y.ravel(), eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
     NN = NeuralNetwork( X,
                         y,
@@ -52,7 +54,7 @@ if __name__ == "__main__":
                         lmbd,
                         4155,
                         "sigmoid",
-                        "binary_difference")
+                        "cross_entropy")
     NN.run_network_stochastic(int(epochs))
     print(np.asarray(NN.layers_a[-1]).ravel())
 
