@@ -171,16 +171,25 @@ class NeuralNetwork:
             epochs ([type]): [description]
         """
         for _ in range(epochs):
-            self.choose_mini_batch()
-            self.feed_forward()
-            self.update_parameters()
+            batches = self.get_batches()
+            for batch in batches:
+                self.choose_mini_batch(batch)
+                self.feed_forward()
+                self.update_parameters()
 
-    def choose_mini_batch(self):
+    def get_batches(self):
+        idx = np.arange(self.N)
+        np.random.shuffle(idx)
+        int_max = self.N//self.batch_size
+        batches = [idx[i*self.batch_size:(i+1)*self.batch_size] for i in range(int_max)]
+        if self.N % self.batch_size != 0:
+            batches.append(idx[int_max*self.batch_size:])
+        return batches
+
+    def choose_mini_batch(self, batch):
         """[summary]"""
-        batch_indices = np.random.choice(
-            self.data_indices, size=self.batch_size, replace=False)
-        self.layers_a[0] = self.X[batch_indices]
-        self.t = self.T[batch_indices]
+        self.layers_a[0] = self.X[batch]
+        self.t = self.T[batch]
 
     """
     Activation funtions
