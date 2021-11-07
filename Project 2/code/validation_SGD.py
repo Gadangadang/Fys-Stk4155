@@ -350,6 +350,110 @@ def SGD_VS_OLS():
     plt.savefig("../article/figures/SGD_VS_OLS.pdf", bbox_inches="tight")
     plt.show()
 
+def SGD_VS_Ridge(X, y):
+    # Split and scale data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = mean_scale_new(X_train, X_test, y_train, y_test)
+    N = X_train.shape[0]
+
+    # eta_vals = np.logspace(-6, -1, 6)
+    eta_vals = np.array([0.001, 0.01, 0.05, 0.1])
+    lmbd_vals = np.logspace(-8, 0, 9)
+    num_epochs = int(1e4)
+
+    SGD_regression = SGD(X_train, y_train, eta_vals[0], m=0, num_epochs = num_epochs)
+    train_MSE = np.zeros((len(eta_vals), len(lmbd_vals)))
+    test_MSE = np.zeros((len(eta_vals), len(lmbd_vals)))
+    for i, eta_val in enumerate(eta_vals):
+        for j, lmbd in enumerate(lmbd_vals):
+            print(f"\r({i},{j})/({len(eta_vals)-1},{len(lmbd_vals)-1})", end = "")
+
+            # Find theta
+            np.random.seed(4155) #RN Seed
+            SGD_regression.reset()
+            SGD_regression.eta_val = eta_val
+            SGD_regression.lmbd = lmbd
+            theta_SGD = SGD_regression.SGD_train()      # Stochastic Gradient Descent
+
+            # Make prediction
+            ztilde_theta = (X_train @ theta_SGD).ravel()
+            zpredict_theta = (X_test @ theta_SGD).ravel()
+
+
+            # Error
+            train_MSE[i,j] = MSE(ztilde_theta, y_train)
+            test_MSE[i,j] = MSE(zpredict_theta, y_test)
+
+
+    print()
+
+
+    fig, ax = plt.subplots(num = 0, figsize=(7, 7))
+    ax = sns.heatmap(test_MSE, xticklabels = np.log10(lmbd_vals), yticklabels = eta_vals, annot=True, ax=ax, cmap="viridis")
+
+    ax.set_title("SGD Ridge")
+    ax.set_ylabel("$\eta$")
+    ax.set_xlabel("$\log{\ \lambda}$")
+    ax.collections[0].colorbar.set_label("MSE test")
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/SGD_Ridge_heatmap.pdf", bbox_inches="tight")
+
+    exit()
+
+    # SGD VS Ridge
+    num_epochs = int(1e4)
+    eta_val = 0.1
+    m = 0
+
+    SGD_regression = SGD(X_train, y_train, eta_val, m=m, num_epochs = num_epochs)
+
+    MSE_train_SGD = np.zeros(len(lmbd_vals))
+    MSE_test_SGD = np.zeros(len(lmbd_vals))
+    MSE_train_Ridge = np.zeros(len(lmbd_vals))
+    MSE_test_Ridge = np.zeros(len(lmbd_vals))
+    for i, lmbd in enumerate(lmbd_vals):
+        print(f"\rlmbd: {i}/{len(lmbd_vals)}", end = "")
+
+        # SGD
+        np.random.seed(41550) #RN Seed
+        SGD_regression.reset()
+        SGD_regression.lmbd = lmbd
+        theta_SGD = SGD_regression.SGD_train()
+
+
+        ztilde_theta = (X_train @ theta_SGD).ravel()
+        zpredict_theta = (X_test @ theta_SGD).ravel()
+        MSE_train_SGD[i] = MSE(ztilde_theta, y_train)
+        MSE_test_SGD[i] = MSE(zpredict_theta, y_test)
+
+
+        # Ridge
+        theta_Ridge = RIDGE_regression(X_train, y_train, lmbd)
+        ztilde = (X_train @ theta_Ridge).ravel()
+        zpredict = (X_test @ theta_Ridge).ravel()
+        MSE_train_Ridge[i] = MSE(ztilde, y_train)
+        MSE_test_Ridge[i] = MSE(zpredict, y_test)
+    print()
+
+
+    plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
+    ax = plt.gca()
+    # plt.plot(lmbd_vals, MSE_train_SGD, "-o", markersize = 4, label = "SGD train")
+    plt.plot(lmbd_vals, MSE_test_SGD, "-o", markersize = 4, label = "SGD test ")
+    # plt.plot(lmbd_vals, MSE_train_Ridge, "-o", markersize = 4, label = "Ridge train")
+    plt.plot(lmbd_vals, MSE_test_Ridge, "-o", markersize = 4, label = "Ridge test")
+
+    # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.xscale("log")
+    plt.xlabel(r"$\lambda$", fontsize=14)
+    plt.ylabel(r"MSE", fontsize=14)
+    plt.legend(fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/SGD_VS_Ridge.pdf", bbox_inches="tight")
+    plt.show()
+
+
+
 
 
 def SGD_timing_batch_size():
@@ -460,4 +564,6 @@ if __name__ == "__main__":
     # SGD_optimization_test(X, z) # not included in report so far
     # SGD_test_learning_rate(X, z)
     # SGD_VS_OLS()
-    SGD_timing_batch_size()
+    SGD_VS_Ridge(X,z)
+
+    # SGD_timing_batch_size()
