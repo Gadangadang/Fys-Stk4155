@@ -23,18 +23,21 @@ class SGD:
             self.m = self.N
         else: # user defined m
             self.m = m
-        self.num_epochs = num_epochs
-        self.lmbd = 0
 
-        # Set default gradient and learning rate functions
+        self.num_epochs = num_epochs
+        self.lmbd = 0   # Ridge regularization parameter
+        self.gamma = 0  # momentum parameter
+        self.vel = 0    # gradient descent "velocity"
+
+        # Set gradient and learning rate functions
 
         if gradient_func == "Logistic":
             self.gradient_func = self.gradient_Logistic
 
         else:
-            self.gradient_func = self.gradient_Ridge
+            self.gradient_func = self.gradient_Ridge # Default
 
-        self.eta_func = self.eta_const
+        self.eta_func = self.eta_const # Default
 
         # Initializa theta and set epoch = 1
         self.reset()
@@ -62,17 +65,32 @@ class SGD:
         return batches
 
 
+    #
+    # def SGD_evolve(self):
+    #     """
+    #     Evolve gradient with one epoch
+    #     """
+    #     batches = self.get_batches()
+    #     for batch in batches:
+    #         X = self.X[batch]
+    #         y = self.y[batch]
+    #         g = self.gradient_func(X,y)
+    #         self.theta -= self.eta_func(self.epoch) * g  # Update theta
+    #
 
     def SGD_evolve(self):
         """
-        Evolve gradient with one epoch
+        Evolve theta with one epoch
         """
         batches = self.get_batches()
         for batch in batches:
             X = self.X[batch]
             y = self.y[batch]
             g = self.gradient_func(X,y)
-            self.theta -= self.eta_func(self.epoch) * g  # Update theta
+            self.vel = self.gamma*self.vel + self.eta_func(self.epoch) * g
+            self.theta -= self.vel
+
+            # self.theta -= self.eta_func(self.epoch) * g  # Update theta
 
 
     def SGD_train(self):
@@ -82,8 +100,8 @@ class SGD:
         while self.epoch <= self.num_epochs:
             self.SGD_evolve()
             self.epoch +=1
-
         return self.theta.ravel()
+
     def predict(self, X):
         prediction = np.exp(X @ self.theta)/(1+np.exp(X @ self.theta))
         return prediction
@@ -109,92 +127,6 @@ class SGD:
 
 
 
-
-
-
-# --- OLD shit soon to be removed --- #
-
-
-# def SGD(X, y, eta_val=0.1, m = 0, num_epochs = int(1e4)):
-#
-#
-#
-#
-#     N = X.shape[0]                      # Number of data points
-#     if m == 0: # full gradient descent
-#         m = N                              # Size of each mini-batch
-#                     # Number of epochs
-#
-#     theta = np.random.normal(0, 1, size=(X.shape[1], 1)) # Initialize theta with normal dist.
-#     def eta(epoch): return eta_val            # Learning rate (constant here)
-#     for epoch in range(1, num_epochs + 1):
-#         batch = np.random.choice(N, m, replace=False)  # Mini batch
-#         g = 2.0 / len(y) * X.T @ ((X @ theta) - y)  # Compute gradient
-#         #print(g, theta)
-#         theta -= eta(epoch) * g  # Update theta
-#
-#     return theta.ravel()
-
-
-
-
-
-# def compare_SGD_OLS(X, z, eta):
-#     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
-#
-#     # Scale bu subtracting mean
-#     mean_scale(X_train, X_test, z_train, z_test)
-#
-#     # OLS regression
-#     beta_OLS = OLS_regression(X_train, z_train)
-#     ztilde = (X_train @ beta_OLS).ravel()
-#     zpredict = (X_test @ beta_OLS).ravel()
-#
-#     # MSE for OLS
-#     MSE_train = MSE(z_train, ztilde)
-#     MSE_test = MSE(z_test, zpredict)
-#     print("--- OLS ---")
-#     print("train err {:.7f} test err {:.7f}".format(MSE_train, MSE_test))
-#
-#     OLS_MSE_train = np.ones(len(eta)) * MSE_train
-#     OLS_MSE_test = np.ones(len(eta)) * MSE_test
-#
-#     # MSE for SGD
-#     SGD_MSE_train = np.zeros(len(eta))
-#     SGD_MSE_test = np.zeros(len(eta))
-#
-#     print("--- SGD ---")
-#     for index, eta_val in enumerate(eta):
-#         # Find theta
-#         theta_train = SGD(X_train, z_train, eta_val=eta_val)
-#         theta_test = SGD(X_test, z_test, eta_val=eta_val) <----- This is wrong!
-#
-#         # Prediction
-#         ztilde_theta = (X_train @ theta_train).ravel()
-#         zpredict_theta = (X_test @ theta_test).ravel()
-#
-#         # Error
-#         train_err = MSE(ztilde_theta, z_train)
-#         test_err = MSE(zpredict_theta, z_test)
-#
-#         print("train err {:.7f} test err {:.7f}".format(train_err, test_err))
-#
-#         SGD_MSE_train[index] = train_err
-#         SGD_MSE_test[index] = test_err
-#
-#     plotting(eta, OLS_MSE_test, SGD_MSE_test)
-#     #plotting(eta, OLS_MSE_test, SGD_MSE_test)
-#
-#
-# def plotting(eta, OLS_MSE, SGD_MSE):
-#     plt.plot(eta, OLS_MSE, "--", label="OLS")
-#     plt.plot(eta, SGD_MSE, label="SGD")
-#     plt.xlabel(r"$\eta - Learning rate$")
-#     plt.ylabel("MSE")
-#     plt.legend()
-#     plt.show()
-
-
 if __name__ == "__main__":
     # Get modules from project 1
     path = os.getcwd()  # Current working directory
@@ -215,7 +147,8 @@ if __name__ == "__main__":
     m = 0 # m=0 gives full gradient descent
 
     #--- Regression ---#
-    solver = SGD(X, z, eta_val=0.1, m = 10, num_epochs = int(1e4))
+    solver = SGD(X, z, eta_val=0.1, m = 10, num_epochs = int(1e2))
+    solver.gamma = 0.8
     theta_SGD = solver.SGD_train()      # Stochastic Gradient Descent
     theta_OLS = OLS_regression(X, z)  # OLS regression
 
