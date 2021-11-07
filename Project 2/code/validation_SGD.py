@@ -178,7 +178,7 @@ def SGD_test_learning_rate(X, y):
     plt.show()
 
 
-def SGD_convergence_speed(X, y):
+def SGD_convergence_rate(X, y):
     N = X.shape[0]
 
     #--- Variation of batch size, constant learning rate ---#
@@ -274,7 +274,6 @@ def SGD_convergence_speed(X, y):
     # a=ax.get_xticks().tolist()
     # a[1]=1
     # ax.set_xticklabels(a)
-
 
 
 def SGD_VS_OLS():
@@ -452,10 +451,6 @@ def SGD_VS_Ridge(X, y):
     plt.savefig("../article/figures/SGD_VS_Ridge.pdf", bbox_inches="tight")
     plt.show()
 
-
-
-
-
 def SGD_timing_batch_size():
     from timeit import default_timer as timer
 
@@ -518,9 +513,113 @@ def SGD_timing_batch_size():
     plt.show()
 
 
+def SGD_momentum_convergence_rate(X, y):
+        N = X.shape[0]
+
+        #--- Variation of batch size, constant learning rate ---#
+
+        # settings
+        num_epochs = 100
+        eta_val = 0.01
+        gamma_vals = np.array([0, 0.1, 0.3, 0.5, 0.7, 0.9])
+        SGD_regression = SGD(X, y, eta_val, m=0, num_epochs = num_epochs)
+
+
+        theta_OLS = OLS_regression(X, y)
+        ytilde_OLS = (X @ theta_OLS).ravel()
+        MSE_OLS =  MSE(ytilde_OLS, y)
+
+
+        fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+        ax = plt.gca()
+        MSE_arr = np.zeros((len(gamma_vals), num_epochs+1))
+        epoch_arr = np.linspace(0, num_epochs, num_epochs+1)
+        for i, gamma in enumerate(gamma_vals):
+            np.random.seed(41550) #RN Seed
+            SGD_regression.reset()
+            SGD_regression.gamma = gamma
+
+            ytilde = (X @ SGD_regression.theta).ravel()
+            MSE_arr[i,0] = MSE(ytilde, y)
+
+            for j in range(1,num_epochs+1):
+                SGD_regression.SGD_evolve()
+                ytilde = (X @ SGD_regression.theta).ravel()
+                MSE_arr[i,j] = MSE(ytilde, y)
+            # plt.plot(epoch_arr, MSE_arr[i], "-o", label = "$\gamma$ = " + f"{gamma:g}")
+            plt.plot(epoch_arr, MSE_arr[i], label = "$\gamma$ = " + f"{gamma:g}")
+
+
+        plt.title("$\eta$" + f"= {eta_val:g}")
+        plt.xlabel(r"epoch", fontsize=14)
+        plt.ylabel(r"MSE train", fontsize=14)
+        plt.yscale("log")
+        ax.yaxis.grid(True, which='minor')
+        plt.legend(fontsize = 13)
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        plt.savefig(f"../article/figures/SGD_momentum_convergence_eta{eta_val}.pdf", bbox_inches="tight")
+        plt.show()
 
 
 
+def SGD_momentum_optimization(X, y):
+
+    np.random.seed(4155) #RN Seed
+
+    # Split and scale data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = mean_scale_new(X_train, X_test, y_train, y_test)
+    N = X_train.shape[0]
+
+
+    # eta_vals = np.logspace(-6, -1, 6)
+    eta_vals = np.array([0.001, 0.01, 0.05, 0.1])
+    gamma_vals = np.array([0, 0.1, 0.3, 0.5, 0.7, 0.9])
+
+    num_epochs = int(1e1)
+
+
+    SGD_regression = SGD(X_train, y_train, eta_vals[0], m=0, num_epochs = num_epochs)
+
+
+    train_MSE = np.zeros((len(eta_vals), len(gamma_vals)))
+    test_MSE = np.zeros((len(eta_vals), len(gamma_vals)))
+    for i, eta_val in enumerate(eta_vals):
+        for j, gamma in enumerate(gamma_vals):
+            print(f"\r({i},{j})/({len(eta_vals)-1},{len(gamma_vals)-1})", end = "")
+
+
+            # Find theta
+            np.random.seed(4155) #RN Seed
+            SGD_regression.reset()
+            SGD_regression.eta_val = eta_val
+            SGD_regression.gamma = gamma
+            theta_SGD = SGD_regression.SGD_train()      # Stochastic Gradient Descent
+
+
+            # Make prediction
+            ztilde_theta = (X_train @ theta_SGD).ravel()
+            zpredict_theta = (X_test @ theta_SGD).ravel()
+
+
+            # Error
+            train_MSE[i,j] = MSE(ztilde_theta, y_train)
+            test_MSE[i,j] = MSE(zpredict_theta, y_test)
+
+
+
+    print()
+
+
+    fig, ax = plt.subplots(figsize=(7, 7))
+    # df = pd.DataFram(test_MSE), columns
+    ax = sns.heatmap(test_MSE, xticklabels = gamma_vals, yticklabels = eta_vals, annot=True, ax=ax, cmap="viridis")
+    # ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+
+    ax.set_title("Test MSE")
+    ax.set_ylabel("$\log{\eta}$")
+    ax.set_xlabel("$\gamma$")
+    plt.show()
 
 
 
@@ -560,10 +659,13 @@ if __name__ == "__main__":
 
 
     #--- Validation / testing ---#
-    # SGD_convergence_speed(X, z)
+    # SGD_convergence_rate(X, z)
     # SGD_optimization_test(X, z) # not included in report so far
     # SGD_test_learning_rate(X, z)
     # SGD_VS_OLS()
-    SGD_VS_Ridge(X,z)
+    # SGD_VS_Ridge(X,z)
+    SGD_momentum_convergence_rate(X,z)
+    # SGD_momentum_optimization(X,z)
+
 
     # SGD_timing_batch_size()
