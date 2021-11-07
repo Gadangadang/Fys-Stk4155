@@ -275,6 +275,19 @@ class NeuralNetwork:
         """
         return (y_tilde - self.t)**2
 
+    def R2(self, y_data):
+        """Calculates the R^2 error for a given model
+
+        Args:
+            y_data  (Array): Data to test against for error
+            y_model (Array): Model to test against data
+
+        Returns:
+            Float: R^2 error from model and data
+        """
+        return 1 - np.sum((y_data.ravel() - y_model.ravel())**2) / np.sum((y_data.ravel() - np.mean(y_data.ravel())) ** 2)
+
+
     def cross_entropy(self, y_tilde):
         """[summary]
 
@@ -321,19 +334,22 @@ if __name__ == "__main__":
     beta = OLS_regression(X_train, Z_train)
     z_ols = X_test @ beta
 
-    MM = NeuralNetwork(X_train,
-                       Z_train,
-                       num_hidden_layers=2,
-                       num_hidden_nodes=10,
-                       batch_size=batch_size,
-                       eta=0.001,
-                       lmbd=0.0,
-                       seed=4155,
-                       activation="sigmoid",
-                       cost="MSE")
 
-    MM.train_network_stochastic(epochs)
+    activation_funcs = ["sigmoid", "leaky_relu", "relu"]
+    for act_func in activation_funcs:
+        MM = NeuralNetwork(X_train,
+                           Z_train,
+                           num_hidden_layers=5,
+                           num_hidden_nodes=10,
+                           batch_size=batch_size,
+                           eta=0.001,
+                           lmbd=0.0,
+                           seed=4155,
+                           activation=act_func,
+                           cost="MSE")
 
-    print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
+        MM.train_network_stochastic(epochs)
 
-    print("           OLS           ", MSE(Z_test, z_ols))
+        print(f"Neural Network SGD {act_func}", MSE(Z_test, MM.predict(X_test)))
+
+    print("       OLS        ", MSE(Z_test, z_ols))

@@ -55,7 +55,7 @@ def find_hyperparameters(epochs, etas, lmbds, X, z, activation, cost_func, name,
     ax.set_xlabel("$log_{10}(\lambda)$")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.subplots_adjust(hspace=0.3)
-    plt.savefig(f"../article/figures/hyper_param_{name}.pdf",
+    plt.savefig(f"../article/figures/hyper_param_{name}_{activation}.pdf",
                 bbox_inches="tight")
     plt.show()
     if return_best:
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     X_test = scaler.transform(X_test)
 
     num_hidden_layers = 2
-    num_hidden_nodes = 60
+    num_hidden_nodes = 30
     n_categories = 1
     eta = 1e-2
     lmbd = 0.5
