@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from SGD import SGD
 
 
-def find_hyperparameters(etas, lmbds, X, z, activation, cost_func, name):
+def find_hyperparameters(epochs, etas, lmbds, X, z, activation, cost_func, name, return_best = False):
     from sklearn.model_selection import train_test_split
     import seaborn as sns
     import matplotlib.ticker as tkr
@@ -58,15 +58,14 @@ def find_hyperparameters(etas, lmbds, X, z, activation, cost_func, name):
     plt.savefig(f"../article/figures/hyper_param_{name}_{activation}.pdf",
                 bbox_inches="tight")
     plt.show()
+    if return_best:
+        indx = np.where(test_accuracy == np.max(test_accuracy))
+        return etas[int(indx[0][0])], lmbds[int(indx[1][0])], np.max(test_accuracy)
 
 
 
 
 if __name__ == "__main__":
-    # Get modules from project 1
-    path = os.getcwd()  # Current working directory
-    path += '/../../Project 1/code'
-    sys.path.append(path)
     from Functions import *
     scaler = StandardScaler()
     """Load breast cancer dataset"""
@@ -104,48 +103,24 @@ if __name__ == "__main__":
     n_categories = 1
     eta = 1e-2
     lmbd = 0.5
-    epochs = int(200)
+    epochs = int(10)
     batch_size = int(100)
-    #X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
+
+    etas = np.logspace(-4, 1, 5)
+    lmbds = np.logspace(-4, 1, 5)
+
+    activation = "sigmoid"
+    cost_func = "cross_entropy"
+    name="breast_cancer"
+    best_eta, best_lmbd, best_val = find_hyperparameters(epochs, etas, lmbds, X, y, activation, cost_func, name, return_best = True)
     sklearn_pred, sklearn_accuracy = sklearn_NN(X_train,
                                                 Z_train.ravel(),
-                                                eta,
-                                                lmbd,
+                                                best_eta,
+                                                best_lmbd,
                                                 epochs,
                                                 num_hidden_layers,
                                                 num_hidden_nodes,
                                                 n_categories,
                                                 'logistic')
-    """
-    NN = NeuralNetwork( X_train,
-                        Z_train,
-                        num_hidden_layers,
-                        num_hidden_nodes,
-                        batch_size,
-                        eta,
-                        lmbd,
-                        4155,
-                        "sigmoid",
-                        "cross_entropy")
-    NN.run_network_stochastic(int(epochs))
-    #print(np.asarray(NN.layers_a[-1]).ravel())
-
-    accuracy = NN.accuracy_score(X_test,Z_test)
-    print(f"{100*accuracy:.0f}% NN accuracy -- {int(accuracy*len(NN.t))} / {len(NN.t)} accurate predictions. ")
-    #print(f"{100*sklearn_accuracy:.0f}% Sklearn accuracy")
-
-    #run for logistic regression.
-    solver = SGD(X_train, Z_train, eta_val=0.001, m = 100, num_epochs = int(1e4), gradient_func = "Logistic")
-
-    theta_SGD = solver.SGD_train()
-
-    print(f"{solver.accuracy_score(X_test,Z_test)*100:.0f}%")
-    """
-
-    etas = np.logspace(-4, 1, 10)
-    lmbds = np.logspace(-4, 1, 10)
-
-    activation = "sigmoid"
-    cost_func = "cross_entropy"
-    name="breast_cancer"
-    find_hyperparameters(etas, lmbds, X, y, activation, cost_func, name)
+    print(f"{100*best_val:.0f}% NN accuracy. ")
+    print(f"{100*sklearn_accuracy:.0f}% Sklearn accuracy")
