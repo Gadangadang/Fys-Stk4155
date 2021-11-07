@@ -5,6 +5,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
 import seaborn as sns
 
+
 import os
 import sys
 # Get modules from project 1
@@ -182,7 +183,6 @@ def WIP_test_logical_gates():
 def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
     n_inputs, n_features = X.shape
     hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
-    print(eta)
     dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes,
                         activation = activation_func,
                         alpha= lmbd,
@@ -192,6 +192,30 @@ def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_c
     test_pred = dnn.predict(X)
     test_accuracy = accuracy_score(y, test_pred)
     return test_pred, test_accuracy
+
+def sklearn_NN_WIP(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
+    from sklearn.neural_network import MLPClassifier
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
+    scaler = StandardScaler()
+    hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2)
+    scaler.fit(X_train)
+    X_train = scaler.transform(X_train)
+    scaler.fit(X_test)
+    X_test = scaler.transform(X_test)
+
+    dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes,
+                        activation = activation_func,
+                        alpha= lmbd,
+                        learning_rate_init = eta,
+                        max_iter = epochs   )
+    dnn.fit(X_train, Y_train)
+    test_pred = dnn.predict(X_test)
+    test_accuracy = accuracy_score(Y_test, test_pred)
+    return test_pred, test_accuracy
+
 
 
 
