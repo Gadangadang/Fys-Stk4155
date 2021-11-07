@@ -19,6 +19,7 @@ class NeuralNetwork:
                  batch_size=1,
                  eta=0.001,
                  lmbd=0.00,
+                 gamma = 0.7,
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE"):
@@ -55,6 +56,7 @@ class NeuralNetwork:
         self.batch_size = batch_size
         self.eta = eta
         self.lmbd = lmbd
+        self.gamma = gamma
         self.seed = seed
 
         self.create_layers()
@@ -101,14 +103,14 @@ class NeuralNetwork:
 
         self.weights = [np.random.randn(
             num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
-        # self.weights.insert(0, np.random.randn(num_features, num_hidden_nodes))
         self.weights.insert(0, np.random.randn(num_hidden_nodes, num_features))
 
         # insert unused weight to get nice indexes
         self.weights.insert(0, np.nan)
-        # self.weights.append(np.random.randn(num_hidden_nodes, self.num_output_nodes))
         self.weights.append(np.random.randn(
             self.num_output_nodes, num_hidden_nodes))
+
+
 
         # Add individual biases?
         self.bias = [np.ones(num_hidden_nodes) * bias_shift
@@ -116,19 +118,32 @@ class NeuralNetwork:
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
         self.bias.append(np.ones(num_categories) * bias_shift)
 
+
+        # velocity for momentum
+        self.vel_weights = self.weights.copy()
+        self.vel_bias = self.bias.copy()
+
+        for i in range(1, num_hidden_layers+2):
+            self.vel_weights[i][:] = 0
+            self.vel_bias[i][:] = 0
+
+
+
         self.local_gradient = self.layers_a.copy()  # also called error
         self.local_gradient[0] = np.nan  # don't use first
+
 
     def update_parameters(self):
         """[summary]
         """
         self.backpropagation()
         for l in range(1, self.L):
-            # this should be batch length
-            self.weights[l] -= self.eta * \
-                (self.local_gradient[l].T @
-                 self.layers_a[l - 1] + self.weights[l]*self.lmbd) / self.batch_size
-            self.bias[l] -= self.eta * np.mean(self.local_gradient[l], axis=0)
+            self.vel_weights[l] = self.gamma*self.vel_weights[l] + self.eta * (self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd) / self.batch_size
+            self.weights[l] -= self.vel_weights[l]
+
+            self.vel_bias[l] = self.gamma*self.vel_bias[l] + self.eta * np.mean(self.local_gradient[l], axis=0)
+            self.bias[l] -= self.vel_bias[l]
+
 
     def feed_forward(self):
         """[summary]
@@ -274,17 +289,6 @@ class NeuralNetwork:
         """
         return (y_tilde - self.t)**2
 
-    def R2(self, y_data):
-        """Calculates the R^2 error for a given model
-
-        Args:
-            y_data  (Array): Data to test against for error
-            y_model (Array): Model to test against data
-
-        Returns:
-            Float: R^2 error from model and data
-        """
-        return 1 - np.sum((y_data.ravel() - y_model.ravel())**2) / np.sum((y_data.ravel() - np.mean(y_data.ravel())) ** 2)
 
 
     def cross_entropy(self, y_tilde):
@@ -308,6 +312,8 @@ class NeuralNetwork:
         return text
 
 
+
+
 if __name__ == "__main__":
     # Get modules from project 1
     path = os.getcwd()  # Current working directory
@@ -316,39 +322,28 @@ if __name__ == "__main__":
     from Functions import *
     # The above imports numpy as np so we have to redefine:
     import autograd.numpy as np
-
     #--- Create data from Franke Function ---#
-    N = 10               # Number of points in each dimension
+    N = 20               # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
-    n = 8               # Highest order of polynomial for X
+    n = 5               # Highest order of polynomial for X
     epochs = 1000
     iterations = 1
     batch_size = int(N * N * 0.8)
-
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
-
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
-
     beta = OLS_regression(X_train, Z_train)
     z_ols = X_test @ beta
-
-
-    activation_funcs = ["sigmoid", "leaky_relu", "relu"]
-    for act_func in activation_funcs:
-        MM = NeuralNetwork(X_train,
-                           Z_train,
-                           num_hidden_layers=5,
-                           num_hidden_nodes=10,
-                           batch_size=batch_size,
-                           eta=0.001,
-                           lmbd=0.0,
-                           seed=4155,
-                           activation=act_func,
-                           cost="MSE")
-
-        MM.train_network_stochastic(epochs)
-
-        print(f"Neural Network SGD {act_func}", MSE(Z_test, MM.predict(X_test)))
-
-    print("       OLS        ", MSE(Z_test, z_ols))
+    MM = NeuralNetwork(X_train,
+                       Z_train,
+                       num_hidden_layers=4,
+                       num_hidden_nodes=5,
+                       batch_size=batch_size,
+                       eta=0.001,
+                       lmbd=0.0,
+                       seed=4155,
+                       activation="sigmoid",
+                       cost="MSE")
+    MM.train_network_stochastic(epochs)
+    print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
+    print("           OLS           ", MSE(Z_test, z_ols))

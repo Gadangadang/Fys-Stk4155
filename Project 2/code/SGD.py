@@ -90,7 +90,6 @@ class SGD:
             self.vel = self.gamma*self.vel + self.eta_func(self.epoch) * g
             self.theta -= self.vel
 
-            # self.theta -= self.eta_func(self.epoch) * g  # Update theta
 
 
     def SGD_train(self):
