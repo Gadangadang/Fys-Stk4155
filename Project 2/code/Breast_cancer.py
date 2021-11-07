@@ -49,9 +49,8 @@ def find_hyperparameters(X,
                                 batch_size,
                                 eta,
                                 lmbd,
-                                4155,
-                                activation,
-                                cost_func)
+                                activation = activation,
+                                cost = cost_func)
             NN.train_network_stochastic(int(epochs))
 
             test_accuracy[i][j] = NN.accuracy_score(X_test, Z_test)
@@ -101,7 +100,7 @@ if __name__ == "__main__":
     n_categories = 1
     eta = 1e-2
     lmbd = 0.5
-    epochs = int(10)
+    epochs = int(50)
     batch_size = int(100)
 
     etas = np.logspace(-4, 1, 5)

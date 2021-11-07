@@ -271,8 +271,11 @@ class NeuralNetwork:
 
     def accuracy_score(self, X, target):
         """[summary]"""
-        val = np.sum(np.around(self.predict(X)) == target) / len(target)
-        return val/self.num_categories
+        if self.num_categories >1:
+            val = np.sum((np.around(self.predict(X))[:, None] == target).all(-1).any(-1)) / (len(target)*self.num_categories)
+        else:
+            val = np.sum((np.around(self.predict(X)) == target)) / len(target)
+        return val
 
     """
     Cost funtions
