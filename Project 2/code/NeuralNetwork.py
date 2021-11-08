@@ -72,6 +72,7 @@ class NeuralNetwork:
             self.activation = self.soft_max_activation
         if cost == "MSE":
             self.cost = self.MSE
+
         elif cost == "cross_entropy":
             self.cost = self.cross_entropy
         self.activation_der = elementwise_grad(self.activation)
@@ -81,7 +82,6 @@ class NeuralNetwork:
         """
         layers_a: contain activation values of all nodes
         layers_z: contain weighted sum z / unactivated values of all nodes
-
         """
         self.layers_a = [np.zeros((self.N, self.num_hidden_nodes), dtype=np.float64)
                          for i in range(self.num_hidden_layers)]  # Intialized with the hidden layers
@@ -110,14 +110,11 @@ class NeuralNetwork:
         self.weights.append(np.random.randn(
             self.num_output_nodes, num_hidden_nodes))
 
-
-
         # Add individual biases?
         self.bias = [np.ones(num_hidden_nodes) * bias_shift
                      for i in range(self.num_hidden_layers)]
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
         self.bias.append(np.ones(num_categories) * bias_shift)
-
 
         # velocity for momentum
         self.vel_weights = self.weights.copy()
@@ -126,8 +123,6 @@ class NeuralNetwork:
         for i in range(1, num_hidden_layers+2):
             self.vel_weights[i][:] = 0
             self.vel_bias[i][:] = 0
-
-
 
         self.local_gradient = self.layers_a.copy()  # also called error
         self.local_gradient[0] = np.nan  # don't use first
@@ -138,11 +133,11 @@ class NeuralNetwork:
         """
         self.backpropagation()
         for l in range(1, self.L):
-            self.vel_weights[l] = self.gamma*self.vel_weights[l] + self.eta * (self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd) / self.batch_size
-            self.weights[l] -= self.vel_weights[l]
+            self.vel_weights[l] = self.gamma*self.vel_weights[l] + (self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd) / self.batch_size
+            self.weights[l] -= self.eta*self.vel_weights[l]
 
-            self.vel_bias[l] = self.gamma*self.vel_bias[l] + self.eta * np.mean(self.local_gradient[l], axis=0)
-            self.bias[l] -= self.vel_bias[l]
+            self.vel_bias[l] = self.gamma*self.vel_bias[l] +  np.mean(self.local_gradient[l], axis=0)
+            self.bias[l] -= self.eta*self.vel_bias[l]
 
 
     def feed_forward(self):
@@ -167,7 +162,8 @@ class NeuralNetwork:
                 @ self.weights[l + 1] * self.activation_der(self.layers_z[l])
 
     def predict(self, X):
-        """[summary]
+        """
+        [summary]
 
         Args:
             X ([type]): [description]
@@ -267,12 +263,17 @@ class NeuralNetwork:
             [type]: [description]
         """
         val_exp = np.exp(value)
-        return val_exp / (np.sum(val_exp, axis=0, keepdims=True))
+        return val_exp / (np.sum(val_exp, axis=1, keepdims=True))
 
     def accuracy_score(self, X, target):
         """[summary]"""
         if self.num_categories >1:
-            val = np.sum((np.around(self.predict(X))[:, None] == target).all(-1).any(-1)) / (len(target)*self.num_categories)
+            self.layers_a[0] = X
+            self.feed_forward()
+            pred = self.soft_max_activation(self.layers_z[-1])
+            guess = np.argmax(pred, axis=1)
+            target = np.argmax(target, axis=1)
+            val = np.sum(guess == target)/len(target)
         else:
             val = np.sum((np.around(self.predict(X)) == target)) / len(target)
         return val
