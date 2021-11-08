@@ -357,41 +357,41 @@ def SGD_VS_Ridge(X, y):
     SGD_regression = SGD(X_train, y_train, eta_vals[0], m=0, num_epochs = num_epochs)
     train_MSE = np.zeros((len(eta_vals), len(lmbd_vals)))
     test_MSE = np.zeros((len(eta_vals), len(lmbd_vals)))
-    for i, eta_val in enumerate(eta_vals):
-        for j, lmbd in enumerate(lmbd_vals):
-            print(f"\r({i},{j})/({len(eta_vals)-1},{len(lmbd_vals)-1})", end = "")
+    # for i, eta_val in enumerate(eta_vals):
+    #     for j, lmbd in enumerate(lmbd_vals):
+    #         print(f"\r({i},{j})/({len(eta_vals)-1},{len(lmbd_vals)-1})", end = "")
+    #
+    #         # Find theta
+    #         np.random.seed(4155) #RN Seed
+    #         SGD_regression.reset()
+    #         SGD_regression.eta_val = eta_val
+    #         SGD_regression.lmbd = lmbd
+    #         theta_SGD = SGD_regression.SGD_train()      # Stochastic Gradient Descent
+    #
+    #         # Make prediction
+    #         ztilde_theta = (X_train @ theta_SGD).ravel()
+    #         zpredict_theta = (X_test @ theta_SGD).ravel()
+    #
+    #
+    #         # Error
+    #         train_MSE[i,j] = MSE(ztilde_theta, y_train)
+    #         test_MSE[i,j] = MSE(zpredict_theta, y_test)
+    #
+    #
+    # print()
+    #
+    #
+    # fig, ax = plt.subplots(num = 0, figsize=(7, 7))
+    # ax = sns.heatmap(test_MSE, xticklabels = np.log10(lmbd_vals), yticklabels = eta_vals, annot=True, ax=ax, cmap="viridis")
+    #
+    # ax.set_title("SGD Ridge")
+    # ax.set_ylabel("$\eta$")
+    # ax.set_xlabel("$\log{\ \lambda}$")
+    # ax.collections[0].colorbar.set_label("MSE test")
+    # plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    # plt.savefig("../article/figures/SGD_Ridge_heatmap.pdf", bbox_inches="tight")
+    #
 
-            # Find theta
-            np.random.seed(4155) #RN Seed
-            SGD_regression.reset()
-            SGD_regression.eta_val = eta_val
-            SGD_regression.lmbd = lmbd
-            theta_SGD = SGD_regression.SGD_train()      # Stochastic Gradient Descent
-
-            # Make prediction
-            ztilde_theta = (X_train @ theta_SGD).ravel()
-            zpredict_theta = (X_test @ theta_SGD).ravel()
-
-
-            # Error
-            train_MSE[i,j] = MSE(ztilde_theta, y_train)
-            test_MSE[i,j] = MSE(zpredict_theta, y_test)
-
-
-    print()
-
-
-    fig, ax = plt.subplots(num = 0, figsize=(7, 7))
-    ax = sns.heatmap(test_MSE, xticklabels = np.log10(lmbd_vals), yticklabels = eta_vals, annot=True, ax=ax, cmap="viridis")
-
-    ax.set_title("SGD Ridge")
-    ax.set_ylabel("$\eta$")
-    ax.set_xlabel("$\log{\ \lambda}$")
-    ax.collections[0].colorbar.set_label("MSE test")
-    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/SGD_Ridge_heatmap.pdf", bbox_inches="tight")
-
-    exit()
 
     # SGD VS Ridge
     num_epochs = int(1e4)
@@ -432,14 +432,16 @@ def SGD_VS_Ridge(X, y):
     plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
     ax = plt.gca()
     # plt.plot(lmbd_vals, MSE_train_SGD, "-o", markersize = 4, label = "SGD train")
-    plt.plot(lmbd_vals, MSE_test_SGD, "-o", markersize = 4, label = "SGD test ")
+    plt.plot(lmbd_vals, MSE_test_SGD, "-o", markersize = 4, label = "SGD")
     # plt.plot(lmbd_vals, MSE_train_Ridge, "-o", markersize = 4, label = "Ridge train")
-    plt.plot(lmbd_vals, MSE_test_Ridge, "-o", markersize = 4, label = "Ridge test")
+    plt.plot(lmbd_vals, MSE_test_Ridge, "-o", markersize = 4, label = "Ridge")
 
     # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     plt.xscale("log")
+    plt.yscale("log")
+
     plt.xlabel(r"$\lambda$", fontsize=14)
-    plt.ylabel(r"MSE", fontsize=14)
+    plt.ylabel(r"MSE test", fontsize=14)
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.savefig("../article/figures/SGD_VS_Ridge.pdf", bbox_inches="tight")
@@ -514,8 +516,8 @@ def SGD_momentum_convergence_rate(X, y):
 
         # settings
         num_epochs = 100
-        eta_val = 0.01
-        gamma_vals = np.array([0, 0.1, 0.3, 0.5, 0.7, 0.9])
+        eta_val = 0.1
+        gamma_vals = np.array([0, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99])
         SGD_regression = SGD(X, y, eta_val, m=0, num_epochs = num_epochs)
 
 
@@ -654,10 +656,10 @@ if __name__ == "__main__":
     #--- Validation / testing ---#
     # SGD_convergence_rate(X, z)
     # SGD_optimization_test(X, z) # not included in report so far
-    SGD_test_learning_rate(X, z)
+    # SGD_test_learning_rate(X, z)
     # SGD_VS_OLS()
     # SGD_VS_Ridge(X,z)
-    # SGD_momentum_convergence_rate(X,z)
+    SGD_momentum_convergence_rate(X,z)
     # SGD_momentum_optimization(X,z)
 
 
