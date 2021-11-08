@@ -46,8 +46,6 @@ class NeuralNetwork:
         self.num_features = X.shape[1]
         self.num_categories = t.shape[1]
 
-        # Make clever function to check shapes please (Saki)
-
         self.num_hidden_layers = num_hidden_layers
         self.num_hidden_nodes = num_hidden_nodes
         self.num_output_nodes = self.num_categories
@@ -110,7 +108,6 @@ class NeuralNetwork:
         self.weights.append(np.random.randn(
             self.num_output_nodes, num_hidden_nodes))
 
-        # Add individual biases?
         self.bias = [np.ones(num_hidden_nodes) * bias_shift
                      for i in range(self.num_hidden_layers)]
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
@@ -271,11 +268,16 @@ class NeuralNetwork:
             self.layers_a[0] = X
             self.feed_forward()
             pred = self.soft_max_activation(self.layers_z[-1])
+
             guess = np.argmax(pred, axis=1)
             target = np.argmax(target, axis=1)
             val = np.sum(guess == target)/len(target)
         else:
             val = np.sum((np.around(self.predict(X)) == target)) / len(target)
+
+        if val > 1:
+            print("accuracy > 1, possible used wrong target shapes")
+            exit(1)
         return val
 
     """

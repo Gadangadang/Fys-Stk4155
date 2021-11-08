@@ -1,4 +1,29 @@
 
+def standard_scale(*args):
+    scaled = []
+    scaler = StandardScaler()
+    for arg in args:
+        scaler.fit(arg)
+        scaled.append(scaler.transform(arg))
+
+    if len(args) == 1:  # If just one argument
+        return scaled[0]
+    else:
+        return scaled
+
+def mean_scale_new(*args):
+    scaled = []
+    for arg in args:
+        arg =  arg - np.mean(arg, axis=0)
+        scaled.append(arg)
+
+    if len(args) == 1:  # If just one argument
+        return scaled[0]
+    else:
+        return scaled
+
+
+
 def find_hyperparameters(X,
                          z,
                          epochs,
@@ -9,7 +34,8 @@ def find_hyperparameters(X,
                          lmbds,
                          activation,
                          cost_func,
-                         name,
+                         name = np.nan,
+                         scaling = "std"
                          return_best = False
                          ):
     from sklearn.model_selection import train_test_split
@@ -21,15 +47,21 @@ def find_hyperparameters(X,
     import matplotlib.ticker as tkr
     import matplotlib.pyplot as plt
 
-    scaler = StandardScaler()
+
+    scaling = "std"
+    scaling = "mean"
+    else
 
     sns.set()
-    #Split and scale data
+    #Split and scale data if choosen
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
-    scaler.fit(X_train)
-    X_train = scaler.transform(X_train)
-    #scaler.fit(X_test)
-    X_test = scaler.transform(X_test)
+
+    if scaling = "std":
+        X_train, X_test, Z_train, Z_test = standard_scale(X_train, X_test, Z_train, Z_test)
+    elif scaling = "mean":
+        X_train, X_test, Z_train, Z_test = mean_scale_new(X_train, X_test, Z_train, Z_test)
+
+
 
     #Setup arrays for accuracy score
     test_accuracy = np.zeros((len(etas), len(lmbds)))
@@ -59,8 +91,11 @@ def find_hyperparameters(X,
     ax.set_xlabel("$log_{10}(\lambda)$")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.subplots_adjust(hspace=0.3)
-    #plt.savefig(f"../article/figures/hyper_param_{name}_{activation}.pdf",
-    #            bbox_inches="tight")
+
+    if name != np.isnan(name):
+        plt.savefig(f"../article/figures/hyper_param_{name}_{activation}.pdf",
+                bbox_inches="tight")
+
 
     indx = np.where(test_accuracy == np.max(test_accuracy))
     print(etas[int(indx[0][0])], lmbds[int(indx[1][0])])
