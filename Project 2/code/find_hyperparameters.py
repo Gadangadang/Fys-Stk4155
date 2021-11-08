@@ -34,8 +34,8 @@ def find_hyperparameters(X,
                          lmbds,
                          activation,
                          cost_func,
-                         name = np.nan,
-                         scaling = "std"
+                         name = 0,
+                         scaling = "std",
                          return_best = False
                          ):
     from sklearn.model_selection import train_test_split
@@ -48,17 +48,14 @@ def find_hyperparameters(X,
     import matplotlib.pyplot as plt
 
 
-    scaling = "std"
-    scaling = "mean"
-    else
 
     sns.set()
     #Split and scale data if choosen
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
 
-    if scaling = "std":
+    if scaling == "std":
         X_train, X_test, Z_train, Z_test = standard_scale(X_train, X_test, Z_train, Z_test)
-    elif scaling = "mean":
+    elif scaling == "mean":
         X_train, X_test, Z_train, Z_test = mean_scale_new(X_train, X_test, Z_train, Z_test)
 
 
@@ -92,7 +89,7 @@ def find_hyperparameters(X,
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.subplots_adjust(hspace=0.3)
 
-    if name != np.isnan(name):
+    if isinstance(name, str):
         plt.savefig(f"../article/figures/hyper_param_{name}_{activation}.pdf",
                 bbox_inches="tight")
 
