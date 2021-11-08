@@ -33,11 +33,11 @@ if __name__ == "__main__":
     num_hidden_layers = 2
     num_hidden_nodes = 30
     n_categories = 1
-    epochs = int(50)
-    batch_size = int(100)
+    epochs = int(100)
+    batch_size = int(50)
 
-    etas = np.logspace(-2, 1, 5)
-    lmbds = np.logspace(-2, 1, 5)
+    etas = np.logspace(-2, 0, 5)
+    lmbds = np.logspace(-4, 0, 5)
 
 
     activation = "sigmoid"

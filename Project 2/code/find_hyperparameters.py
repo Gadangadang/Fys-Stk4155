@@ -48,11 +48,12 @@ def find_hyperparameters(X,
 
             NN.train_network_stochastic(int(epochs))
             test_accuracy[i][j] = NN.accuracy_score(X_test, Z_test)
-            
+
     fig, ax = plt.subplots(figsize = (10, 10))
+    print(test_accuracy)
     sns.heatmap(test_accuracy, xticklabels = np.log10(lmbds), yticklabels = np.log10(etas), annot=True, ax=ax, cmap="viridis")
-    ax.yaxis.set_major_formatter(tkr.FuncFormatter(lambda y, p: f'{y:.1f}'))
-    ax.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, p: f'{x:.1f}'))
+    #ax.yaxis.set_major_formatter(tkr.FuncFormatter(lambda y, p: f'{y:.1f}'))
+    #ax.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, p: f'{x:.1f}'))
     ax.set_title("Test Accuracy")
     ax.set_ylabel("$log_{10}(\eta)$")
     ax.set_xlabel("$log_{10}(\lambda)$")
@@ -60,7 +61,11 @@ def find_hyperparameters(X,
     plt.subplots_adjust(hspace=0.3)
     #plt.savefig(f"../article/figures/hyper_param_{name}_{activation}.pdf",
     #            bbox_inches="tight")
+
+    indx = np.where(test_accuracy == np.max(test_accuracy))
+    print(etas[int(indx[0][0])], lmbds[int(indx[1][0])])
     plt.show()
+
     if return_best:
         indx = np.where(test_accuracy == np.max(test_accuracy))
         return etas[int(indx[0][0])], lmbds[int(indx[1][0])], np.max(test_accuracy)

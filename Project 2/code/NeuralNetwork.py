@@ -19,7 +19,7 @@ class NeuralNetwork:
                  batch_size=1,
                  eta=0.001,
                  lmbd=0.00,
-                 gamma = 0.7,
+                 gamma = 0.0,
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE"):
@@ -133,11 +133,11 @@ class NeuralNetwork:
         """
         self.backpropagation()
         for l in range(1, self.L):
-            self.vel_weights[l] = self.gamma*self.vel_weights[l] + (self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd) / self.batch_size
-            self.weights[l] -= self.eta*self.vel_weights[l]
+            self.vel_weights[l] = self.gamma*self.vel_weights[l] + self.eta*(self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd) 
+            self.weights[l] -= self.vel_weights[l]
 
-            self.vel_bias[l] = self.gamma*self.vel_bias[l] +  np.mean(self.local_gradient[l], axis=0)
-            self.bias[l] -= self.eta*self.vel_bias[l]
+            self.vel_bias[l] = self.gamma*self.vel_bias[l] +  self.eta*np.mean(self.local_gradient[l], axis=0)
+            self.bias[l] -= self.vel_bias[l]
 
 
     def feed_forward(self):

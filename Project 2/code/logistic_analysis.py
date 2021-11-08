@@ -31,8 +31,8 @@ if __name__ == "__main__":
     epochs = int(50)
     batch_size = int(35)
 
-    etas = np.logspace(-6, -1, 5)
-    lmbds = np.logspace(-3, 0, 5)
+    etas = np.logspace(0, 1, 5)
+    lmbds = np.logspace(-5, 0, 5)
 
 
     activation = "sigmoid"
