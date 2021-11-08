@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn import datasets, svm, metrics
-from sklearn.model_selection import train_test_split
+from find_hyperparameters import *
 from SGD import *
-from Breast_cancer import find_hyperparameters
 
 def plot_digits(digits):
     fig,axes = plt.subplots(nrows= 1, ncols=4, figsize=(10, 3))
@@ -17,9 +16,7 @@ if __name__ == "__main__":
     #plot_digits(digits)
 
     # flatten the images
-    n_samples = len(digits.images)
-    data = digits.images.reshape((n_samples, -1))
-
+    data = digits.data
     # Create a classifier: a support vector classifier
     X = data
     y_flat = digits.target
@@ -31,14 +28,12 @@ if __name__ == "__main__":
 
     num_hidden_layers = 2
     num_hidden_nodes = 20
-    n_categories = 1
-    eta = 1e-2
-    lmbd = 0.5
     epochs = int(50)
-    batch_size = int(100)
+    batch_size = int(35)
 
-    etas = np.logspace(-4, 1, 5)
-    lmbds = np.logspace(-4, 1, 5)
+    etas = np.logspace(0, 1, 5)
+    lmbds = np.logspace(-5, 0, 5)
+
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
