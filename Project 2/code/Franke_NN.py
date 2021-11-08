@@ -35,7 +35,7 @@ if __name__ == "__main__":
     #pseudo code
     x = np.randnum(0,1, num_points)
     y = np.randnum(0,1, num_points)
-    z = Franke(x,y)
+    z = Franke(x,y + noise
     X = [x, y]
 
 
