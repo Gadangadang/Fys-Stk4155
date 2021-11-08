@@ -14,9 +14,9 @@ class NeuralNetwork:
     def __init__(self,
                  X,
                  t,
-                 num_hidden_layers=2,
+                 num_hidden_layers=1,
                  num_hidden_nodes=10,
-                 batch_size=1,
+                 batch_size=4,
                  eta=0.001,
                  lmbd=0.00,
                  gamma = 0.0,
@@ -133,7 +133,7 @@ class NeuralNetwork:
         """
         self.backpropagation()
         for l in range(1, self.L):
-            self.vel_weights[l] = self.gamma*self.vel_weights[l] + self.eta*(self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd) 
+            self.vel_weights[l] = self.gamma*self.vel_weights[l] + self.eta*(self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd)
             self.weights[l] -= self.vel_weights[l]
 
             self.vel_bias[l] = self.gamma*self.vel_bias[l] +  self.eta*np.mean(self.local_gradient[l], axis=0)
