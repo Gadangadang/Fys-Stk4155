@@ -44,7 +44,7 @@ def SGD_optimization_test(X, y):
     Test convergence for different learning rates
     and mini badges
     """
-    np.random.seed(4155) #RN Seed
+    # np.random.seed(4155) #RN Seed
 
     # Split and scale data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -54,6 +54,8 @@ def SGD_optimization_test(X, y):
 
     # eta_vals = np.logspace(-6, -1, 6)
     eta_vals = np.array([0.001, 0.01, 0.05, 0.1])
+    eta_vals = np.array([0.001, 0.2])
+
     bsp_vals = np.array([0.001, 0.01, 0.5, 1])
 
 
@@ -113,13 +115,13 @@ def SGD_test_learning_rate(X, y):
 
 
     # Split and scale data
+    np.random.seed(415895) # To avoid unfortunately split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     X_train, X_test, y_train, y_test = mean_scale_new(X_train, X_test, y_train, y_test)
     N = X_train.shape[0]
 
     # eta_vals = np.logspace(-6, -2, 5)
-    eta_vals = np.array([0.001, 0.01, 0.05, 0.1])
-    eta_vals = np.linspace(0.001, 0.1, 100)
+    eta_vals = np.linspace(0.001, 1.5875, 100)
 
 
     num_epochs = int(1e3)
@@ -157,7 +159,8 @@ def SGD_test_learning_rate(X, y):
     # MSE for OLS
     OLS_MSE_train = np.ones(len(eta_vals)) * MSE(ztilde, y_train)
     OLS_MSE_test = np.ones(len(eta_vals)) * MSE(zpredict, y_test)
-
+    print("test min arg:", eta_vals[np.argmin(SGD_MSE_test)], "+-", eta_vals[1]-eta_vals[0])
+    print("argmin idx:", np.argmin(SGD_MSE_test))
 
     #--- Plotting ---#
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -171,7 +174,7 @@ def SGD_test_learning_rate(X, y):
     ax.yaxis.grid(True, which='minor')
 
     plt.xlabel(r"$\eta$", fontsize=14)
-    plt.ylabel(r"MSE", fontsize=14)
+    plt.ylabel(r"MSE train", fontsize=14)
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.savefig("../article/figures/SGD_learning_rate_MSE.pdf", bbox_inches="tight")
@@ -202,7 +205,7 @@ def SGD_convergence_rate(X, y):
     MSE_arr = np.zeros((len(bsp_vals), num_epochs+1))
     epoch_arr = np.linspace(0, num_epochs, num_epochs+1)
     for i, bsp_pct in enumerate(bsp_vals):
-        np.random.seed(41550) #RN Seed
+        np.random.seed(4155) #RN Seed
         SGD_regression.reset()
         SGD_regression.m = int(bsp_pct*N)
 
@@ -213,11 +216,11 @@ def SGD_convergence_rate(X, y):
             SGD_regression.SGD_evolve()
             ytilde = (X @ SGD_regression.theta).ravel()
             MSE_arr[i,j] = MSE(ytilde, y)
-        plt.plot(epoch_arr, MSE_arr[i], "-o", label = f"m = {SGD_regression.m} ({bsp_pct*100:g}%)")
+        plt.plot(epoch_arr, MSE_arr[i], "-o", markersize = 4, label = f"m = {SGD_regression.m} ({bsp_pct*100:g}%)")
 
 
     plt.xlabel(r"epoch", fontsize=14)
-    plt.ylabel(r"MSE", fontsize=14)
+    plt.ylabel(r"MSE train", fontsize=14)
     plt.yscale("log")
     ax.yaxis.grid(True, which='minor')
     plt.legend(fontsize = 13)
@@ -258,22 +261,14 @@ def SGD_convergence_rate(X, y):
 
 
     plt.xlabel(r"epoch", fontsize=14)
-    plt.ylabel(r"MSE", fontsize=14)
+    plt.ylabel(r"MSE train", fontsize=14)
     plt.yscale("log")
     ax.yaxis.grid(True, which='minor')
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    # plt.savefig("../article/figures/SGD_learning_rate_convergence.pdf", bbox_inches="tight")
+    plt.savefig("../article/figures/SGD_learning_rate_convergence.pdf", bbox_inches="tight")
     plt.show()
 
-
-
-
-
-    # ax = plt.gca()
-    # a=ax.get_xticks().tolist()
-    # a[1]=1
-    # ax.set_xticklabels(a)
 
 
 def SGD_VS_OLS():
@@ -289,7 +284,6 @@ def SGD_VS_OLS():
 
     split = 0.2
     num_epochs = int(1e4)
-
     X_full = create_X(x, y, n_max)
     X_F_train, X_F_test, y_train, y_test = train_test_split(X_full, z, test_size=split)
     X_F_train, X_F_test, y_train, y_test = mean_scale_new(X_F_train, X_F_test, y_train, y_test)
@@ -652,7 +646,6 @@ if __name__ == "__main__":
     N = 100             # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
     n = 5               # Highest order of polynomial for X
-    lamda = 0
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
@@ -661,10 +654,10 @@ if __name__ == "__main__":
     #--- Validation / testing ---#
     # SGD_convergence_rate(X, z)
     # SGD_optimization_test(X, z) # not included in report so far
-    # SGD_test_learning_rate(X, z)
+    SGD_test_learning_rate(X, z)
     # SGD_VS_OLS()
     # SGD_VS_Ridge(X,z)
-    SGD_momentum_convergence_rate(X,z)
+    # SGD_momentum_convergence_rate(X,z)
     # SGD_momentum_optimization(X,z)
 
 
