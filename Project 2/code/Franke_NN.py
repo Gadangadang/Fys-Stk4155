@@ -32,6 +32,13 @@ if __name__ == "__main__":
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
+    #pseudo code
+    x = np.randnum(0,1, num_points)
+    y = np.randnum(0,1, num_points)
+    z = Franke(x,y)
+    X = [x, y]
+
+
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
 
     beta = OLS_regression(X_train, Z_train)
