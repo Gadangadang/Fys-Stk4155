@@ -139,6 +139,18 @@ def test_NN_Franke():
     assert success, msg
 
 
+def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
+    n_inputs, n_features = X.shape
+    hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
+    dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes,
+                        activation = activation_func,
+                        alpha= lmbd,
+                        learning_rate_init = eta,
+                        max_iter = epochs )
+    dnn.fit(X, y)
+    test_pred = dnn.predict(X)
+    test_accuracy = accuracy_score(y, test_pred)
+    return test_pred, test_accuracy
 
 
 
@@ -180,18 +192,7 @@ def WIP_test_logical_gates():
     assert success, msg
 
 
-def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
-    n_inputs, n_features = X.shape
-    hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
-    dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes,
-                        activation = activation_func,
-                        alpha= lmbd,
-                        learning_rate_init = eta,
-                        max_iter = epochs   )
-    dnn.fit(X, y)
-    test_pred = dnn.predict(X)
-    test_accuracy = accuracy_score(y, test_pred)
-    return test_pred, test_accuracy
+
 
 def sklearn_NN_WIP(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
     from sklearn.neural_network import MLPClassifier
