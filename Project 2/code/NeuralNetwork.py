@@ -86,6 +86,9 @@ class NeuralNetwork:
         elif callback == "R2":
             self.callback = True
             self.callback_func = self.R2_callback
+        else:
+            self.callback = False
+
         self.callback_label = callback
 
 
@@ -241,7 +244,7 @@ class NeuralNetwork:
     #     return 1-np.sum((self.t.ravel() - t_model.ravel())**2) / np.sum((self.t.ravel() - np.mean(self.t.ravel())) ** 2)
 
     def accuracy_callback(self): # write this
-        return self.accuracy_score(self.X, self.t)
+        return self.accuracy_score(self.X, self.T)
 
 
 
@@ -324,10 +327,15 @@ class NeuralNetwork:
 
     def accuracy_score(self, X, target):
         """[summary]"""
+        self.layers_a[0] = X
+        self.feed_forward()
         if self.num_categories >1:
-            self.layers_a[0] = X
-            self.feed_forward()
+
             pred = self.soft_max_activation(self.layers_z[-1])
+            pred = self.predict(self.X)
+            print(pred)
+            #### ALL THIS NEED TO BE CHECKED #####
+            # exit()
 
             guess = np.argmax(pred, axis=1)
             target = np.argmax(target, axis=1)
