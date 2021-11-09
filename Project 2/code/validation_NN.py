@@ -49,13 +49,13 @@ def logic_gates():
     gamma = 0
 
 
-    etas = np.logspace(-4, -2, 3)
+    etas = np.logspace(-4, 0, 3)
     lmbds = np.logspace(-5, -1, 5)
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
     cost_func = "MSE"
-    epochs = 20
+    epochs = 200
 
     y = y_XOR.reshape(4,1)
     find_hyperparameters(X, X, y, y,
@@ -69,6 +69,8 @@ def logic_gates():
                              cost_func,
                              name = 0,
                              return_best = False)
+
+
     exit()
     for i, y in enumerate(y_gates):
         # sklearn_pred, sklearn_accuracy = sklearn_NN(X, y_OR, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
