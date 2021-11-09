@@ -22,7 +22,8 @@ class NeuralNetwork:
                  gamma = 0.0,
                  seed=4155,
                  activation="sigmoid",
-                 cost="MSE"):
+                 cost="MSE",
+                 callback = "None"):
         """[summary]
 
         Args:
@@ -75,6 +76,24 @@ class NeuralNetwork:
             self.cost = self.cross_entropy
         self.activation_der = elementwise_grad(self.activation)
         self.cost_der = elementwise_grad(self.cost)
+
+        if callback == "accuracy":
+            self.callback = True
+            self.callback_func = self.accuracy_callback
+        elif callback == "MSE":
+            self.callback = True
+            self.callback_func = self.MSE_callback
+        elif callback == "R2":
+            self.callback = True
+            self.callback_func = self.R2_callback
+        self.callback_label = callback
+
+
+
+    def callback_print(self, epoch, score_epoch):
+        print(f"epoch: {epoch}, score = {score_epoch:g}")
+
+
 
     def create_layers(self):
         """
@@ -172,18 +191,59 @@ class NeuralNetwork:
         self.feed_forward()
         return self.layers_a[-1]
 
-    def train_network_stochastic(self, epochs):
+    def train_network_stochastic(self, epochs, plot = False):
         """[summary]
 
         Args:
             epochs ([type]): [description]
         """
-        for _ in range(epochs):
-            batches = self.get_batches()
-            for batch in batches:
-                self.choose_mini_batch(batch)
-                self.feed_forward()
-                self.update_parameters()
+
+        if not (self.callback):
+            for _ in range(epochs):
+                batches = self.get_batches()
+                for batch in batches:
+                    self.choose_mini_batch(batch)
+                    self.feed_forward()
+                    self.update_parameters()
+        else:
+            score = np.zeros(epochs+1)
+            for epoch in range(epochs):
+                batches = self.get_batches()
+                score[epoch] = self.callback_func()
+                self.callback_print(epoch, score[epoch])
+                for batch in batches:
+                    self.choose_mini_batch(batch)
+                    self.feed_forward()
+                    self.update_parameters()
+            epoch += 1
+            score[epoch] = self.callback_func()
+            self.callback_print(epoch, score[epoch])
+
+            if plot:
+                plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+                plt.plot(np.linspace(0,epochs, epochs+1), score, "o-")
+                plt.xlabel(r"$epoch$", fontsize=14)
+                plt.ylabel(self.callback_label, fontsize=14)
+                plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+                # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
+                plt.show()
+
+#
+#
+#
+
+    def MSE_callback(self):
+        t_model = self.predict(self.X)
+        return np.mean((self.t.ravel() - t_model.ravel())**2)
+
+    # def R2_callback(self):
+    #     t_model = self.predict(self.X)
+    #     return 1-np.sum((self.t.ravel() - t_model.ravel())**2) / np.sum((self.t.ravel() - np.mean(self.t.ravel())) ** 2)
+
+    def accuracy_callback(self): # write this
+        return self.accuracy_score(self.X, self.t)
+
+
 
     def get_batches(self):
         idx = np.arange(self.N)
@@ -329,11 +389,11 @@ if __name__ == "__main__":
     # The above imports numpy as np so we have to redefine:
     import autograd.numpy as np
     #--- Create data from Franke Function ---#
-    N = 20               # Number of points in each dimension
-    z_noise = 0.2       # Added noise to the z-value
-    n = 5               # Highest order of polynomial for X
-    epochs = 1000
-    iterations = 1
+    N = 5               # Number of points in each dimension
+    z_noise = 0       # Added noise to the z-value
+    n = 3               # Highest order of polynomial for X
+    epochs = 50
+
     batch_size = int(N * N * 0.8)
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
@@ -350,6 +410,6 @@ if __name__ == "__main__":
                        seed=4155,
                        activation="sigmoid",
                        cost="MSE")
-    MM.train_network_stochastic(epochs)
+    MM.train_network_stochastic(epochs, plot = True)
     print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
     print("           OLS           ", MSE(Z_test, z_ols))
