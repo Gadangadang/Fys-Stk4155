@@ -87,7 +87,8 @@ def logic_gates_OLS():
 
     plt.plot([X[0,0], X[3,0]], [X[0,1], X[3,1]], "o", markersize = 10, label = "y = 0")
     plt.plot(X[1:3,0], X[1:3,1], "o", marker = "P", markersize = 10, label = "y = 1")
-    plt.xticks([0,1])    plt.yticks([0,1])
+    plt.xticks([0,1])
+    plt.yticks([0,1])
 
     plt.xlabel(r"$x_1$", fontsize=14)
     plt.ylabel(r"$x_2$", fontsize=14)
