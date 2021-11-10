@@ -23,7 +23,8 @@ class NeuralNetwork:
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE",
-                 callback = "None"):
+                 loss = "MSE",
+                 callback = False):
         """[summary]
 
         Args:
@@ -77,19 +78,28 @@ class NeuralNetwork:
         self.activation_der = elementwise_grad(self.activation)
         self.cost_der = elementwise_grad(self.cost)
 
-        if callback == "accuracy":
-            self.callback = True
-            self.callback_func = self.accuracy_callback
-        elif callback == "MSE":
-            self.callback = True
-            self.callback_func = self.MSE_callback
-        elif callback == "R2":
-            self.callback = True
-            self.callback_func = self.R2_callback
-        else:
-            self.callback = False
+        if loss == "accuracy":
 
-        self.callback_label = callback
+            self.score_func = self.accuracy_score
+        elif loss == "MSE":
+
+            self.score_func = self.MSE_score
+        elif loss == "R2":
+
+            self.score_func = self.R2_score
+
+        elif loss == "softmax":
+            self.score_func = self.softmax_score
+
+        self.callback = callback
+        self.callback_label = loss
+
+
+
+
+
+
+
 
 
 
@@ -215,14 +225,14 @@ class NeuralNetwork:
             score = np.zeros((epochs+1, self.num_categories))
             for epoch in range(epochs):
                 batches = self.get_batches()
-                score[epoch] = self.callback_func()
+                score[epoch] = self.get_score(self.X, self.T)
                 self.callback_print(epoch, score[epoch])
                 for batch in batches:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
                     self.update_parameters()
             epoch += 1
-            score[epoch] = self.callback_func()
+            score[epoch] = self.get_score(self.X, self.T)
             self.callback_print(epoch, score[epoch])
 
             if plot:
@@ -234,20 +244,12 @@ class NeuralNetwork:
                 # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
                 plt.show()
 
-#
-#
-#
 
-    def MSE_callback(self):
-        t_model = self.predict(self.X)
-        return np.mean((self.t.ravel() - t_model.ravel())**2)
 
-    # def R2_callback(self):
+    # def R2_loss(self):
     #     t_model = self.predict(self.X)
     #     return 1-np.sum((self.t.ravel() - t_model.ravel())**2) / np.sum((self.t.ravel() - np.mean(self.t.ravel())) ** 2)
 
-    def accuracy_callback(self): # write this
-        return self.accuracy_score(self.X, self.T)
 
 
 
@@ -328,17 +330,33 @@ class NeuralNetwork:
         val_exp = np.exp(value)
         return val_exp / (np.sum(val_exp, axis=1, keepdims=True))
 
-    def accuracy_score(self, X, target):
-        """[summary]"""
+
+
+
+    def get_score(self, X, target):
         self.layers_a[0] = X
         self.feed_forward()
+        return self.score_func(X, target)
 
-        pred = np.around(self.predict(self.X))
+
+    def accuracy_score(self, X, target):
+        """[summary]"""
+        pred = np.around(self.predict(X))
         hits = np.sum(np.around(pred) == target, axis = 0)
         possible = target.shape[0]
         acc = hits/possible
 
         return acc
+
+    def MSE_score(self, X, target):
+        pred = self.predict(X)
+        return np.mean((pred - target)**2)
+
+    def R2_score(self, X, target):
+        t_model = self.predict(self.X)
+        return 1-np.sum((target.ravel() - t_model.ravel())**2) / np.sum((target.ravel() - np.mean(target.ravel())) ** 2)
+
+
 
     def softmax_score(self, X, target):
         pass
@@ -361,7 +379,7 @@ class NeuralNetwork:
         Returns:
             [type]: [description]
         """
-        return (y_tilde - self.t)**2
+        return (y_tilde - self.T)**2
 
 
 
@@ -408,16 +426,21 @@ if __name__ == "__main__":
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
     beta = OLS_regression(X_train, Z_train)
     z_ols = X_test @ beta
-    MM = NeuralNetwork(X_train,
+    NN = NeuralNetwork(X_train,
                        Z_train,
                        num_hidden_layers=4,
                        num_hidden_nodes=5,
                        batch_size=batch_size,
                        eta=0.001,
                        lmbd=0.0,
+                       gamma = 0,
                        seed=4155,
                        activation="sigmoid",
-                       cost="MSE")
-    MM.train_network_stochastic(epochs, plot = True)
-    print("Neural Network stochastic", MSE(Z_test, MM.predict(X_test)))
-    print("           OLS           ", MSE(Z_test, z_ols))
+                       cost="MSE",
+                       loss = "MSE",
+                       callback = True)
+
+
+    NN.train_network_stochastic(epochs, plot = True)
+
+    print(NN.get_score(X_test, Z_test))
