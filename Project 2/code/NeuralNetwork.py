@@ -250,11 +250,6 @@ class NeuralNetwork:
         plt.show()
 
 
-    # def R2_loss(self):
-    #     t_model = self.predict(self.X)
-    #     return 1-np.sum((self.T.ravel() - t_model.ravel())**2) / np.sum((self.T.ravel() - np.mean(self.T.ravel())) ** 2)
-
-
 
 
     def get_batches(self):
