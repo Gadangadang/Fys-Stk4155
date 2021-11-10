@@ -365,12 +365,14 @@ class NeuralNetwork:
     def probability_score(self, X, target):
         self.layers_a[0] = X
         self.feed_forward()
-
         pred = self.soft_max_activation(self.layers_z[-1])
         guess = np.argmax(pred, axis=1)
         target = np.argmax(target, axis=1)
         val = np.sum(guess == target)/len(target)
-        pass
+        print(val)
+        exit()
+        return val
+
 
     """
     Cost funtions

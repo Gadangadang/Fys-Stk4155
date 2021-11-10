@@ -28,6 +28,7 @@ if __name__ == "__main__":
     for i in features:
         temp = np.reshape(x[:,i],(len(x[:,i]),1))
         X=np.hstack((X,temp))
+        
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     X_train, X_test = standard_scale(X_train, X_test)
 
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     batch_size = int(50)
 
 
-    etas = np.logspace(-2, 0, 3)
+    etas = np.logspace(-3, -1, 3)
     lmbds = np.logspace(-4, 0, 3)
 
 
@@ -69,8 +70,8 @@ if __name__ == "__main__":
             NN.train_network_stochastic(int(epochs), plot = False)
             test_scores[i][j] = NN.get_score(X_test, y_test)
 
-    plot_heatmap(test_scores, ["eta",np.log10(etas)], ["lambda",np.log10(lmbds)], title = None, name = None)
-    indx = np.where(test_accuracy == np.max(test_accuracy))
+    plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = None, name = None)
+    indx = np.where(test_scores == np.max(test_scores))
 
 
     sklearn_pred, sklearn_accuracy = sklearn_NN_WIP(X,
