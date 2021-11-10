@@ -57,7 +57,7 @@ def logic_gates():
                              callback = False)
 
     NN.train_network_stochastic(epochs)
-    NN.plot_score_history()
+    NN.plot_score_history(name = "test")
     final_accuracy = NN.get_score(NN.X, NN.T)
 
 

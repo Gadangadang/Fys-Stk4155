@@ -96,10 +96,6 @@ class NeuralNetwork:
 
 
 
-    def callback_print(self, epoch, score_epoch):
-        print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
-
-
 
     def create_layers(self):
         """
@@ -234,7 +230,7 @@ class NeuralNetwork:
                 self.callback_print(epoch, self.score[epoch]) # print
 
 
-    def plot_score_history(self):
+    def plot_score_history(self, name = None):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
         if self.num_epochs > 150:
             linestyle = "-"
@@ -249,8 +245,14 @@ class NeuralNetwork:
         if self.score.shape[1] > 1:
             plt.legend(["category " + str(i) for i in range(self.score.shape[1])], fontsize = 13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        if isinstance(name, str):
+            plt.savefig(f"../article/figures/score_history_{name}.pdf",
+                    bbox_inches="tight")
         plt.show()
 
+
+    def callback_print(self, epoch, score_epoch):
+        print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
 
 
 
