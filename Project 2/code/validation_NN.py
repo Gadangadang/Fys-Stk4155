@@ -122,35 +122,139 @@ def Franke_NN():
 
     print(X_train.shape, Z_train.shape)
 
-    eta = 0.001
+    """eta = 0.001
     epochs = 100
     gamma = 0
     lmbd = 0.0
     lay = 2
     nodes = 50
-    batch_size = 15
+    batch_size = 15"""
 
-    NN = NeuralNetwork(X_train,
-                       Z_train,
-                       num_hidden_layers=lay,
-                       num_hidden_nodes=nodes,
-                       batch_size=batch_size,
-                       eta=eta,
-                       lmbd=lmbd,
-                       gamma = gamma,
-                       seed=4155,
-                       activation="sigmoid",
-                       cost="MSE",
-                       loss = "R2",
+    num_hidden_layers = 2
+    num_hidden_nodes = 70
+    batch_size = int(25)
+    gamma = 0
+    seed = 4155
+    n_categories = 1
+    epochs = int(400)
+
+
+    etas = np.logspace(-4, -1, 6)
+    lmbds = np.logspace(-4, -1, 6)
+
+
+    activation = "sigmoid"
+    cost_func = "MSE"
+    loss = "MSE"
+    test_scores_NN = np.zeros((len(etas), len(lmbds)))
+
+    #eta and lambda
+
+    for i, eta in enumerate(etas):
+        for j, lmbd in enumerate(lmbds):
+            print(f"\r(eta_val, lmbd_val) = ({eta},{lmbd})", end="")
+            NN = NeuralNetwork(X_train, Z_train,
+                               num_hidden_layers,
+                               num_hidden_nodes,
+                               batch_size,
+                               eta,
+                               lmbd,
+                               gamma,
+                               seed,
+                               activation,
+                               cost_func,
+                               loss,
+                               callback = False)
+
+            NN.train_network_stochastic(int(epochs))
+            test_scores_NN[i][j] = NN.get_score(X_test, Z_test)
+
+
+    #plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
+
+
+    #layers and mse
+
+    lmbd = 10**(-4)
+    eta = 0.1
+    num_hidden_layers = np.arange(1, 20)
+    test_scores_train = np.zeros(len(num_hidden_layers))
+    test_scores_test = np.zeros(len(num_hidden_layers))
+
+
+    for i, num in enumerate(num_hidden_layers):
+        NN = NeuralNetwork(X_train, Z_train,
+                           num,
+                           num_hidden_nodes,
+                           batch_size,
+                           eta,
+                           lmbd,
+                           gamma,
+                           seed,
+                           activation,
+                           cost_func,
+                           loss,
+                           callback = False)
+
+        NN.train_network_stochastic(int(epochs))
+        test_scores_train[i] = NN.get_score(X_train, Z_train)
+        test_scores_test[i] = NN.get_score(X_test, Z_test)
+
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.plot(num_hidden_layers, test_scores_train, label="Train MSE")
+    plt.plot(num_hidden_layers, test_scores_test, label="Test MSE")
+    plt.xlabel(r"$Hidden Layers$", fontsize=14)
+    plt.ylabel(r"$MSE$", fontsize=14)
+    plt.legend(fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/mse_hidden_layers.pdf", bbox_inches="tight")
+    plt.show()
+
+    num_nodes = np.arange(10, 250, 20)
+    num_layers = np.arange(1, 10)
+    test_scores_NN_lay_node = np.zeros((len(num_layers), len(num_nodes)))
+
+    #Nodes and layers
+    for i, layers in enumerate(num_layers):
+        for j, nodes in enumerate(num_nodes):
+            print("Layers: ", layers," ",  "Nodes: ", nodes)
+            NN = NeuralNetwork(X_train, Z_train,
+                               layers,
+                               nodes,
+                               batch_size,
+                               eta,
+                               lmbd,
+                               gamma,
+                               seed,
+                               activation,
+                               cost_func,
+                               loss,
+                               callback = False)
+
+            NN.train_network_stochastic(int(epochs))
+            test_scores_NN_lay_node[i][j] = NN.get_score(X_test, Z_test)
+
+
+    plot_heatmap(test_scores_NN_lay_node, [r"Number of nodes",num_nodes],[r"Number of layers",num_layers], title = "Grid search Neural Network", name = None)
+
+    num_hidden_layers = 4
+    num_hidden_nodes = 50
+    NN = NeuralNetwork(X_train, Z_train,
+                       num_hidden_layers,
+                       num_hidden_nodes,
+                       batch_size,
+                       eta,
+                       lmbd,
+                       gamma,
+                       seed,
+                       activation,
+                       cost_func,
+                       loss,
                        callback = False)
 
-
-    NN.train_network_stochastic(epochs, plot = False)
-    print("R2 score : ", NN.R2_score(X_test, Z_test))
-
-    print("MSE score : ", NN.MSE_score(X_test, Z_test))
-
-
+    NN.train_network_stochastic(int(epochs))
+    print("MSE: {}".format( NN.MSE_score(X_test, Z_test) ))
+    print("R2: {}".format( NN.R2_score(X_test, Z_test) ))
 
 
 
