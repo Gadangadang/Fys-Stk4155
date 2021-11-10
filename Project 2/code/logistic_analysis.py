@@ -2,14 +2,9 @@ import matplotlib.pyplot as plt
 from sklearn import datasets, svm, metrics
 from find_hyperparameters import *
 from SGD import *
+from NN_functions import *
 
-def plot_digits(digits):
-    fig,axes = plt.subplots(nrows= 1, ncols=4, figsize=(10, 3))
-    for ax, image, label in zip(axes, digits.images, digits.target):
-        ax.axis("off")
-        ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-        ax.set_title("Training: %i" % label)
-    plt.show()
+
 
 if __name__ == "__main__":
     digits = datasets.load_digits()
