@@ -357,17 +357,10 @@ class NeuralNetwork:
         return np.mean((pred - target)**2)
 
     def R2_score(self, X, target):
-<<<<<<< Updated upstream
         ymod = self.predict(X)
         target = target
-
         return 1-np.sum((target - ymod)**2) /\
                np.sum((target - np.mean(target, axis=0) ** 2))
-
-    def softmax_score(self, X, target):
-=======
-        t_model = self.predict(self.X)
-        return 1-np.sum((target.ravel() - t_model.ravel())**2) / np.sum((target.ravel() - np.mean(target.ravel())) ** 2)
 
     def probability_score(self, X, target):
         self.layers_a[0] = X
@@ -377,7 +370,6 @@ class NeuralNetwork:
         guess = np.argmax(pred, axis=1)
         target = np.argmax(target, axis=1)
         val = np.sum(guess == target)/len(target)
->>>>>>> Stashed changes
         pass
 
     """
