@@ -27,8 +27,6 @@ if __name__ == "__main__":
     epochs = int(50)
     batch_size = int(35)
 
-    etas = np.logspace(-5, -1, 5)
-    lmbds = np.logspace(-5, -1, 5)
     gamma = 0
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -39,15 +37,15 @@ if __name__ == "__main__":
     num_hidden_layers = 2
     num_hidden_nodes = 30
     batch_size = int(50)
-    gamma = 0
+    gamma = 0.9
     seed = 4155
     n_categories = 1
-    epochs = int(100)
+    epochs = int(200)
     batch_size = int(50)
 
 
-    etas = np.logspace(-3, -1, 3)
-    lmbds = np.logspace(-4, 0, 3)
+    etas = np.logspace(-5, -1, 3)
+    lmbds = np.logspace(-1, 0, 3)
 
 
     activation = "sigmoid"
@@ -79,4 +77,4 @@ if __name__ == "__main__":
     indx = np.where(test_scores == np.max(test_scores))
 
 
-    print(f"{100*best_val:.0f}% NN accuracy. ")
+    print(f"{100*test_scores[indx]:.0f}% NN accuracy. ")

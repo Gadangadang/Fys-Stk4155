@@ -20,7 +20,7 @@ class NeuralNetwork:
                  batch_size=4,
                  eta=0.001,
                  lmbd=0.00,
-                 gamma = 0.0,
+                 gamma=0.0,
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE",
@@ -55,10 +55,14 @@ class NeuralNetwork:
         self.L = self.num_hidden_layers + 2  # number of layer in total
 
         self.batch_size = batch_size
-        self.eta = eta
         self.lmbd = lmbd
         self.gamma = gamma
         self.seed = seed
+
+        self.eta_0 = eta
+        self.k = 0
+        self.dropp_time = 0
+        self.amplitude = 2
 
         self.create_layers()
         self.create_biases_and_weights()
@@ -78,9 +82,10 @@ class NeuralNetwork:
             self.cost = self.cross_entropy
         self.activation_der = elementwise_grad(self.activation)
         self.cost_der = elementwise_grad(self.cost)
-
+        self.score_shape = 1
         if loss == "accuracy":
             self.score_func = self.accuracy_score
+            self.score_shape = self.num_categories
         elif loss == "MSE":
             self.score_func = self.MSE_score
         elif loss == "R2":
@@ -141,32 +146,29 @@ class NeuralNetwork:
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
         self.bias.append(np.ones(num_categories) * bias_shift)
 
-
-
         # velocity for momentum
         self.vel_weights = [np.nan]
         self.vel_bias = [np.nan]
-        for i in range(1, num_hidden_layers+2):
+        for i in range(1, num_hidden_layers + 2):
             self.vel_weights.append(np.zeros(np.shape(self.weights[i])))
             self.vel_bias.append(np.zeros(np.shape(self.bias[i])))
-
 
         # local gradient
         self.local_gradient = self.layers_a.copy()  # also called error
         self.local_gradient[0] = np.nan  # don't use first
-
 
     def update_parameters(self):
         """[summary]
         """
         self.backpropagation()
         for l in range(1, self.L):
-            self.vel_weights[l] = self.gamma*self.vel_weights[l] + self.eta*(self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l]*self.lmbd)
+            self.vel_weights[l] = self.gamma * self.vel_weights[l] + self.eta * (
+                self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l] * self.lmbd)
             self.weights[l] -= self.vel_weights[l]
 
-            self.vel_bias[l] = self.gamma*self.vel_bias[l] +  self.eta*np.mean(self.local_gradient[l], axis=0)
+            self.vel_bias[l] = self.gamma * self.vel_bias[l] + \
+                self.eta * np.mean(self.local_gradient[l], axis=0)
             self.bias[l] -= self.vel_bias[l]
-
 
     def feed_forward(self):
         """[summary]
@@ -203,42 +205,43 @@ class NeuralNetwork:
         self.feed_forward()
         return self.layers_a[-1]
 
-    def train_network_stochastic(self, epochs, plot = False):
+    def train_network_stochastic(self, epochs, plot=False):
         """[summary]
 
         Args:
             epochs ([type]): [description]
         """
         self.num_epochs = epochs
-        self.score = np.zeros((epochs+1, self.num_categories))
 
+        self.score = np.zeros((epochs + 1, self.score_shape))
 
         if not self.callback:
             for epoch in range(epochs):
                 batches = self.get_batches()
                 self.score[epoch] = self.get_score(self.X, self.T)
+                self.eta_func(epoch)
                 for batch in batches:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
                     self.update_parameters()
-                epoch += 1
-                self.score[epoch] = self.get_score(self.X, self.T)
+            epoch += 1
+            self.score[epoch] = self.get_score(self.X, self.T)
         else:
             for epoch in range(epochs):
                 batches = self.get_batches()
                 self.score[epoch] = self.get_score(self.X, self.T)
                 self.callback_print(epoch, self.score[epoch]) # print
+                self.eta_func(epoch)
                 for batch in batches:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
                     self.update_parameters()
-                epoch += 1
-                self.score[epoch] = self.get_score(self.X, self.T)
+            epoch += 1
+            self.score[epoch] = self.get_score(self.X, self.T)
 
-                self.callback_print(epoch, self.score[epoch]) # print
+            self.callback_print(epoch, self.score[epoch])  # print
 
-
-    def plot_score_history(self, name = None):
+    def plot_score_history(self, name=None):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
         if self.num_epochs > 150:
             linestyle = "-"
@@ -247,11 +250,13 @@ class NeuralNetwork:
             linestyle = "--"
             marker = "o"
         markersize = 3
-        plt.plot(np.linspace(0, self.num_epochs, self.num_epochs+1), self.score, linestyle=linestyle, marker=marker, markersize=markersize)
+        plt.plot(np.linspace(0, self.num_epochs, self.num_epochs + 1),
+                 self.score, linestyle=linestyle, marker=marker, markersize=markersize)
         plt.xlabel("epoch", fontsize=14)
         plt.ylabel(self.callback_label, fontsize=14)
         if self.score.shape[1] > 1:
-            plt.legend(["category " + str(i) for i in range(self.score.shape[1])], fontsize = 13)
+            plt.legend(["category " + str(i)
+                       for i in range(self.score.shape[1])], fontsize=13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         if isinstance(name, str):
             plt.savefig(f"../article/figures/{name}_score_history.pdf",
@@ -260,15 +265,14 @@ class NeuralNetwork:
 
 
 
-
-
     def get_batches(self):
         idx = np.arange(self.N)
         np.random.shuffle(idx)
-        int_max = self.N//self.batch_size
-        batches = [idx[i*self.batch_size:(i+1)*self.batch_size] for i in range(int_max)]
+        int_max = self.N // self.batch_size
+        batches = [
+            idx[i * self.batch_size:(i + 1) * self.batch_size] for i in range(int_max)]
         if self.N % self.batch_size != 0:
-            batches.append(idx[int_max*self.batch_size:])
+            batches.append(idx[int_max * self.batch_size:])
         return batches
 
     def choose_mini_batch(self, batch):
@@ -340,20 +344,17 @@ class NeuralNetwork:
         return val_exp / (np.sum(val_exp, axis=1, keepdims=True))
 
 
-
-
     def get_score(self, X, target):
         self.layers_a[0] = X
         self.feed_forward()
         return self.score_func(X, target)
 
-
     def accuracy_score(self, X, target):
         """[summary]"""
         pred = np.around(self.predict(X))
-        hits = np.sum(np.around(pred) == target, axis = 0)
+        hits = np.sum(np.around(pred) == target, axis=0)
         possible = target.shape[0]
-        acc = hits/possible
+        acc = hits / possible
 
         return acc
 
@@ -364,18 +365,15 @@ class NeuralNetwork:
     def R2_score(self, X, target):
         ymod = self.predict(X)
         target = target
-        return 1-np.sum((target - ymod)**2) /\
-               np.sum((target - np.mean(target, axis=0) ** 2))
+        return 1 - np.sum((target - ymod)**2) /\
+            np.sum((target - np.mean(target, axis=0) ** 2))
 
     def probability_score(self, X, target):
-        self.layers_a[0] = X
-        self.feed_forward()
         pred = self.soft_max_activation(self.layers_z[-1])
         guess = np.argmax(pred, axis=1)
         target = np.argmax(target, axis=1)
-        val = np.sum(guess == target)/len(target)
+        val = np.sum(guess == target) / len(target)
         return val
-
 
     """
     Cost funtions
@@ -392,8 +390,6 @@ class NeuralNetwork:
         """
         return (y_tilde - self.t)**2
 
-
-
     def cross_entropy(self, y_tilde):
         """[summary]
 
@@ -404,6 +400,20 @@ class NeuralNetwork:
             [type]: [description]
         """
         return -(self.t * np.log(y_tilde) + (1 - self.t) * np.log(1 - y_tilde))
+
+    """
+    Eta functions
+    """
+
+    def eta_func(self, epoch):
+        self.eta = self.eta_0 * self.amplitude*self.sigmoid_activation(self.k*(self.dropp_time-epoch))
+
+    def set_eta_decay(self, k, dropp_time):
+        self.amplitude = 1
+        self.k = k
+        self.dropp_time = dropp_time
+
+
 
     def __str__(self):
         text = "Information of the Neural Network \n"
@@ -443,13 +453,12 @@ if __name__ == "__main__":
                        batch_size=batch_size,
                        eta=0.001,
                        lmbd=0.0,
-                       gamma = 0,
+                       gamma=0,
                        seed=4155,
                        activation="sigmoid",
                        cost="MSE",
-                       loss = "R2",
-                       callback = False)
+                       loss="R2",
+                       callback=True)
 
-
-    NN.train_network_stochastic(epochs, plot = False)
+    NN.train_network_stochastic(epochs, plot=False)
     print(NN.get_score(X_test, Z_test))
