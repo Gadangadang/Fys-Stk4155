@@ -46,8 +46,7 @@ def logic_gates_NN():
     num_hidden_layers = 1
     num_hidden_nodes = 4
     batch_size = 4 # Full GD
-    n_categories = 1
-    eta = 0.8
+    eta = 0.9
     lmbd = 0
     gamma = 0
 
@@ -69,7 +68,7 @@ def logic_gates_NN():
                              callback = True)
 
     NN.train_network_stochastic(epochs)
-    NN.plot_score_history(name = "logic_gates")
+    NN.plot_score_history(name = "logic_gates", legend = ["AND", "OR", "XOR"])
     final_accuracy = NN.get_score(NN.X, NN.T)
 
 
@@ -83,12 +82,12 @@ def logic_gates_OLS():
         print(f"{gates[i]}-gate prediction: {pred}")
 
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    # plt.figure(num=0, figsize = (3,4), facecolor='w', edgecolor='k')
 
 
     plt.plot([X[0,0], X[3,0]], [X[0,1], X[3,1]], "o", markersize = 10, label = "y = 0")
     plt.plot(X[1:3,0], X[1:3,1], "o", marker = "P", markersize = 10, label = "y = 1")
-    plt.xticks([0,1])
-    plt.yticks([0,1])
+    plt.xticks([0,1])    plt.yticks([0,1])
 
     plt.xlabel(r"$x_1$", fontsize=14)
     plt.ylabel(r"$x_2$", fontsize=14)

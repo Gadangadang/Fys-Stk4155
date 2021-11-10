@@ -229,7 +229,7 @@ class NeuralNetwork:
         self.num_epochs = epoch
 
 
-    def plot_score_history(self, name=None):
+    def plot_score_history(self, name=None, legend = []):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
         if self.num_epochs > 150:
             linestyle = "-"
@@ -244,8 +244,11 @@ class NeuralNetwork:
         plt.xlabel("epoch", fontsize=14)
         plt.ylabel(self.callback_label, fontsize=14)
         if self.score.shape[1] > 1:
-            plt.legend(["category " + str(i)
+            if len(legend) == 0: # no legend in arg
+                plt.legend(["category " + str(i)
                        for i in range(self.score.shape[1])], fontsize=13)
+            else: # legend from arg
+                plt.legend(legend)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         if isinstance(name, str):
             plt.savefig(f"../article/figures/{name}_score_history.pdf",
