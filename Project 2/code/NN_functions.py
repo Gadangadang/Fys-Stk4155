@@ -33,7 +33,7 @@ def plot_heatmap(test_scores, param1, param2, title = None, name = None):
     param2_label, param2_vals = param2
     fig, ax = plt.subplots(figsize = (7, 7))
     sns.set()
-    sns.heatmap(test_scores, xticklabels = param1_vals, yticklabels = param2_vals, annot=True, ax=ax)
+    sns.heatmap(test_scores, xticklabels = np.around(param1_vals,2), yticklabels = np.around(param2_vals,2), annot=True, ax=ax)
     if isinstance(title, str):
         ax.set_title(title)
     else:
