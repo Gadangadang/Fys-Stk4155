@@ -368,8 +368,6 @@ class NeuralNetwork:
         guess = np.argmax(pred, axis=1)
         target = np.argmax(target, axis=1)
         val = np.sum(guess == target)/len(target)
-        print(val)
-        exit()
         return val
 
 
