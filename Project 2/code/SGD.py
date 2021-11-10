@@ -52,7 +52,7 @@ class SGD:
         """
         Initialize theta with normal disttribution
         """
-        self.theta = np.random.normal(0, 1, size=(self.X.shape[1], 1))
+        self.theta = np.random.normal(0, 1, size=(self.X.shape[1], self.y.shape[1]))
 
 
     def get_batches(self):
@@ -106,9 +106,15 @@ class SGD:
         return prediction
 
     def accuracy_score(self, X, target):
-
         val = np.sum(np.around(self.predict(X)) == target) / len(target)
         return val
+
+    def probability_score(self, X, target):
+        pred = self.predict(X)
+        guess = np.argmax(pred, axis=1)
+        target = np.argmax(target, axis=1)
+        acc = np.sum(guess == target) / len(target)
+        return acc
 
     # --- eta and gradient functions --- #
 

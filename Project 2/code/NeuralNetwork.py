@@ -212,7 +212,6 @@ class NeuralNetwork:
         self.check_grad = 1
         epoch = 0
 
-
         self.score[epoch] = self.get_score(self.X, self.T)
         self.callback_print(epoch, self.score[epoch])
 
