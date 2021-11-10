@@ -64,6 +64,8 @@ class NeuralNetwork:
         self.dropp_time = 0
         self.amplitude = 2
 
+        self.tol = 1e-8
+
         self.create_layers()
         self.create_biases_and_weights()
 
@@ -151,14 +153,15 @@ class NeuralNetwork:
         """[summary]
         """
         self.backpropagation()
-        for l in range(1, self.L):
-            self.vel_weights[l] = self.gamma * self.vel_weights[l] + self.eta * (
-                self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l] * self.lmbd)
-            self.weights[l] -= self.vel_weights[l]
+        if self.check_grad > self.tol and np.isfinite(self.check_grad):
+            for l in range(1, self.L):
+                self.vel_weights[l] = self.gamma * self.vel_weights[l] + self.eta * (
+                    self.local_gradient[l].T @ self.layers_a[l - 1] + self.weights[l] * self.lmbd)
+                self.weights[l] -= self.vel_weights[l]
 
-            self.vel_bias[l] = self.gamma * self.vel_bias[l] + \
-                self.eta * np.mean(self.local_gradient[l], axis=0)
-            self.bias[l] -= self.vel_bias[l]
+                self.vel_bias[l] = self.gamma * self.vel_bias[l] + \
+                    self.eta * np.mean(self.local_gradient[l], axis=0)
+                self.bias[l] -= self.vel_bias[l]
 
     def feed_forward(self):
         """[summary]
@@ -168,6 +171,7 @@ class NeuralNetwork:
                 self.bias[l][np.newaxis, :]
             self.layers_z[l] = Z_l
             self.layers_a[l] = self.activation(Z_l)
+
 
     def backpropagation(self):
         """
@@ -181,6 +185,8 @@ class NeuralNetwork:
             self.local_gradient[l] = self.local_gradient[l + 1]\
                 @ self.weights[l + 1] * self.activation_der(self.layers_z[l])
         print(np.linalg.norm(self.local_gradient[-1]))
+
+        self.check_grad = np.linalg.norm(self.local_gradient[-1]*self.eta)
 
     def predict(self, X):
         """
@@ -202,22 +208,26 @@ class NeuralNetwork:
         Args:
             epochs ([type]): [description]
         """
-        self.num_epochs = epochs
         self.score = np.zeros((epochs + 1, self.score_shape))
+        self.check_grad = 1
+        epoch = 0
 
-        for epoch in range(epochs):
-            batches = self.get_batches()
-            self.score[epoch] = self.get_score(self.X, self.T)
-            self.callback_print(epoch, self.score[epoch])
+
+        self.score[epoch] = self.get_score(self.X, self.T)
+        self.callback_print(epoch, self.score[epoch])
+
+        while epoch < epochs and self.check_grad > self.tol and np.isfinite(self.check_grad):
             self.eta_func(epoch)
+            batches = self.get_batches()
             for batch in batches:
                 self.choose_mini_batch(batch)
                 self.feed_forward()
                 self.update_parameters()
-        epoch += 1
-        self.score[epoch] = self.get_score(self.X, self.T)
+            self.score[epoch] = self.get_score(self.X, self.T)
+            self.callback_print(epoch, self.score[epoch])
+            epoch += 1
+        self.num_epochs = epoch
 
-        self.callback_print(epoch, self.score[epoch])
 
     def plot_score_history(self, name=None):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -228,8 +238,9 @@ class NeuralNetwork:
             linestyle = "--"
             marker = "o"
         markersize = 3
-        plt.plot(np.linspace(0, self.num_epochs, self.num_epochs + 1),
-                 self.score, linestyle=linestyle, marker=marker, markersize=markersize)
+
+        plt.plot(np.linspace(0, self.num_epochs, self.num_epochs),
+                 self.score[:self.num_epochs], linestyle=linestyle, marker=marker, markersize=markersize)
         plt.xlabel("epoch", fontsize=14)
         plt.ylabel(self.callback_label, fontsize=14)
         if self.score.shape[1] > 1:
@@ -388,8 +399,8 @@ class NeuralNetwork:
 
     def set_eta_decay(self, k, dropp_time):
         self.amplitude = 1
-        self.k = k
-        self.dropp_time = dropp_time
+        self.k = k #steepness
+        self.dropp_time = dropp_time #time of half decay
 
 
 
