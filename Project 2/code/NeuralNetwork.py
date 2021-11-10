@@ -78,9 +78,10 @@ class NeuralNetwork:
             self.cost = self.cross_entropy
         self.activation_der = elementwise_grad(self.activation)
         self.cost_der = elementwise_grad(self.cost)
-
+        self.score_shape = 1
         if loss == "accuracy":
             self.score_func = self.accuracy_score
+            self.score_shape = self.num_categories
         elif loss == "MSE":
             self.score_func = self.MSE_score
         elif loss == "R2":
@@ -143,7 +144,6 @@ class NeuralNetwork:
             self.vel_weights.append(np.zeros(np.shape(self.weights[i])))
             self.vel_bias.append(np.zeros(np.shape(self.bias[i])))
 
-
         # local gradient
         self.local_gradient = self.layers_a.copy()  # also called error
         self.local_gradient[0] = np.nan  # don't use first
@@ -203,8 +203,9 @@ class NeuralNetwork:
             epochs ([type]): [description]
         """
         self.num_epochs = epochs
-        self.score = np.zeros((epochs+1, self.num_categories))
 
+
+        self.score = np.zeros((epochs +1, self.score_shape))
 
         if not self.callback:
             for epoch in range(epochs):
@@ -214,8 +215,8 @@ class NeuralNetwork:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
                     self.update_parameters()
-                epoch += 1
-                self.score[epoch] = self.get_score(self.X, self.T)
+            epoch += 1
+            self.score[epoch] = self.get_score(self.X, self.T)
         else:
             for epoch in range(epochs):
                 batches = self.get_batches()
@@ -225,9 +226,10 @@ class NeuralNetwork:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
                     self.update_parameters()
-                epoch += 1
-                self.score[epoch] = self.get_score(self.X, self.T)
-                self.callback_print(epoch, self.score[epoch]) # print
+            epoch += 1
+            self.score[epoch] = self.get_score(self.X, self.T)
+
+            self.callback_print(epoch, self.score[epoch]) # print
 
 
     def plot_score_history(self, name = None):
@@ -384,7 +386,7 @@ class NeuralNetwork:
         Returns:
             [type]: [description]
         """
-        return (y_tilde - self.T)**2
+        return (y_tilde - self.t)**2
 
 
 
