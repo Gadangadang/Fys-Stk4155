@@ -40,11 +40,11 @@ if __name__ == "__main__":
     gamma = 0.9
     seed = 4155
     n_categories = 1
-    epochs = int(500)
+    epochs = int(200)
     batch_size = int(50)
 
 
-    etas = np.logspace(-5, -3, 3)
+    etas = np.logspace(-5, -1, 3)
     lmbds = np.logspace(-1, 0, 3)
 
 

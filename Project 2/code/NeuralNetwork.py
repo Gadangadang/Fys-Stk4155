@@ -25,7 +25,8 @@ class NeuralNetwork:
                  activation="sigmoid",
                  cost="MSE",
                  loss = "MSE",
-                 callback = False):
+                 callback = False,
+                 ):
         """[summary]
 
         Args:
@@ -55,10 +56,14 @@ class NeuralNetwork:
         self.L = self.num_hidden_layers + 2  # number of layer in total
 
         self.batch_size = batch_size
-        self.eta = eta
         self.lmbd = lmbd
         self.gamma = gamma
         self.seed = seed
+
+        self.eta_0 = eta
+        self.k = 0
+        self.dropp_time = 0
+        self.amplitude = 2
 
         self.create_layers()
         self.create_biases_and_weights()
@@ -211,6 +216,7 @@ class NeuralNetwork:
             for epoch in range(epochs):
                 batches = self.get_batches()
                 self.score[epoch] = self.get_score(self.X, self.T)
+                self.eta_func(epoch)
                 for batch in batches:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
@@ -222,6 +228,7 @@ class NeuralNetwork:
                 batches = self.get_batches()
                 self.score[epoch] = self.get_score(self.X, self.T)
                 self.callback_print(epoch, self.score[epoch]) # print
+                self.eta_func(epoch)
                 for batch in batches:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
@@ -336,8 +343,6 @@ class NeuralNetwork:
         return val_exp / (np.sum(val_exp, axis=1, keepdims=True))
 
 
-
-
     def get_score(self, X, target):
         self.layers_a[0] = X
         self.feed_forward()
@@ -400,6 +405,20 @@ class NeuralNetwork:
             [type]: [description]
         """
         return -(self.t * np.log(y_tilde) + (1 - self.t) * np.log(1 - y_tilde))
+
+    """
+    Eta functions
+    """
+
+    def eta_func(self, epoch):
+        self.eta = self.eta_0 * self.amplitude*self.sigmoid_activation(self.k*(self.dropp_time-epoch))
+
+    def set_eta_decay(self, k, dropp_time):
+        self.amplitude = 1
+        self.k = k
+        self.dropp_time = dropp_time
+
+
 
     def __str__(self):
         text = "Information of the Neural Network \n"

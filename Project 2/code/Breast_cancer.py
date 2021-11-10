@@ -28,7 +28,7 @@ if __name__ == "__main__":
     for i in features:
         temp = np.reshape(x[:,i],(len(x[:,i]),1))
         X=np.hstack((X,temp))
-        
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     X_train, X_test = standard_scale(X_train, X_test)
 
@@ -66,7 +66,6 @@ if __name__ == "__main__":
                                cost="cross_entropy",
                                loss = "accuracy",
                                callback = True)
-
             NN.train_network_stochastic(int(epochs), plot = False)
             test_scores[i][j] = NN.get_score(X_test, y_test)
 
