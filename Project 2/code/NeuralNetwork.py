@@ -91,6 +91,16 @@ class NeuralNetwork:
         self.callback = callback
         self.callback_label = loss
 
+        if callback:
+            self.callback_print = lambda epoch, score_epoch: print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
+        else:
+             self.callback_print = lambda epoch, score_epoch: None
+
+
+        # def callback_print(self, epoch, score_epoch):
+        #     print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
+
+
 
 
 
@@ -249,8 +259,6 @@ class NeuralNetwork:
         plt.show()
 
 
-    def callback_print(self, epoch, score_epoch):
-        print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
 
 
 
@@ -408,7 +416,6 @@ class NeuralNetwork:
 
 
 
-
 if __name__ == "__main__":
     # Get modules from project 1
     path = os.getcwd()  # Current working directory
@@ -441,7 +448,7 @@ if __name__ == "__main__":
                        activation="sigmoid",
                        cost="MSE",
                        loss = "R2",
-                       callback = True)
+                       callback = False)
 
 
     NN.train_network_stochastic(epochs, plot = False)

@@ -3,10 +3,17 @@ import matplotlib.pyplot as plt
 
 from NeuralNetwork import NeuralNetwork
 # from find_hyperparameters import *
+import os
+import sys
+path = os.getcwd()  # Current working directory
+path += '/../../Project 1/code'
+sys.path.append(path)
+from Functions import *
 
 # sklearn classifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 
 # Tensorflow
 from tensorflow import keras
@@ -41,7 +48,7 @@ def logic_gates():
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
-    epochs = 100
+    epochs = 90
 
     NN = NeuralNetwork(X, y_gates,
                              num_hidden_layers,
@@ -64,6 +71,75 @@ def logic_gates():
 
 def Franke_NN():
     print("work here sakki")
+
+    np.random.seed(0)
+    noise = 0.2
+    N = 100
+    x = np.random.uniform(0, 1, N)
+    y = np.random.uniform(0, 1, N)
+
+    X = np.array([x,y]).T
+
+    #exit()
+    z = FrankeFunction(x, y) + noise * np.random.randn(N)
+    z = z.reshape(N, 1)
+
+    X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
+    X_train, X_test = mean_scale(X_train, X_test)
+
+    print(X_train.shape, Z_train.shape)
+
+    eta = 0.001
+    epochs = 100
+    gamma = 0
+    lmbd = 0.0
+    lay = 2
+    nodes = 50
+    batch_size = 15
+
+    NN = NeuralNetwork(X_train,
+                       Z_train,
+                       num_hidden_layers=lay,
+                       num_hidden_nodes=nodes,
+                       batch_size=batch_size,
+                       eta=eta,
+                       lmbd=lmbd,
+                       gamma = gamma,
+                       seed=4155,
+                       activation="sigmoid",
+                       cost="MSE",
+                       loss = "R2",
+                       callback = False)
+
+
+    NN.train_network_stochastic(epochs, plot = False)
+    print("R2 score : ", NN.get_score(X_test, Z_test))
+
+    NN = NeuralNetwork(X_train,
+                       Z_train,
+                       num_hidden_layers=lay,
+                       num_hidden_nodes=nodes,
+                       batch_size=batch_size,
+                       eta=eta,
+                       lmbd=lmbd,
+                       gamma = gamma,
+                       seed=4155,
+                       activation="sigmoid",
+                       cost="MSE",
+                       loss = "MSE",
+                       callback = False)
+
+
+    NN.train_network_stochastic(epochs, plot = False)
+    print("MSE score : ", NN.get_score(X_test, Z_test))
+
+
+
+
+
+
+
+
 
 
 def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
@@ -281,3 +357,4 @@ if __name__ == "__main__":
     # tensorflow_copy()
     # multiple_categories_test()
     # XOR_manuel()
+    Franke_NN()
