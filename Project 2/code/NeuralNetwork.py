@@ -85,8 +85,8 @@ class NeuralNetwork:
             self.score_func = self.MSE_score
         elif loss == "R2":
             self.score_func = self.R2_score
-        elif loss == "softmax":
-            self.score_func = self.softmax_score
+        elif loss == "probability":
+            self.score_func = self.probability_score
 
         self.callback = callback
         self.callback_label = loss
@@ -356,17 +356,18 @@ class NeuralNetwork:
     def R2_score(self, X, target):
         ymod = self.predict(X)
         target = target
-
         return 1-np.sum((target - ymod)**2) /\
                np.sum((target - np.mean(target, axis=0) ** 2))
 
-    def softmax_score(self, X, target):
-        pass
+    def probability_score(self, X, target):
+        self.layers_a[0] = X
+        self.feed_forward()
 
-        # pred = self.soft_max_activation(self.layers_z[-1])
-        # guess = np.argmax(pred, axis=1)
-        # target = np.argmax(target, axis=1)
-        # val = np.sum(guess == target)/len(target)
+        pred = self.soft_max_activation(self.layers_z[-1])
+        guess = np.argmax(pred, axis=1)
+        target = np.argmax(target, axis=1)
+        val = np.sum(guess == target)/len(target)
+        pass
 
     """
     Cost funtions
