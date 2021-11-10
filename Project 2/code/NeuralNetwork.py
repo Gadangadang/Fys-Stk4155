@@ -4,6 +4,7 @@ import autograd.numpy as np
 from autograd import elementwise_grad
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from plot_set import *
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
@@ -228,14 +229,25 @@ class NeuralNetwork:
             self.callback_print(epoch, score[epoch])
 
             if plot:
-                plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-                plt.plot(np.linspace(0,epochs, epochs+1), score, "o-")
-                plt.xlabel(r"$epoch$", fontsize=14)
-                plt.ylabel(self.callback_label, fontsize=14)
-                plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-                # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
-                plt.show()
+                self.plot_callback_score(epochs, score)
 
+
+    def plot_callback_score(self, epochs, score):
+        plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+        if epochs > 100:
+            linestyle = "-"
+            marker = "None"
+        else:
+            linestyle = "--"
+            marker = "o"
+        markersize = 4
+        plt.plot(np.linspace(0, epochs, epochs+1), score, linestyle=linestyle, marker=marker, markersize=markersize)
+        plt.xlabel("epoch", fontsize=14)
+        plt.ylabel(self.callback_label, fontsize=14)
+        if score.shape[1] > 1:
+            plt.legend(["category " + str(i) for i in range(score.shape[1])], fontsize = 13)
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        plt.show()
 
 
     # def R2_loss(self):
@@ -345,7 +357,7 @@ class NeuralNetwork:
         return np.mean((pred - target)**2)
 
     def R2_score(self, X, target):
-        t_model = self.predict(self.X)
+        t_model = self.predict(X)
         return 1-np.sum((target.ravel() - t_model.ravel())**2) / np.sum((target.ravel() - np.mean(target.ravel())) ** 2)
 
 

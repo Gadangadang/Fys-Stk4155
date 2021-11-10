@@ -23,6 +23,6 @@ def color_cycle(num_color):
 # plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
 # plt.xlabel(r"$x$", fontsize=14)
 # plt.ylabel(r"$y$", fontsize=14)
-# plt.legend(fontsize = 13)
+# plt.legend()
 # plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")

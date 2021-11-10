@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from NeuralNetwork import NeuralNetwork
-from find_hyperparameters import *
+# from find_hyperparameters import *
 
 # sklearn classifier
 from sklearn.neural_network import MLPClassifier
@@ -17,33 +17,16 @@ from tensorflow.keras import optimizers             #This allows using whichever
 from tensorflow.keras import regularizers           #This allows using whichever regularizer we want (l1,l2,l1_l2)
 
 
-
-def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
-    n_inputs, n_features = X.shape
-    hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
-    dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes, 
-                        activation = activation_func,
-                        alpha= lmbd,
-                        learning_rate_init = eta,
-                        max_iter = epochs )
-    dnn.fit(X, y)
-    test_pred = dnn.predict(X)
-    test_accuracy = accuracy_score(y, test_pred)
-    return test_pred, test_accuracy
-
 def logic_gates():
-    # Input for logic gates
+    # Input
     x1 = np.array([0, 0, 1, 1])
     x2 = np.array([0, 1, 0, 1])
     X = np.array([x1, x2]).T # Design matrix
 
-
-    # Types of logical gates
+    # Output
     y_AND = np.array([0, 0, 0, 1]) # And
     y_OR =  np.array([0, 1, 1, 1]) # Or
     y_XOR = np.array([0, 1, 1, 0]) # Exclusive OR
-
-    # Output for logic gates
     y_gates = np.array([y_AND, y_OR, y_XOR]).T
 
 
@@ -56,11 +39,9 @@ def logic_gates():
     lmbd = 0
     gamma = 0
 
-
     activation = "sigmoid"
     cost_func = "cross_entropy"
-    epochs = 100
-
+    epochs = 90
 
     NN = NeuralNetwork(X, y_gates,
                              num_hidden_layers,
@@ -72,71 +53,58 @@ def logic_gates():
                              seed=4155,
                              activation=activation,
                              cost=cost_func,
-                             callback = "accuracy")
+                             loss = "accuracy",
+                             callback = True)
 
     NN.train_network_stochastic(epochs, plot = True)
 
 
     exit()
-    find_hyperparameters(X, X, y, y,
-                             epochs,
+    # sklearn_pred, sklearn_accuracy = sklearn_NN(X, y.ravel(), eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
+    NN = NeuralNetwork(X, y,
                              num_hidden_layers,
                              num_hidden_nodes,
                              batch_size,
-                             etas,
-                             lmbds,
-                             activation,
-                             cost_func,
-                             name = 0,
-                             return_best = False)
+                             eta,
+                             lmbd,
+                             gamma,
+                             seed=4155,
+                             activation=activation,
+                             cost=cost_func)
 
+
+    NN.train_network_stochastic(epochs)
 
     exit()
-    for i, y in enumerate(y_gates):
-        # sklearn_pred, sklearn_accuracy = sklearn_NN(X, y_OR, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
-        y = y.reshape(4,1)
-        input()
+    accuracy = NN.accuracy_score(X, y)
+    NN_pred = np.round(NN.predict(X)).ravel()
+    NN_pred = NN.predict(X)
 
 
-        # find_hyperparameters(X,
-        #                          y,
-        #                          epochs,
-        #                          num_hidden_layers,
-        #                          num_hidden_nodes,
-        #                          batch_size,
-        #                          etas,
-        #                          lmbds,
-        #                          activation,
-        #                          cost_func,
-        #                          name = 0,
-        #                          scaling = "none",
-        #                          return_best = False)
+    print("sklearn, acc:", sklearn_accuracy)
+    print("sklearn, pred:", sklearn_pred)
+
+    print("NN, acc:", accuracy)
+    print("NN, pred:", NN_pred)
 
 
-        sklearn_pred, sklearn_accuracy = sklearn_NN(X, y.ravel(), eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
-        NN = NeuralNetwork(X, y,
-                                 num_hidden_layers,
-                                 num_hidden_nodes,
-                                 batch_size,
-                                 eta,
-                                 lmbd,
-                                 gamma,
-                                 seed=4155,
-                                 activation=activation,
-                                 cost=cost_func)
+def Franke_NN():
+    print("work here sakki")
 
 
-        NN.train_network_stochastic(epochs)
-        accuracy = NN.accuracy_score(X, y)
-        NN_pred = np.round(NN.predict(X)).ravel()
-        NN_pred = NN.predict(X)
+def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
+    n_inputs, n_features = X.shape
+    hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
+    dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes,
+                        activation = activation_func,
+                        alpha= lmbd,
+                        learning_rate_init = eta,
+                        max_iter = epochs )
+    dnn.fit(X, y)
+    test_pred = dnn.predict(X)
+    test_accuracy = accuracy_score(y, test_pred)
+    return test_pred, test_accuracy
 
-
-        print("sklearn, acc:", sklearn_accuracy)
-        print("sklearn, pred:", sklearn_pred)
-
-        print("NN, acc:", accuracy)
-        print("NN, pred:", NN_pred)
 
 
 
