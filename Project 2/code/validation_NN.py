@@ -24,7 +24,7 @@ from tensorflow.keras import optimizers             #This allows using whichever
 from tensorflow.keras import regularizers           #This allows using whichever regularizer we want (l1,l2,l1_l2)
 
 
-def logic_gates():
+def get_logic_gates():
     # Input
     x1 = np.array([0, 0, 1, 1])
     x2 = np.array([0, 1, 0, 1])
@@ -36,6 +36,11 @@ def logic_gates():
     y_XOR = np.array([0, 1, 1, 0]) # Exclusive OR
     y_gates = np.array([y_AND, y_OR, y_XOR]).T
 
+    return X, y_gates
+
+
+def logic_gates_NN():
+    X, y_gates = get_logic_gates()
 
     # NN architecture
     num_hidden_layers = 1
@@ -66,6 +71,34 @@ def logic_gates():
     NN.train_network_stochastic(epochs)
     NN.plot_score_history(name = "logic_gates")
     final_accuracy = NN.get_score(NN.X, NN.T)
+
+
+def logic_gates_OLS():
+    X, y_gates = get_logic_gates()
+    gates = ["AND", "OR", "XOR"]
+    for i in range(y_gates.shape[1]):
+        y = y_gates[:,i].reshape(4,1)
+        theta_OLS = OLS_regression(X, y)
+        pred = np.around(X @ theta_OLS)
+        print(f"{gates[i]}-gate prediction: {pred}")
+
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+
+
+    plt.plot([X[0,0], X[3,0]], [X[0,1], X[3,1]], "o", markersize = 10, label = "y = 0")
+    plt.plot(X[1:3,0], X[1:3,1], "o", marker = "P", markersize = 10, label = "y = 1")
+    plt.xticks([0,1])
+    plt.yticks([0,1])
+
+    plt.xlabel(r"$x_1$", fontsize=14)
+    plt.ylabel(r"$x_2$", fontsize=14)
+    plt.legend(loc = "center", fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/XOR_graphic.pdf", bbox_inches="tight")
+    plt.show()
+
+
+
 
 
 
@@ -351,10 +384,11 @@ def XOR_manuel():
 
 
 if __name__ == "__main__":
-    logic_gates()
+    # logic_gates_NN()
+    logic_gates_OLS()
     # tensorflow_logic_gates()
     # morten_test()
     # tensorflow_copy()
     # multiple_categories_test()
     # XOR_manuel()
-    Franke_NN()
+    # Franke_NN()

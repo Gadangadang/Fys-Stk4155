@@ -180,6 +180,7 @@ class NeuralNetwork:
         for l in reversed(range(1, self.L - 1)):
             self.local_gradient[l] = self.local_gradient[l + 1]\
                 @ self.weights[l + 1] * self.activation_der(self.layers_z[l])
+        print(np.linalg.norm(self.local_gradient[-1]))
 
     def predict(self, X):
         """
