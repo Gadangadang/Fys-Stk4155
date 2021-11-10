@@ -384,7 +384,7 @@ class NeuralNetwork:
         Returns:
             [type]: [description]
         """
-        return (y_tilde - self.T)**2
+        return (y_tilde - self.t)**2
 
 
 
