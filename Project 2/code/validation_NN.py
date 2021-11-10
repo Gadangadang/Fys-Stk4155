@@ -39,10 +39,10 @@ def logic_gates():
 
     # NN architecture
     num_hidden_layers = 1
-    num_hidden_nodes = 16
+    num_hidden_nodes = 4
     batch_size = 4 # Full GD
     n_categories = 1
-    eta = 1e-1
+    eta = 0.8
     lmbd = 0
     gamma = 0
 
@@ -63,36 +63,10 @@ def logic_gates():
                              loss = "accuracy",
                              callback = True)
 
-    NN.train_network_stochastic(epochs, plot = True)
-
-
-    exit()
-    # sklearn_pred, sklearn_accuracy = sklearn_NN(X, y.ravel(), eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
-    NN = NeuralNetwork(X, y,
-                             num_hidden_layers,
-                             num_hidden_nodes,
-                             batch_size,
-                             eta,
-                             lmbd,
-                             gamma,
-                             seed=4155,
-                             activation=activation,
-                             cost=cost_func)
-
-
     NN.train_network_stochastic(epochs)
+    NN.plot_score_history(name = "logic_gates")
+    final_accuracy = NN.get_score(NN.X, NN.T)
 
-    exit()
-    accuracy = NN.accuracy_score(X, y)
-    NN_pred = np.round(NN.predict(X)).ravel()
-    NN_pred = NN.predict(X)
-
-
-    print("sklearn, acc:", sklearn_accuracy)
-    print("sklearn, pred:", sklearn_pred)
-
-    print("NN, acc:", accuracy)
-    print("NN, pred:", NN_pred)
 
 
 def Franke_NN():
@@ -377,7 +351,7 @@ def XOR_manuel():
 
 
 if __name__ == "__main__":
-    #logic_gates()
+    logic_gates()
     # tensorflow_logic_gates()
     # morten_test()
     # tensorflow_copy()

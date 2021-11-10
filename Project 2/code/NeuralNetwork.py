@@ -93,8 +93,11 @@ class NeuralNetwork:
         elif loss == "probability":
             self.score_func = self.probability_score
 
-        self.callback = callback
         self.callback_label = loss
+        if callback:
+            self.callback_print = lambda epoch, score_epoch: print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
+        else:
+             self.callback_print = lambda epoch, score_epoch: None
 
     def create_layers(self):
         """
@@ -202,34 +205,21 @@ class NeuralNetwork:
             epochs ([type]): [description]
         """
         self.num_epochs = epochs
-
         self.score = np.zeros((epochs + 1, self.score_shape))
 
-        if not self.callback:
-            for epoch in range(epochs):
-                batches = self.get_batches()
-                self.score[epoch] = self.get_score(self.X, self.T)
-                self.eta_func(epoch)
-                for batch in batches:
-                    self.choose_mini_batch(batch)
-                    self.feed_forward()
-                    self.update_parameters()
-            epoch += 1
+        for epoch in range(epochs):
+            batches = self.get_batches()
             self.score[epoch] = self.get_score(self.X, self.T)
-        else:
-            for epoch in range(epochs):
-                batches = self.get_batches()
-                self.score[epoch] = self.get_score(self.X, self.T)
-                self.callback_print(epoch, self.score[epoch]) # print
-                self.eta_func(epoch)
-                for batch in batches:
-                    self.choose_mini_batch(batch)
-                    self.feed_forward()
-                    self.update_parameters()
-            epoch += 1
-            self.score[epoch] = self.get_score(self.X, self.T)
+            self.callback_print(epoch, self.score[epoch])
+            self.eta_func(epoch)
+            for batch in batches:
+                self.choose_mini_batch(batch)
+                self.feed_forward()
+                self.update_parameters()
+        epoch += 1
+        self.score[epoch] = self.get_score(self.X, self.T)
 
-            self.callback_print(epoch, self.score[epoch])  # print
+        self.callback_print(epoch, self.score[epoch])
 
     def plot_score_history(self, name=None):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -249,12 +239,11 @@ class NeuralNetwork:
                        for i in range(self.score.shape[1])], fontsize=13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         if isinstance(name, str):
-            plt.savefig(f"../article/figures/score_history_{name}.pdf",
-                        bbox_inches="tight")
+            plt.savefig(f"../article/figures/{name}_score_history.pdf",
+                    bbox_inches="tight")
         plt.show()
 
-    def callback_print(self, epoch, score_epoch):
-        print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
+
 
     def get_batches(self):
         idx = np.arange(self.N)
@@ -414,6 +403,7 @@ class NeuralNetwork:
         text += "Number of features: {} \n".format(self.X.shape[1])
 
         return text
+
 
 
 if __name__ == "__main__":
