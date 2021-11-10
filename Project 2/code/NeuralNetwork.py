@@ -240,11 +240,11 @@ class NeuralNetwork:
 
     def MSE_callback(self):
         t_model = self.predict(self.X)
-        return np.mean((self.t.ravel() - t_model.ravel())**2)
+        return np.mean((self.T.ravel() - t_model.ravel())**2)
 
     # def R2_callback(self):
     #     t_model = self.predict(self.X)
-    #     return 1-np.sum((self.t.ravel() - t_model.ravel())**2) / np.sum((self.t.ravel() - np.mean(self.t.ravel())) ** 2)
+    #     return 1-np.sum((self.T.ravel() - t_model.ravel())**2) / np.sum((self.T.ravel() - np.mean(self.T.ravel())) ** 2)
 
     def accuracy_callback(self): # write this
         return self.accuracy_score(self.X, self.T)
