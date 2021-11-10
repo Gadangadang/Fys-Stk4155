@@ -255,6 +255,7 @@ class NeuralNetwork:
         plt.show()
 
 
+
     def get_batches(self):
         idx = np.arange(self.N)
         np.random.shuffle(idx)
@@ -340,10 +341,12 @@ class NeuralNetwork:
         return self.score_func(X, target)
 
     def accuracy_score(self, X, target):
+        """[summary]"""
         pred = np.around(self.predict(X))
         hits = np.sum(np.around(pred) == target, axis=0)
         possible = target.shape[0]
         acc = hits / possible
+
         return acc
 
     def MSE_score(self, X, target):
