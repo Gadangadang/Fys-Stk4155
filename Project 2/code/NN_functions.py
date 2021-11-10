@@ -33,13 +33,13 @@ def plot_heatmap(test_scores, param1, param2, title = None, name = None):
     param2_label, param2_vals = param2
     fig, ax = plt.subplots(figsize = (7, 7))
     sns.set()
-    sns.heatmap(test_scores, xticklabels = param1_vals, yticklabels = param2_vals, annot=True, ax=ax, cmap="viridis")
+    sns.heatmap(test_scores, xticklabels = param1_vals, yticklabels = param2_vals, annot=True, ax=ax)
     if isinstance(title, str):
         ax.set_title(title)
     else:
         ax.set_title("Test accuracy")
-    ax.set_ylabel(param1_label)
-    ax.set_xlabel(param2_label)
+    ax.set_xlabel(param1_label)
+    ax.set_ylabel(param2_label)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.subplots_adjust(hspace=0.3)
     if isinstance(name, str):

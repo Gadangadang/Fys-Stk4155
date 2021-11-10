@@ -44,8 +44,8 @@ if __name__ == "__main__":
     batch_size = int(50)
 
 
-    etas = np.logspace(-4, -1, 3)
-    lmbds = [np.logspace(-1, 0, 3)]
+    etas = np.logspace(-4, -2.5, 5)
+    lmbds = np.logspace(-4, -2, 5)
 
 
     activation = "sigmoid"
@@ -53,27 +53,11 @@ if __name__ == "__main__":
     loss = "probability"
     test_scores = np.zeros((len(etas), len(lmbds)))
 
-    NN = NeuralNetwork(X_train,
-                       y_train,
-                       num_hidden_layers,
-                       num_hidden_nodes,
-                       batch_size,
-                       1e-4,
-                       0,
-                       gamma,
-                       seed,
-                       activation,
-                       cost="cross_entropy",
-                       loss = "probability",
-                       callback = True)
-    #NN.set_eta_decay( 1, 60)
-    NN.train_network_stochastic(int(epochs))
-    NN.plot_score_history()
-    exit()
+    
 
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
-            print(f"\r(eta_val, lmbd_val) = ({eta[i]},{lmbds[j]})/({len(etas)-1},{len(lmbds)-1})", end="")
+            print(f"\r(eta_val, lmbd_val) = ({eta},{lmbd})", end="")
             NN = NeuralNetwork(X_train,
                                y_train,
                                num_hidden_layers,
@@ -91,7 +75,7 @@ if __name__ == "__main__":
             NN.train_network_stochastic(int(epochs), plot = False)
             test_scores[i][j] = NN.get_score(X_test, y_test)
 
-    plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = None, name = None)
+    plot_heatmap(test_scores, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = None, name = None)
     indx = np.where(test_scores == np.max(test_scores))
 
 
