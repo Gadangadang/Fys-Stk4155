@@ -74,7 +74,7 @@ def Franke_NN():
 
     np.random.seed(0)
     noise = 0.2
-    N = 100
+    N = 30
     x = np.random.uniform(0, 1, N)
     y = np.random.uniform(0, 1, N)
 
@@ -87,7 +87,7 @@ def Franke_NN():
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
     X_train, X_test = mean_scale(X_train, X_test)
 
-    print(X_train.shape, Z_train.shape)
+    #print(X_train.shape, Z_train.shape)
 
     eta = 0.001
     epochs = 100
@@ -130,11 +130,9 @@ def Franke_NN():
                        callback = False)
 
 
+
     NN.train_network_stochastic(epochs, plot = False)
     print("MSE score : ", NN.get_score(X_test, Z_test))
-
-
-
 
 
 
@@ -351,7 +349,7 @@ def XOR_manuel():
 
 
 if __name__ == "__main__":
-    logic_gates()
+    #logic_gates()
     # tensorflow_logic_gates()
     # morten_test()
     # tensorflow_copy()

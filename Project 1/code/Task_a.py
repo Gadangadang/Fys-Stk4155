@@ -95,8 +95,8 @@ def confidence_plot(conf_int_train, conf_int_test):
 
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.subplots_adjust(hspace=0.3)
-    plt.savefig("../article/figures/confidence_interval.pdf",
-                bbox_inches="tight")
+    #plt.savefig("../article/figures/confidence_interval.pdf",
+    #            bbox_inches="tight")
 
     plt.show()
 
@@ -153,9 +153,9 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
 if __name__ == "__main__":
 
     #--- settings ---#
-    N = 25             # Number of points in each dimension
+    N = 30             # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
-    n = 5               # Highest order of polynomial for X
+    n = 6               # Highest order of polynomial for X
 
     # Create data and set up design matrix
     x, y, z = generate_data(N, z_noise)
