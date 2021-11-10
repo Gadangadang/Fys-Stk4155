@@ -249,7 +249,6 @@ def tensorflow_logic_gates():
 
 
 
-
 def tensorflow_copy():
     import numpy as np
     from keras.models import Sequential
@@ -275,102 +274,8 @@ def tensorflow_copy():
 
 
 
-def multiple_categories_test():
-    # Input for logic gates
-    x1 = np.array([0, 0, 1, 1])
-    x2 = np.array([0, 1, 0, 1])
-    X = np.array([x1, x2]).T # Design matrix
-
-    y = np.array([[0, 0, 0, 1], [0, 1, 1, 1], [0, 1, 1, 0]]).T #AND, OR, XOR
 
 
-    # NN architecture
-    num_hidden_layers = 1
-    num_hidden_nodes = 2
-    batch_size = 4 # Full GD
-    eta = 1
-    lmbd = 1e-5
-    gamma = 0
-
-    activation = "sigmoid"
-    # cost_func = "MSE"
-    cost_func = "cross_entropy"
-    epochs = 1000
-
-    y = y[:,2].reshape(4,1)
-
-    etas = np.logspace(1,-1,3)
-    lmbds = np.logspace(-2,-8,7)
-
-    # etas = np.logspace(2,-5,8)
-    # lmbds = np.logspace(-2,-8,7)
-
-    # eta, lmbd, acc = find_hyperparameters(X, X, y, y,
-    #                                         num_hidden_layers,
-    #                                         num_hidden_nodes,
-    #                                         batch_size,
-    #                                         etas,
-    #                                         lmbds,
-    #                                         gamma,
-    #                                         epochs,
-    #                                         activation=activation,
-    #                                         cost=cost_func,
-    #                                         seed=4155,
-    #                                         name = 0,
-    #                                         return_best = True)
-    #
-    #
-    # exit()
-    NN = NeuralNetwork(X, y,
-                             num_hidden_layers,
-                             num_hidden_nodes,
-                             batch_size,
-                             eta,
-                             lmbd,
-                             gamma,
-                             seed=4155,
-                             activation=activation,
-                             cost=cost_func,
-                             callback = "accuracy")
-
-    NN.train_network_stochastic(epochs, plot = False)
-    accuracy = NN.accuracy_score(NN.X, NN.T)
-    NN_pred = np.round(NN.predict(X)).ravel()
-    NN_pred = NN.predict(NN.X)
-
-    print(accuracy)
-    print(NN_pred)
-
-
-def XOR_manuel():
-
-
-    # NN architecture
-    num_hidden_layers = 1
-    num_hidden_nodes = 2
-    batch_size = 5 # Full GD
-    eta = 1
-    lmbd = 1e-5
-    gamma = 0
-
-    activation = "sigmoid"
-    # cost_func = "MSE"
-    cost_func = "cross_entropy"
-    epochs = 1000
-
-
-
-    x1 = np.array([0, 0, 1, 1])
-    x2 = np.array([0, 1, 0, 1])
-    X = np.array([x1, x2]).T # Design matrix
-
-    y_XOR = np.array([0, 1, 1, 0]).reshape(4,1)
-
-
-    NN = NeuralNetwork(X, y_XOR, num_hidden_layers = 1, num_hidden_nodes = 2)
-    #
-    # print(NN.weights)
-    # print(NN.bias)
 
 
 
@@ -386,8 +291,5 @@ if __name__ == "__main__":
     # logic_gates_NN()
     logic_gates_OLS()
     # tensorflow_logic_gates()
-    # morten_test()
     # tensorflow_copy()
-    # multiple_categories_test()
-    # XOR_manuel()
     # Franke_NN()
