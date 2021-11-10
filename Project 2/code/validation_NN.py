@@ -24,7 +24,7 @@ from tensorflow.keras import optimizers             #This allows using whichever
 from tensorflow.keras import regularizers           #This allows using whichever regularizer we want (l1,l2,l1_l2)
 
 
-def logic_gates():
+def get_logic_gates():
     # Input
     x1 = np.array([0, 0, 1, 1])
     x2 = np.array([0, 1, 0, 1])
@@ -36,13 +36,17 @@ def logic_gates():
     y_XOR = np.array([0, 1, 1, 0]) # Exclusive OR
     y_gates = np.array([y_AND, y_OR, y_XOR]).T
 
+    return X, y_gates
+
+
+def logic_gates_NN():
+    X, y_gates = get_logic_gates()
 
     # NN architecture
     num_hidden_layers = 1
     num_hidden_nodes = 4
     batch_size = 4 # Full GD
-    n_categories = 1
-    eta = 0.8
+    eta = 0.9
     lmbd = 0
     gamma = 0
 
@@ -64,8 +68,36 @@ def logic_gates():
                              callback = True)
 
     NN.train_network_stochastic(epochs)
-    NN.plot_score_history(name = "logic_gates")
+    NN.plot_score_history(name = "logic_gates", legend = ["AND", "OR", "XOR"])
     final_accuracy = NN.get_score(NN.X, NN.T)
+
+
+def logic_gates_OLS():
+    X, y_gates = get_logic_gates()
+    gates = ["AND", "OR", "XOR"]
+    for i in range(y_gates.shape[1]):
+        y = y_gates[:,i].reshape(4,1)
+        theta_OLS = OLS_regression(X, y)
+        pred = np.around(X @ theta_OLS)
+        print(f"{gates[i]}-gate prediction: {pred}")
+
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    # plt.figure(num=0, figsize = (3,4), facecolor='w', edgecolor='k')
+
+
+    plt.plot([X[0,0], X[3,0]], [X[0,1], X[3,1]], "o", markersize = 10, label = "y = 0")
+    plt.plot(X[1:3,0], X[1:3,1], "o", marker = "P", markersize = 10, label = "y = 1")
+    plt.xticks([0,1])    plt.yticks([0,1])
+
+    plt.xlabel(r"$x_1$", fontsize=14)
+    plt.ylabel(r"$x_2$", fontsize=14)
+    plt.legend(loc = "center", fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/XOR_graphic.pdf", bbox_inches="tight")
+    plt.show()
+
+
+
 
 
 
@@ -74,7 +106,7 @@ def Franke_NN():
 
     np.random.seed(0)
     noise = 0.2
-    N = 30
+    N = 100
     x = np.random.uniform(0, 1, N)
     y = np.random.uniform(0, 1, N)
 
@@ -87,7 +119,7 @@ def Franke_NN():
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
     X_train, X_test = mean_scale(X_train, X_test)
 
-    #print(X_train.shape, Z_train.shape)
+    print(X_train.shape, Z_train.shape)
 
     eta = 0.001
     epochs = 100
@@ -130,9 +162,11 @@ def Franke_NN():
                        callback = False)
 
 
-
     NN.train_network_stochastic(epochs, plot = False)
     print("MSE score : ", NN.get_score(X_test, Z_test))
+
+
+
 
 
 
@@ -215,7 +249,6 @@ def tensorflow_logic_gates():
 
 
 
-
 def tensorflow_copy():
     import numpy as np
     from keras.models import Sequential
@@ -241,102 +274,8 @@ def tensorflow_copy():
 
 
 
-def multiple_categories_test():
-    # Input for logic gates
-    x1 = np.array([0, 0, 1, 1])
-    x2 = np.array([0, 1, 0, 1])
-    X = np.array([x1, x2]).T # Design matrix
-
-    y = np.array([[0, 0, 0, 1], [0, 1, 1, 1], [0, 1, 1, 0]]).T #AND, OR, XOR
 
 
-    # NN architecture
-    num_hidden_layers = 1
-    num_hidden_nodes = 2
-    batch_size = 4 # Full GD
-    eta = 1
-    lmbd = 1e-5
-    gamma = 0
-
-    activation = "sigmoid"
-    # cost_func = "MSE"
-    cost_func = "cross_entropy"
-    epochs = 1000
-
-    y = y[:,2].reshape(4,1)
-
-    etas = np.logspace(1,-1,3)
-    lmbds = np.logspace(-2,-8,7)
-
-    # etas = np.logspace(2,-5,8)
-    # lmbds = np.logspace(-2,-8,7)
-
-    # eta, lmbd, acc = find_hyperparameters(X, X, y, y,
-    #                                         num_hidden_layers,
-    #                                         num_hidden_nodes,
-    #                                         batch_size,
-    #                                         etas,
-    #                                         lmbds,
-    #                                         gamma,
-    #                                         epochs,
-    #                                         activation=activation,
-    #                                         cost=cost_func,
-    #                                         seed=4155,
-    #                                         name = 0,
-    #                                         return_best = True)
-    #
-    #
-    # exit()
-    NN = NeuralNetwork(X, y,
-                             num_hidden_layers,
-                             num_hidden_nodes,
-                             batch_size,
-                             eta,
-                             lmbd,
-                             gamma,
-                             seed=4155,
-                             activation=activation,
-                             cost=cost_func,
-                             callback = "accuracy")
-
-    NN.train_network_stochastic(epochs, plot = False)
-    accuracy = NN.accuracy_score(NN.X, NN.T)
-    NN_pred = np.round(NN.predict(X)).ravel()
-    NN_pred = NN.predict(NN.X)
-
-    print(accuracy)
-    print(NN_pred)
-
-
-def XOR_manuel():
-
-
-    # NN architecture
-    num_hidden_layers = 1
-    num_hidden_nodes = 2
-    batch_size = 5 # Full GD
-    eta = 1
-    lmbd = 1e-5
-    gamma = 0
-
-    activation = "sigmoid"
-    # cost_func = "MSE"
-    cost_func = "cross_entropy"
-    epochs = 1000
-
-
-
-    x1 = np.array([0, 0, 1, 1])
-    x2 = np.array([0, 1, 0, 1])
-    X = np.array([x1, x2]).T # Design matrix
-
-    y_XOR = np.array([0, 1, 1, 0]).reshape(4,1)
-
-
-    NN = NeuralNetwork(X, y_XOR, num_hidden_layers = 1, num_hidden_nodes = 2)
-    #
-    # print(NN.weights)
-    # print(NN.bias)
 
 
 
@@ -349,15 +288,8 @@ def XOR_manuel():
 
 
 if __name__ == "__main__":
-    #logic_gates()
+    # logic_gates_NN()
+    logic_gates_OLS()
     # tensorflow_logic_gates()
-    # morten_test()
     # tensorflow_copy()
-    # multiple_categories_test()
-    # XOR_manuel()
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of e2d8cb4 (updated SGD)
     # Franke_NN()
->>>>>>> parent of e2d8cb4 (updated SGD)
