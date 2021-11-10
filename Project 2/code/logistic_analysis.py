@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 
     etas = np.logspace(-4, -1, 3)
-    lmbds = np.logspace(-1, 0, 3)
+    lmbds = [np.logspace(-1, 0, 3)]
 
 
     activation = "sigmoid"
@@ -58,14 +58,14 @@ if __name__ == "__main__":
                        num_hidden_layers,
                        num_hidden_nodes,
                        batch_size,
-                       etas[0],
-                       lmbds[0],
+                       1e-4,
+                       0,
                        gamma,
                        seed,
                        activation,
                        cost="cross_entropy",
                        loss = "probability",
-                       callback = False)
+                       callback = True)
     #NN.set_eta_decay( 1, 60)
     NN.train_network_stochastic(int(epochs))
     NN.plot_score_history()
