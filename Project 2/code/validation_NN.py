@@ -146,25 +146,9 @@ def Franke_NN():
 
 
     NN.train_network_stochastic(epochs, plot = False)
-    print("R2 score : ", NN.get_score(X_test, Z_test))
+    print("R2 score : ", NN.R2_score(X_test, Z_test))
 
-    NN = NeuralNetwork(X_train,
-                       Z_train,
-                       num_hidden_layers=lay,
-                       num_hidden_nodes=nodes,
-                       batch_size=batch_size,
-                       eta=eta,
-                       lmbd=lmbd,
-                       gamma = gamma,
-                       seed=4155,
-                       activation="sigmoid",
-                       cost="MSE",
-                       loss = "MSE",
-                       callback = False)
-
-
-    NN.train_network_stochastic(epochs, plot = False)
-    print("MSE score : ", NN.get_score(X_test, Z_test))
+    print("MSE score : ", NN.MSE_score(X_test, Z_test))
 
 
 
@@ -290,7 +274,7 @@ def tensorflow_copy():
 
 if __name__ == "__main__":
     # logic_gates_NN()
-    logic_gates_OLS()
+    #logic_gates_OLS()
     # tensorflow_logic_gates()
     # tensorflow_copy()
-    # Franke_NN()
+    Franke_NN()

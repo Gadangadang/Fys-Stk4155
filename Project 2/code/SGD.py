@@ -10,7 +10,7 @@ class SGD:
     Stochastic Gradient Descent
     with mini batches
     """
-    def __init__(self, X, y, eta_val=0.1, m = 0, num_epochs = int(1e4),  gradient_func = "Ridge", loss = "accuracy", callback = False):
+    def __init__(self, X, y, eta_val=0.1, m = 0, num_epochs = int(1e4), gamma = 0,  gradient_func = "Ridge", loss = "accuracy", callback = False):
         self.X = X
         self.N = X.shape[0] # Number of data points
         self.y = y
@@ -27,7 +27,7 @@ class SGD:
 
         self.num_epochs = num_epochs
         self.lmbd = 0   # Ridge regularization parameter
-        self.gamma = 0  # momentum parameter
+        self.gamma = gamma  # momentum parameter
         self.vel = 0    # gradient descent "velocity"
 
         # Set gradient and learning rate functions
