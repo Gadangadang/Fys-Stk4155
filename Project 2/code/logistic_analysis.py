@@ -1,8 +1,8 @@
-import matplotlib.pyplot as plt
 from sklearn import datasets, svm, metrics
 from SGD import *
 from NN_functions import *
 from NeuralNetwork import NeuralNetwork
+from sklearn.linear_model import LinearRegression
 
 
 
@@ -31,8 +31,7 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    X_train, X_test, y_train, y_test = standard_scale(X_train, X_test, y_train, y_test)
-
+    X_train, X_test = standard_scale(X_train, X_test)
 
     num_hidden_layers = 2
     num_hidden_nodes = 30
@@ -44,10 +43,11 @@ if __name__ == "__main__":
     batch_size = int(50)
 
 
-    etas = np.logspace(-4, -2.5, 4)
-    etasSGDL = np.logspace(-1.5, -0.5, 4)
-    lmbds = np.logspace(-4, -2, 4)
-    gammas = [0,0.25, 0.5, 0.7]
+    etas = np.logspace(-4, -2, 4)
+    etasSGDL = np.logspace(-4, -3, 4)
+    lmbds = np.logspace(-3, -1, 4)
+    lmbdsSGDL = np.logspace(-1, 0.5, 4)
+    #gammas = np.linspace(0, 0.5, 4)
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
@@ -73,9 +73,9 @@ if __name__ == "__main__":
 
             SGDL = SGD(X_train, y_train,
                        etasSGDL[i],
-                       m = batche_size,
+                       m = batch_size,
                        num_epochs = epochs,
-                       gamma =
+                       lmbd = lmbd*100,
                        gradient_func = "Logistic",
                        loss = "probability", callback = True)
 
@@ -85,10 +85,20 @@ if __name__ == "__main__":
             test_scores_SGDL[i][j] = SGDL.get_score(X_test, y_test)
 
     plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
-    plot_heatmap(test_scores_SGDL, [r"Batch sizes",batche_sizes],[r"log($\eta$)",np.log10(etasSGDL)], title = "Grid search Logistic regression", name = None)
+    plot_heatmap(test_scores_SGDL, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etasSGDL)], title = "Grid search Logistic regression", name = None)
+
+    #Scikit learn
+    reg = LinearRegression().fit(X_train, y_train)
+    pred = reg.predict(X_test)
+    guess = np.argmax(pred, axis=1)
+    target = np.argmax(y_test, axis=1)
+    Scikit_best = np.sum(guess == target) / len(target)
 
     indxNN = np.where(test_scores_NN == np.max(test_scores_NN))
     indxSGDL = np.where(test_scores_SGDL == np.max(test_scores_SGDL))
+    NN_best = test_scores_NN[indxNN[0]][0][0]
+    SGDL_best = test_scores_SGDL[indxNN[0]][0][0]
 
-    print(f"{100*test_scores_NN[indxNN[0]]:.0f}% NN accuracy. ")
-    print(f"{100*test_scores_SGDL[indxSGDL[0]]:.0f}% NN accuracy. ")
+    print(f"{100*NN_best:.0f}% NN accuracy. ")
+    print(f"{100*SGDL_best:.0f}% Logistic regression accuracy. ")
+    print(f"{100*Scikit_best:.0f}% Sklearn logistic regression accuracy. ")
