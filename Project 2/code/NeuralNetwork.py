@@ -166,6 +166,7 @@ class NeuralNetwork:
             self.layers_z[l] = Z_l
             self.layers_a[l] = self.activation(Z_l)
 
+
     def backpropagation(self):
         """
         Returns the gradient of the cost function
@@ -177,6 +178,8 @@ class NeuralNetwork:
         for l in reversed(range(1, self.L - 1)):
             self.local_gradient[l] = self.local_gradient[l + 1]\
                 @ self.weights[l + 1] * self.activation_der(self.layers_z[l])
+        if np.linalg.norm(self.local_gradient[-1]*self.eta) < self.stop_tol:
+            break(3)
 
     def predict(self, X):
         """
@@ -398,8 +401,8 @@ class NeuralNetwork:
 
     def set_eta_decay(self, k, dropp_time):
         self.amplitude = 1
-        self.k = k
-        self.dropp_time = dropp_time
+        self.k = k #steepness
+        self.dropp_time = dropp_time #time of half decay
 
 
 
