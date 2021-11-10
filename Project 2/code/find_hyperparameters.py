@@ -1,5 +1,9 @@
-
-
+from sklearn.preprocessing import StandardScaler
+from NeuralNetwork import NeuralNetwork
+import seaborn as sns
+import numpy as np
+import matplotlib.ticker as tkr
+import matplotlib.pyplot as plt
 
 def standard_scale(*args):
     scaled = []
@@ -39,16 +43,12 @@ def find_hyperparameters(X_train, X_test, y_train, y_test,
                          cost,
                          seed=4155,
                          name = 0,
-                         return_best = False):
+                         return_best = False
+                         acc ):
 
-    from sklearn.model_selection import train_test_split
-    from find_hyperparameters import find_hyperparameters
-    from sklearn.preprocessing import StandardScaler
-    from NeuralNetwork import NeuralNetwork
-    import seaborn as sns
-    import numpy as np
-    import matplotlib.ticker as tkr
-    import matplotlib.pyplot as plt
+
+
+
 
 
 
@@ -68,7 +68,8 @@ def find_hyperparameters(X_train, X_test, y_train, y_test,
                                 gamma,
                                 seed,
                                 activation,
-                                cost)
+                                cost
+                                )
 
 
             NN.train_network_stochastic(int(epochs))

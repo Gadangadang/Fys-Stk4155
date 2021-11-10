@@ -31,23 +31,29 @@ if __name__ == "__main__":
     epochs = int(50)
     batch_size = int(35)
 
-    etas = np.logspace(0, 1, 5)
-    lmbds = np.logspace(-5, 0, 5)
+    etas = np.logspace(-5, -1, 5)
+    lmbds = np.logspace(-5, -1, 5)
+    gamma = 0
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+    X_train, X_test, y_train, y_test = standard_scale(X_train, X_test, y_train, y_test)
 
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
-    name="breast_cancer"
-    best_eta, best_lmbd, best_val = find_hyperparameters(X,
-                                                         y,
-                                                         epochs,
+    name="mnist"
+    best_eta, best_lmbd, best_val = find_hyperparameters(X_train, X_test, y_train, y_test,
                                                          num_hidden_layers,
                                                          num_hidden_nodes,
                                                          batch_size,
                                                          etas,
                                                          lmbds,
+                                                         gamma,
+                                                         epochs,
                                                          activation,
                                                          cost_func,
-                                                         name,
+                                                         seed=4155,
+                                                         name = name,
                                                          return_best = True)
     print(f"{100*best_val:.0f}% NN accuracy. ")

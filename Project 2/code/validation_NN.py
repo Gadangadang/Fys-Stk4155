@@ -21,7 +21,7 @@ from tensorflow.keras import regularizers           #This allows using whichever
 def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
     n_inputs, n_features = X.shape
     hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
-    dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes,
+    dnn = MLPClassifier(hidden_layer_sizes =  hidden_layer_sizes, 
                         activation = activation_func,
                         alpha= lmbd,
                         learning_rate_init = eta,
