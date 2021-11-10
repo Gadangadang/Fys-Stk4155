@@ -96,10 +96,6 @@ class NeuralNetwork:
 
 
 
-    def callback_print(self, epoch, score_epoch):
-        print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
-
-
 
     def create_layers(self):
         """
@@ -206,54 +202,57 @@ class NeuralNetwork:
         Args:
             epochs ([type]): [description]
         """
+        self.num_epochs = epochs
+        self.score = np.zeros((epochs+1, self.num_categories))
+
 
         if not self.callback:
-            for _ in range(epochs):
-                batches = self.get_batches()
-                for batch in batches:
-                    self.choose_mini_batch(batch)
-                    self.feed_forward()
-                    self.update_parameters()
-        else:
-            score = np.zeros((epochs+1, self.num_categories))
             for epoch in range(epochs):
                 batches = self.get_batches()
-                score[epoch] = self.get_score(self.X, self.T)
-                self.callback_print(epoch, score[epoch])
+                self.score[epoch] = self.get_score(self.X, self.T)
                 for batch in batches:
                     self.choose_mini_batch(batch)
                     self.feed_forward()
                     self.update_parameters()
-            epoch += 1
-            score[epoch] = self.get_score(self.X, self.T)
-            self.callback_print(epoch, score[epoch])
+                epoch += 1
+                self.score[epoch] = self.get_score(self.X, self.T)
+        else:
+            for epoch in range(epochs):
+                batches = self.get_batches()
+                self.score[epoch] = self.get_score(self.X, self.T)
+                self.callback_print(epoch, self.score[epoch]) # print
+                for batch in batches:
+                    self.choose_mini_batch(batch)
+                    self.feed_forward()
+                    self.update_parameters()
+                epoch += 1
+                self.score[epoch] = self.get_score(self.X, self.T)
+                self.callback_print(epoch, self.score[epoch]) # print
 
-            if plot:
-                self.plot_callback_score(epochs, score)
 
-
-    def plot_callback_score(self, epochs, score):
+    def plot_score_history(self, name = None):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-        if epochs > 100:
+        if self.num_epochs > 150:
             linestyle = "-"
             marker = "None"
         else:
             linestyle = "--"
             marker = "o"
-        markersize = 4
-        plt.plot(np.linspace(0, epochs, epochs+1), score, linestyle=linestyle, marker=marker, markersize=markersize)
+        markersize = 3
+        plt.plot(np.linspace(0, self.num_epochs, self.num_epochs+1), self.score, linestyle=linestyle, marker=marker, markersize=markersize)
         plt.xlabel("epoch", fontsize=14)
         plt.ylabel(self.callback_label, fontsize=14)
-        if score.shape[1] > 1:
-            plt.legend(["category " + str(i) for i in range(score.shape[1])], fontsize = 13)
+        if self.score.shape[1] > 1:
+            plt.legend(["category " + str(i) for i in range(self.score.shape[1])], fontsize = 13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        if isinstance(name, str):
+            plt.savefig(f"../article/figures/score_history_{name}.pdf",
+                    bbox_inches="tight")
         plt.show()
 
 
-    # def R2_loss(self):
-    #     t_model = self.predict(self.X)
-    #     return 1-np.sum((self.T.ravel() - t_model.ravel())**2) / np.sum((self.T.ravel() - np.mean(self.T.ravel())) ** 2)
-
+    def callback_print(self, epoch, score_epoch):
+        print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
 
 
 

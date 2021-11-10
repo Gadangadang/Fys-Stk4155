@@ -41,7 +41,7 @@ def logic_gates():
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
-    epochs = 90
+    epochs = 150
 
     NN = NeuralNetwork(X, y_gates,
                              num_hidden_layers,
@@ -54,38 +54,12 @@ def logic_gates():
                              activation=activation,
                              cost=cost_func,
                              loss = "accuracy",
-                             callback = True)
-
-    NN.train_network_stochastic(epochs, plot = True)
-
-
-    exit()
-    # sklearn_pred, sklearn_accuracy = sklearn_NN(X, y.ravel(), eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, 'logistic')
-    NN = NeuralNetwork(X, y,
-                             num_hidden_layers,
-                             num_hidden_nodes,
-                             batch_size,
-                             eta,
-                             lmbd,
-                             gamma,
-                             seed=4155,
-                             activation=activation,
-                             cost=cost_func)
-
+                             callback = False)
 
     NN.train_network_stochastic(epochs)
+    NN.plot_score_history(name = "test")
+    final_accuracy = NN.get_score(NN.X, NN.T)
 
-    exit()
-    accuracy = NN.accuracy_score(X, y)
-    NN_pred = np.round(NN.predict(X)).ravel()
-    NN_pred = NN.predict(X)
-
-
-    print("sklearn, acc:", sklearn_accuracy)
-    print("sklearn, pred:", sklearn_pred)
-
-    print("NN, acc:", accuracy)
-    print("NN, pred:", NN_pred)
 
 
 def Franke_NN():
