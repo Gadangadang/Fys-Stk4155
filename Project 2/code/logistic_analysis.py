@@ -44,26 +44,21 @@ if __name__ == "__main__":
     batch_size = int(50)
 
 
-    etas = np.logspace(-4, -2.5, 5)
-    lmbds = np.logspace(-4, -2, 5)
-
+    etas = np.logspace(-4, -2.5, 4)
+    etasSGDL = np.logspace(-1.5, -0.5, 4)
+    lmbds = np.logspace(-4, -2, 4)
+    gammas = [0,0.25, 0.5, 0.7]
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
     loss = "probability"
-    test_scores = np.zeros((len(etas), len(lmbds)))
-
-    SGDL = SGD(X_train, y_train, eta_val =0.01, m = batch_size, num_epochs = epochs,  gradient_func = "Logistic")
-    SGDL.SGD_train()
-    print(SGDL.probability_score(X_test, y_test))
-
-    exit()
+    test_scores_NN = np.zeros((len(etas), len(lmbds)))
+    test_scores_SGDL = np.zeros((len(etas), len(lmbds)))
 
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
             print(f"\r(eta_val, lmbd_val) = ({eta},{lmbd})", end="")
-            NN = NeuralNetwork(X_train,
-                               y_train,
+            NN = NeuralNetwork(X_train, y_train,
                                num_hidden_layers,
                                num_hidden_nodes,
                                batch_size,
@@ -76,11 +71,24 @@ if __name__ == "__main__":
                                loss,
                                callback = True)
 
-            NN.train_network_stochastic(int(epochs), plot = False)
-            test_scores[i][j] = NN.get_score(X_test, y_test)
+            SGDL = SGD(X_train, y_train,
+                       etasSGDL[i],
+                       m = batche_size,
+                       num_epochs = epochs,
+                       gamma =
+                       gradient_func = "Logistic",
+                       loss = "probability", callback = True)
 
-    plot_heatmap(test_scores, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = None, name = None)
-    indx = np.where(test_scores == np.max(test_scores))
+            SGDL.SGD_train()
+            NN.train_network_stochastic(int(epochs))
+            test_scores_NN[i][j] = NN.get_score(X_test, y_test)
+            test_scores_SGDL[i][j] = SGDL.get_score(X_test, y_test)
 
+    plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
+    plot_heatmap(test_scores_SGDL, [r"Batch sizes",batche_sizes],[r"log($\eta$)",np.log10(etasSGDL)], title = "Grid search Logistic regression", name = None)
 
-    print(f"{100*test_scores[indx]:.0f}% NN accuracy. ")
+    indxNN = np.where(test_scores_NN == np.max(test_scores_NN))
+    indxSGDL = np.where(test_scores_SGDL == np.max(test_scores_SGDL))
+
+    print(f"{100*test_scores_NN[indxNN[0]]:.0f}% NN accuracy. ")
+    print(f"{100*test_scores_SGDL[indxSGDL[0]]:.0f}% NN accuracy. ")
