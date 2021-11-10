@@ -44,10 +44,7 @@ def logic_gates():
     y_XOR = np.array([0, 1, 1, 0]) # Exclusive OR
 
     # Output for logic gates
-    y_gates = [y_AND, y_OR, y_XOR]
-    y_gates = [y_XOR]
-
-
+    y_gates = np.array([y_AND, y_OR, y_XOR]).T
 
 
     # NN architecture
@@ -60,19 +57,12 @@ def logic_gates():
     gamma = 0
 
 
-    etas = np.logspace(-1, 0, 3)
-    # etas = [2]
-    lmbds = np.logspace(-8, -6, 3)
-
     activation = "sigmoid"
-    # cost_func = "cross_entropy"
-    cost_func = "MSE"
-    epochs = 2000
-
-    y = y_XOR.reshape(4,1)
+    cost_func = "cross_entropy"
+    epochs = 100
 
 
-    NN = NeuralNetwork(X, y,
+    NN = NeuralNetwork(X, y_gates,
                              num_hidden_layers,
                              num_hidden_nodes,
                              batch_size,
@@ -247,7 +237,7 @@ def multiple_categories_test():
     # NN architecture
     num_hidden_layers = 1
     num_hidden_nodes = 2
-    batch_size = 5 # Full GD
+    batch_size = 4 # Full GD
     eta = 1
     lmbd = 1e-5
     gamma = 0
@@ -265,22 +255,22 @@ def multiple_categories_test():
     # etas = np.logspace(2,-5,8)
     # lmbds = np.logspace(-2,-8,7)
 
-    eta, lmbd, acc = find_hyperparameters(X, X, y, y,
-                                            num_hidden_layers,
-                                            num_hidden_nodes,
-                                            batch_size,
-                                            etas,
-                                            lmbds,
-                                            gamma,
-                                            epochs,
-                                            activation=activation,
-                                            cost=cost_func,
-                                            seed=4155,
-                                            name = 0,
-                                            return_best = True)
-
-
-    exit()
+    # eta, lmbd, acc = find_hyperparameters(X, X, y, y,
+    #                                         num_hidden_layers,
+    #                                         num_hidden_nodes,
+    #                                         batch_size,
+    #                                         etas,
+    #                                         lmbds,
+    #                                         gamma,
+    #                                         epochs,
+    #                                         activation=activation,
+    #                                         cost=cost_func,
+    #                                         seed=4155,
+    #                                         name = 0,
+    #                                         return_best = True)
+    #
+    #
+    # exit()
     NN = NeuralNetwork(X, y,
                              num_hidden_layers,
                              num_hidden_nodes,
@@ -328,7 +318,7 @@ def XOR_manuel():
 
 
     NN = NeuralNetwork(X, y_XOR, num_hidden_layers = 1, num_hidden_nodes = 2)
-    # 
+    #
     # print(NN.weights)
     # print(NN.bias)
 
@@ -343,9 +333,9 @@ def XOR_manuel():
 
 
 if __name__ == "__main__":
-    # logic_gates()
+    logic_gates()
     # tensorflow_logic_gates()
     # morten_test()
     # tensorflow_copy()
     # multiple_categories_test()
-    XOR_manuel()
+    # XOR_manuel()
