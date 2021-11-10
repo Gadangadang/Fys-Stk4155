@@ -28,16 +28,19 @@ def mean_scale_new(*args):
 
 
 def find_hyperparameters(X_train, X_test, y_train, y_test,
-                         epochs,
                          num_hidden_layers,
                          num_hidden_nodes,
                          batch_size,
                          etas,
                          lmbds,
+                         gamma,
+                         epochs,
                          activation,
-                         cost_func,
+                         cost,
+                         seed=4155,
                          name = 0,
-                         return_best = False ):
+                         return_best = False):
+
     from sklearn.model_selection import train_test_split
     from find_hyperparameters import find_hyperparameters
     from sklearn.preprocessing import StandardScaler
@@ -54,6 +57,7 @@ def find_hyperparameters(X_train, X_test, y_train, y_test,
 
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
+            print(f"\r(eta_val, lmbd_val) = ({i},{j})/({len(etas)-1},{len(lmbds)-1})", end="")
             NN = NeuralNetwork( X_train,
                                 y_train,
                                 num_hidden_layers,
@@ -61,11 +65,15 @@ def find_hyperparameters(X_train, X_test, y_train, y_test,
                                 batch_size,
                                 eta,
                                 lmbd,
-                                activation = activation,
-                                cost = cost_func)
+                                gamma,
+                                seed,
+                                activation,
+                                cost)
+
 
             NN.train_network_stochastic(int(epochs))
             test_accuracy[i][j] = NN.accuracy_score(X_test, y_test)
+    print()
 
     # Heatmap
     fig, ax = plt.subplots(figsize = (7, 7))

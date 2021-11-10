@@ -234,27 +234,6 @@ def tensorflow_copy():
     print(model.predict(training_data).round())
 
 
-# def morten_test():
-#
-#     # Design matrix
-#     X = np.array([ [1, 0, 0], [1, 0, 1], [1, 1, 0],[1, 1, 1]],dtype=np.float64)
-#     yXOR = np.array( [ 0, 1 ,1, 0])
-#     yOR = np.array( [ 0, 1 ,1, 1])
-#     yAND = np.array( [ 0, 0 ,0, 1])
-#
-#
-#
-#     from sklearn.neural_network import MLPClassifier
-#     from sklearn.datasets import make_classification
-#     X, yXOR = make_classification(n_samples=100, random_state=1)
-#
-#     FFNN = MLPClassifier(random_state=1, max_iter=300).fit(X, yXOR)
-#     FFNN.predict_proba(X)
-#     print(f"Test set accuracy with Feed Forward Neural Network  for XOR gate:{FFNN.score(X, yXOR)}")
-#
-#
-
-
 
 def multiple_categories_test():
     # Input for logic gates
@@ -262,32 +241,46 @@ def multiple_categories_test():
     x2 = np.array([0, 1, 0, 1])
     X = np.array([x1, x2]).T # Design matrix
 
-
-    # Types of logical gates
-    y_AND = np.array([0, 0, 0, 1]) # And
-    y_OR =  np.array([0, 1, 1, 1]) # Or
-
-    y = np.array([[0, 0, 0, 1], [0, 1, 1, 1]]).T
+    y = np.array([[0, 0, 0, 1], [0, 1, 1, 1], [0, 1, 1, 0]]).T #AND, OR, XOR
 
 
     # NN architecture
     num_hidden_layers = 1
-    num_hidden_nodes = 40
-    batch_size = 4 # Full GD
+    num_hidden_nodes = 2
+    batch_size = 5 # Full GD
     eta = 1
-    lmbd = 0
+    lmbd = 1e-5
     gamma = 0
 
     activation = "sigmoid"
-    cost_func = "MSE"
-    # cost_func
+    # cost_func = "MSE"
+    cost_func = "cross_entropy"
     epochs = 1000
 
-    # y = y[:,0].reshape(4,1)
-    # y = y[:,1].reshape(4,1)
-    # print(y)
-    # exit()
+    y = y[:,2].reshape(4,1)
 
+    etas = np.logspace(1,-1,3)
+    lmbds = np.logspace(-2,-8,7)
+
+    # etas = np.logspace(2,-5,8)
+    # lmbds = np.logspace(-2,-8,7)
+
+    eta, lmbd, acc = find_hyperparameters(X, X, y, y,
+                                            num_hidden_layers,
+                                            num_hidden_nodes,
+                                            batch_size,
+                                            etas,
+                                            lmbds,
+                                            gamma,
+                                            epochs,
+                                            activation=activation,
+                                            cost=cost_func,
+                                            seed=4155,
+                                            name = 0,
+                                            return_best = True)
+
+
+    exit()
     NN = NeuralNetwork(X, y,
                              num_hidden_layers,
                              num_hidden_nodes,
@@ -298,14 +291,52 @@ def multiple_categories_test():
                              seed=4155,
                              activation=activation,
                              cost=cost_func,
-                             callback = "accuracy__")
+                             callback = "accuracy")
 
     NN.train_network_stochastic(epochs, plot = False)
     accuracy = NN.accuracy_score(NN.X, NN.T)
     NN_pred = np.round(NN.predict(X)).ravel()
     NN_pred = NN.predict(NN.X)
+
     print(accuracy)
     print(NN_pred)
+
+
+def XOR_manuel():
+
+
+    # NN architecture
+    num_hidden_layers = 1
+    num_hidden_nodes = 2
+    batch_size = 5 # Full GD
+    eta = 1
+    lmbd = 1e-5
+    gamma = 0
+
+    activation = "sigmoid"
+    # cost_func = "MSE"
+    cost_func = "cross_entropy"
+    epochs = 1000
+
+
+
+    x1 = np.array([0, 0, 1, 1])
+    x2 = np.array([0, 1, 0, 1])
+    X = np.array([x1, x2]).T # Design matrix
+
+    y_XOR = np.array([0, 1, 1, 0]).reshape(4,1)
+
+
+    NN = NeuralNetwork(X, y_XOR, num_hidden_layers = 1, num_hidden_nodes = 2)
+    # 
+    # print(NN.weights)
+    # print(NN.bias)
+
+
+
+
+
+
 
 
 
@@ -316,5 +347,5 @@ if __name__ == "__main__":
     # tensorflow_logic_gates()
     # morten_test()
     # tensorflow_copy()
-
-    multiple_categories_test()
+    # multiple_categories_test()
+    XOR_manuel()

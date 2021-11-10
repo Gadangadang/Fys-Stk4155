@@ -94,7 +94,7 @@ class NeuralNetwork:
 
 
     def callback_print(self, epoch, score_epoch):
-        print(f"epoch: {epoch}, score = {score_epoch:g}")
+        print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
 
 
 
@@ -135,14 +135,17 @@ class NeuralNetwork:
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
         self.bias.append(np.ones(num_categories) * bias_shift)
 
+
+
         # velocity for momentum
-        self.vel_weights = self.weights.copy()
-        self.vel_bias = self.bias.copy()
-
+        self.vel_weights = [np.nan]
+        self.vel_bias = [np.nan]
         for i in range(1, num_hidden_layers+2):
-            self.vel_weights[i][:] = 0
-            self.vel_bias[i][:] = 0
+            self.vel_weights.append(np.zeros(np.shape(self.weights[i])))
+            self.vel_bias.append(np.zeros(np.shape(self.bias[i])))
 
+
+        # local gradient
         self.local_gradient = self.layers_a.copy()  # also called error
         self.local_gradient[0] = np.nan  # don't use first
 
@@ -209,7 +212,7 @@ class NeuralNetwork:
                     self.feed_forward()
                     self.update_parameters()
         else:
-            score = np.zeros(epochs+1)
+            score = np.zeros((epochs+1, self.num_categories))
             for epoch in range(epochs):
                 batches = self.get_batches()
                 score[epoch] = self.callback_func()
@@ -329,24 +332,21 @@ class NeuralNetwork:
         """[summary]"""
         self.layers_a[0] = X
         self.feed_forward()
-        if self.num_categories >1:
 
-            pred = self.soft_max_activation(self.layers_z[-1])
-            pred = self.predict(self.X)
-            print(pred)
-            #### ALL THIS NEED TO BE CHECKED #####
-            # exit()
+        pred = np.around(self.predict(self.X))
+        hits = np.sum(np.around(pred) == target, axis = 0)
+        possible = target.shape[0]
+        acc = hits/possible
 
-            guess = np.argmax(pred, axis=1)
-            target = np.argmax(target, axis=1)
-            val = np.sum(guess == target)/len(target)
-        else:
-            val = np.sum((np.around(self.predict(X)) == target)) / len(target)
+        return acc
 
-        if val > 1:
-            print("accuracy > 1, possible used wrong target shapes")
-            exit(1)
-        return val
+    def softmax_score(self, X, target):
+        pass
+
+        # pred = self.soft_max_activation(self.layers_z[-1])
+        # guess = np.argmax(pred, axis=1)
+        # target = np.argmax(target, axis=1)
+        # val = np.sum(guess == target)/len(target)
 
     """
     Cost funtions
