@@ -79,24 +79,16 @@ class NeuralNetwork:
         self.cost_der = elementwise_grad(self.cost)
 
         if loss == "accuracy":
-
             self.score_func = self.accuracy_score
         elif loss == "MSE":
-
             self.score_func = self.MSE_score
         elif loss == "R2":
-
             self.score_func = self.R2_score
-
         elif loss == "softmax":
             self.score_func = self.softmax_score
 
         self.callback = callback
         self.callback_label = loss
-
-
-
-
 
 
 
@@ -214,7 +206,7 @@ class NeuralNetwork:
             epochs ([type]): [description]
         """
 
-        if not (self.callback):
+        if not self.callback:
             for _ in range(epochs):
                 batches = self.get_batches()
                 for batch in batches:
@@ -437,10 +429,9 @@ if __name__ == "__main__":
                        seed=4155,
                        activation="sigmoid",
                        cost="MSE",
-                       loss = "MSE",
+                       loss = "R2",
                        callback = True)
 
 
-    NN.train_network_stochastic(epochs, plot = True)
-
+    NN.train_network_stochastic(epochs, plot = False)
     print(NN.get_score(X_test, Z_test))
