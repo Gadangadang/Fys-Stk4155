@@ -355,6 +355,9 @@ if __name__ == "__main__":
     # tensorflow_copy()
     # multiple_categories_test()
     # XOR_manuel()
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of e2d8cb4 (updated SGD)
     # Franke_NN()
 >>>>>>> parent of e2d8cb4 (updated SGD)
