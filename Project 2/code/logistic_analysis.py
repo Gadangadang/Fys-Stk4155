@@ -53,7 +53,11 @@ if __name__ == "__main__":
     loss = "probability"
     test_scores = np.zeros((len(etas), len(lmbds)))
 
-    
+    SGDL = SGD(X_train, y_train, eta_val =0.01, m = batch_size, num_epochs = epochs,  gradient_func = "Logistic")
+    SGDL.SGD_train()
+    print(SGDL.probability_score(X_test, y_test))
+
+    exit()
 
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
