@@ -94,9 +94,6 @@ class NeuralNetwork:
 
 
 
-
-
-
     def create_layers(self):
         """
         layers_a: contain activation values of all nodes
@@ -227,6 +224,7 @@ class NeuralNetwork:
                     self.update_parameters()
                 epoch += 1
                 self.score[epoch] = self.get_score(self.X, self.T)
+
                 self.callback_print(epoch, self.score[epoch]) # print
 
 
@@ -246,7 +244,7 @@ class NeuralNetwork:
             plt.legend(["category " + str(i) for i in range(self.score.shape[1])], fontsize = 13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         if isinstance(name, str):
-            plt.savefig(f"../article/figures/score_history_{name}.pdf",
+            plt.savefig(f"../article/figures/{name}_score_history.pdf",
                     bbox_inches="tight")
         plt.show()
 
@@ -384,7 +382,7 @@ class NeuralNetwork:
         Returns:
             [type]: [description]
         """
-        return (y_tilde - self.T)**2
+        return (y_tilde - self.t)**2
 
 
 

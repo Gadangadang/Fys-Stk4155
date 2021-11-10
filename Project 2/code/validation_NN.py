@@ -32,16 +32,16 @@ def logic_gates():
 
     # NN architecture
     num_hidden_layers = 1
-    num_hidden_nodes = 16
+    num_hidden_nodes = 4
     batch_size = 4 # Full GD
     n_categories = 1
-    eta = 1e-1
+    eta = 0.8
     lmbd = 0
     gamma = 0
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
-    epochs = 150
+    epochs = 100
 
     NN = NeuralNetwork(X, y_gates,
                              num_hidden_layers,
@@ -54,10 +54,10 @@ def logic_gates():
                              activation=activation,
                              cost=cost_func,
                              loss = "accuracy",
-                             callback = False)
+                             callback = True)
 
     NN.train_network_stochastic(epochs)
-    NN.plot_score_history(name = "test")
+    NN.plot_score_history(name = "logic_gates")
     final_accuracy = NN.get_score(NN.X, NN.T)
 
 
