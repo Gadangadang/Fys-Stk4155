@@ -38,12 +38,12 @@ if __name__ == "__main__":
     gamma = 0
     seed = 4155
     n_categories = 1
-    epochs = int(100)
-    batch_size = int(50)
+    epochs = int(200)
+    batch_size = int(25)
 
 
-    etas = np.logspace(-3, -1, 3)
-    lmbds = np.logspace(-4, 0, 3)
+    etas = np.logspace(-4, -1, 6)
+    lmbds = np.logspace(-4, 0, 6)
 
 
     activation = "sigmoid"
@@ -66,13 +66,18 @@ if __name__ == "__main__":
                                activation,
                                cost="cross_entropy",
                                loss = "accuracy",
-                               callback = True)
+                               callback = False)
             NN.train_network_stochastic(int(epochs), plot = False)
             test_scores[i][j] = NN.get_score(X_test, y_test)
 
-    plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = None, name = None)
+    title="Breast_cancer"
+    #plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = None, name = None)
     indx = np.where(test_scores == np.max(test_scores))
-
+    eta_ind = int(indx[0][0])
+    lm_ind = int(indx[1][0])
+    best_eta = etas[eta_ind]
+    best_lmbd= lmbds[lm_ind]
+    best_val = test_scores[eta_ind][lm_ind]
 
     sklearn_pred, sklearn_accuracy = sklearn_NN_WIP(X,
                                                 y,

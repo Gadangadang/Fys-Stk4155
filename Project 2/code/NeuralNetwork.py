@@ -343,11 +343,13 @@ class NeuralNetwork:
 
     def __str__(self):
         text = "Information of the Neural Network \n"
-        text += "Hidden layers:      {} \n".format(self.num_hidden_layer)
-        text += "Hidden nodes:       {} \n".format(self.num_hidden_nodes)
-        text += "Output nodes:       {} \n".format(self.num_output_nodes)
-        text += "Number of features: {} \n".format(self.X.shape[1])
-
+        text += "--------------------------------- \n"
+        text += "Hidden layers:                 {} \n".format(self.num_hidden_layers)
+        text += "Hidden nodes in network:       {} \n".format(self.num_hidden_nodes*\
+                                                              self.num_hidden_layers)
+        text += "Output nodes:                  {} \n".format(self.num_output_nodes)
+        text += "Number of features:            {} \n".format(self.X.shape[1])
+        text += "--------------------------------- \n"
         return text
 
 
@@ -385,6 +387,6 @@ if __name__ == "__main__":
                        cost="MSE",
                        loss="R2",
                        callback=True)
-
+    print(NN)
     NN.train_network_stochastic(epochs, plot=False)
     print(NN.get_score(X_test, Z_test))
