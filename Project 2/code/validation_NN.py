@@ -11,17 +11,14 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.neural_network import MLPClassifier
-from Functions import *
+
 import numpy as np
 import matplotlib.pyplot as plt
+from NN_functions import plot_heatmap
 
 from NeuralNetwork import NeuralNetwork
-# from find_hyperparameters import *
-import os
-import sys
-path = os.getcwd()  # Current working directory
-path += '/../../Project 1/code'
-sys.path.append(path)
+
+
 
 # sklearn classifier
 
@@ -148,7 +145,7 @@ def Franke_NN():
     test_scores_NN = np.zeros((len(etas), len(lmbds)))
 
     # eta and lambda
-
+    """
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
             print(f"\r(eta_val, lmbd_val) = ({eta},{lmbd})", end="")
@@ -168,8 +165,9 @@ def Franke_NN():
             NN.train_network_stochastic(int(epochs))
             test_scores_NN[i][j] = NN.get_score(X_test, Z_test)
 
-    #plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
-
+    #plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],
+                  [r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
+    """
     #layers and mse
 
     lmbd = 10**(-4)
@@ -177,7 +175,7 @@ def Franke_NN():
     num_hidden_layers = np.arange(1, 20)
     test_scores_train = np.zeros(len(num_hidden_layers))
     test_scores_test = np.zeros(len(num_hidden_layers))
-
+    """
     for i, num in enumerate(num_hidden_layers):
         NN = NeuralNetwork(X_train, Z_train,
                            num,
@@ -206,9 +204,9 @@ def Franke_NN():
     plt.savefig("../article/figures/mse_hidden_layers.pdf",
                 bbox_inches="tight")
     plt.show()
-
-    num_nodes = np.arange(10, 250, 20)
-    num_layers = np.arange(1, 10)
+    """
+    num_nodes = np.arange(10, 101, 10)
+    num_layers = np.arange(1, 11)
     test_scores_NN_lay_node = np.zeros((len(num_layers), len(num_nodes)))
 
     #Nodes and layers
@@ -231,9 +229,9 @@ def Franke_NN():
             NN.train_network_stochastic(int(epochs))
             test_scores_NN_lay_node[i][j] = NN.get_score(X_test, Z_test)
 
-    plot_heatmap(test_scores_NN_lay_node, [r"Number of nodes", num_nodes], [
-                 r"Number of layers", num_layers], title="Grid search Neural Network", name=None)
-
+    plot_heatmap(test_scores_NN_lay_node, [r"Number of nodes", num_nodes],
+                 [r"Number of layers", num_layers], title="Grid search Neural Network", name=None)
+    """
     num_hidden_layers = 4
     num_hidden_nodes = 50
     NN = NeuralNetwork(X_train, Z_train,
@@ -252,9 +250,11 @@ def Franke_NN():
     NN.train_network_stochastic(int(epochs))
     print("MSE: {}".format(NN.MSE_score(X_test, Z_test)))
     print("R2: {}".format(NN.R2_score(X_test, Z_test)))
+    """
 
 
-def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers, num_hidden_nodes, n_categories, activation_func):
+def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers,
+               num_hidden_nodes, n_categories, activation_func):
     n_inputs, n_features = X.shape
     hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
     dnn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes,
@@ -350,6 +350,12 @@ def tensorflow_copy():
 
 
 if __name__ == "__main__":
+    import os
+    import sys
+    path = os.getcwd()  # Current working directory
+    path += '/../../Project 1/code'
+    sys.path.append(path)
+    from Functions import *
     # logic_gates_NN()
     # logic_gates_OLS()
     # tensorflow_logic_gates()
