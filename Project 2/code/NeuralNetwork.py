@@ -9,7 +9,14 @@ np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 class NeuralNetwork:
-    """[summary]
+    """
+    Neural Network using stochastic gradient descent with optional
+    momentum, for faster convergence. The basis of the algorithm is:
+
+    *
+    *
+    *
+    *
     """
 
     def __init__(self,
@@ -81,7 +88,7 @@ class NeuralNetwork:
         self.create_biases_and_weights()
 
 
-        "---- Set activation function ----"
+        "---- Set activation, cost, derivation and loss functions ----"
         if activation == "sigmoid":
             self.activation = self.sigmoid_activation
         elif activation == "relu":
