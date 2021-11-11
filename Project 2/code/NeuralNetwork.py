@@ -70,6 +70,7 @@ class NeuralNetwork:
         self.num_hidden_nodes = num_hidden_nodes
         self.num_output_nodes = self.num_categories
         self.L = self.num_hidden_layers + 2  # number of layer in total
+        self.scaled_weight = [1,1,1]
 
         self.batch_size = batch_size
         self.lmbd = lmbd
@@ -83,28 +84,34 @@ class NeuralNetwork:
 
         self.tol = 1e-8
 
-        "---- Create hidden layers, weights and biases ----"
-        self.create_layers()
-        self.create_biases_and_weights()
-
 
         "---- Set activation, cost, derivation and loss functions ----"
         if activation == "sigmoid":
             self.activation = self.sigmoid_activation
         elif activation == "relu":
             self.activation = self.RELU_activation
+            self.scaled_weight = [num_hidden_nodes**2, \
+            num_hidden_nodes*self.num_features, self.num_output_nodes * num_hidden_nodes ]
+            print(self.scaled_weight)
         elif activation == "leaky_relu":
             self.activation = self.Leaky_RELU_activation
+            self.scaled_weight = [num_hidden_nodes**2, \
+            num_hidden_nodes*self.num_features, self.num_output_nodes * num_hidden_nodes]
         elif activation == "soft_max":
             self.activation = self.soft_max_activation
         if cost == "MSE":
             self.cost = self.MSE
-
         elif cost == "cross_entropy":
             self.cost = self.cross_entropy
+            
+        "---- Create hidden layers, weights and biases ----"
+        self.create_layers()
+        self.create_biases_and_weights()
+
         self.activation_der = elementwise_grad(self.activation)
         self.cost_der = elementwise_grad(self.cost)
         self.score_shape = 1
+
         if loss == "accuracy":
             self.score_func = self.accuracy_score
             self.score_shape = self.num_categories
@@ -141,18 +148,18 @@ class NeuralNetwork:
         num_hidden_nodes = self.num_hidden_nodes
         num_categories = self.num_categories
         bias_shift = 0.1
-
+        print(self.scaled_weight)
         self.weights = [np.random.randn(
-            num_hidden_nodes, num_hidden_nodes) for i in range(self.num_hidden_layers - 1)]
-        self.weights.insert(0, np.random.randn(num_hidden_nodes, num_features))
+            num_hidden_nodes, num_hidden_nodes)/(self.scaled_weight[0]) for i in range(num_hidden_layers - 1)]
+        self.weights.insert(0, np.random.randn(num_hidden_nodes, num_features)/(self.scaled_weight[1]))
 
         # insert unused weight to get nice indexes
         self.weights.insert(0, np.nan)
         self.weights.append(np.random.randn(
-            self.num_output_nodes, num_hidden_nodes))
+            self.num_output_nodes, num_hidden_nodes)/(self.scaled_weight[2]))
 
         self.bias = [np.ones(num_hidden_nodes) * bias_shift
-                     for i in range(self.num_hidden_layers)]
+                     for i in range(num_hidden_layers)]
         self.bias.insert(0, np.nan)  # insert unused bias to get nice indexes
         self.bias.append(np.ones(num_categories) * bias_shift)
 
@@ -200,7 +207,7 @@ class NeuralNetwork:
     def predict(self, X):
         self.layers_a[0] = X
         self.feed_forward()
-        return self.layers_a[-1]
+        return self.sigmoid_activation(self.layers_z[-1])
 
     def train_network_stochastic(self, epochs, plot=False):
         self.score = np.zeros((epochs + 1, self.score_shape))
@@ -271,12 +278,8 @@ class NeuralNetwork:
     def sigmoid_activation(self, value):
         return 1.0 / (1.0 + np.exp(-value))
 
-    def sigmoid_activation_man_der(self, value):
-        sig = self.sigmoid_activation(value)
-        return sig * (sig - 1)
-
     def RELU_activation(self, value):
-        vals = np.where(value > 0, value, 0)
+        vals = np.where(value > 0, value, 1e-8)
         return vals
 
     def Leaky_RELU_activation(self, value):
@@ -292,13 +295,13 @@ class NeuralNetwork:
         self.layers_a[0] = X
         self.feed_forward()
         return self.score_func(X, target)
-        
+
     """
     Score functions
     """
 
     def accuracy_score(self, X, target):
-        pred = np.around(self.predict(X))
+        pred = self.predict(X)
         hits = np.sum(np.around(pred) == target, axis=0)
         possible = target.shape[0]
         acc = hits / possible
