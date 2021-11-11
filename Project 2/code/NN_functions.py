@@ -53,9 +53,23 @@ def plot_digits(digits):
     for ax, image, label in zip(axes, digits.images, digits.target):
         ax.axis("off")
         ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-        ax.set_title("Training: %i" % label)
+        ax.set_title("Label: %i" % label)
     plt.show()
 
+def plot_predictions(X_test, predict, Y_test):
+    fig = plt.figure(figsize=(6, 6))
+    fig.subplots_adjust(left=0, right=1, bottom=0, top=1, hspace=0.05, wspace=0.05)
+    for i in range(64):
+        ax = fig.add_subplot(8, 8, i + 1, xticks=[], yticks=[])
+        ax.imshow(X_test.reshape(-1, 8, 8)[i], cmap=plt.cm.binary,
+                  interpolation='nearest')
+        # label the image with the target value
+        if predict[i] == Y_test[i]:
+            ax.text(0, 7, str(predict[i]), color='green', fontsize=16)
+        else:
+            ax.text(0, 7, str(predict[i]), color='red', fontsize=16)
+
+    plt.show()
 
 
 #Setup arrays for accuracy score
