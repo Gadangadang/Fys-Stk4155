@@ -9,8 +9,10 @@ from sklearn.linear_model import LinearRegression
 
 if __name__ == "__main__":
     digits = datasets.load_digits()
-
+    #plot_digits(digits)
     data = digits.data
+    print(data[0].shape)
+    exit()
     # Create a classifier: a support vector classifier
     X = data
     y_flat = digits.target
@@ -106,7 +108,7 @@ if __name__ == "__main__":
                        num_hidden_nodes,
                        batch_size,
                        etas[indxNN[0][0]],
-                       lmbds[indxNN[0][1]],
+                       lmbds[indxNN[1][0]],
                        gamma,
                        seed,
                        activation,

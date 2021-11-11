@@ -53,7 +53,7 @@ def plot_digits(digits):
     for ax, image, label in zip(axes, digits.images, digits.target):
         ax.axis("off")
         ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-        ax.set_title("Label: %i" % label)
+        ax.set_title(label, fontsize = 20)
     plt.show()
 
 def plot_predictions(X_test, predict, Y_test):

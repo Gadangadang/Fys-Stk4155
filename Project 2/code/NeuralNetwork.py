@@ -337,6 +337,10 @@ class NeuralNetwork:
         self.layers_a[0] = X
         self.feed_forward()
         return self.score_func(X, target)
+        
+    """
+    Score functions
+    """
 
     def accuracy_score(self, X, target):
         pred = np.around(self.predict(X))
@@ -399,7 +403,6 @@ class NeuralNetwork:
         self.amplitude = 1
         self.k = k #steepness
         self.dropp_time = dropp_time #time of half decay
-
 
 
     def __str__(self):
