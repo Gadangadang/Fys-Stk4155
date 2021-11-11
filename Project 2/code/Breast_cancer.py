@@ -38,8 +38,8 @@ if __name__ == "__main__":
     gamma = 0
     seed = 4155
     n_categories = 1
-    epochs = int(100)
-    batch_size = int(50)
+    epochs = int(200)
+    batch_size = int(25)
 
 
     etas = np.logspace(-3, -1, 5)
@@ -88,7 +88,6 @@ if __name__ == "__main__":
     plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = "Neural network test accuracy for Breast cancer data", name = None)
     indx = np.where(test_scores == np.max(test_scores))
 
-    print(indx)
     sklearn_pred, sklearn_accuracy = sklearn_NN_WIP(X,
                                                 y,
                                                 etas[indx[0][0]],

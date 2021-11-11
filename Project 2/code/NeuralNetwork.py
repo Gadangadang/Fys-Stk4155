@@ -9,7 +9,14 @@ np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 class NeuralNetwork:
-    """[summary]
+    """
+    Neural Network using stochastic gradient descent with optional
+    momentum, for faster convergence. The basis of the algorithm is:
+
+    *
+    *
+    *
+    *
     """
 
     def __init__(self,
@@ -26,20 +33,30 @@ class NeuralNetwork:
                  cost="MSE",
                  loss = "MSE",
                  callback = False):
-        """[summary]
+        """Initialization function for neural network.
 
         Args:
-            X ([type]): [description]
-            t ([type]): [description]
-            num_hidden_layers (int, optional): [description]. Defaults to 2.
-            num_hidden_nodes (int, optional): [description]. Defaults to 10.
-            batch_size (int, optional): [description]. Defaults to 1.
-            eta (float, optional): [description]. Defaults to 0.001.
-            lmbd (float, optional): [description]. Defaults to 0.0.
-            seed (int, optional): [description]. Defaults to 4155.
-            activation (str, optional): [description]. Defaults to "sigmoid".
-            cost (str, optional): [description]. Defaults to "MSE".
+            X                 (Numpy ndarray): Matrix containing data to train on
+            t                 (Numpy ndarray): Matrix/array containing target data
+            num_hidden_layers (int, optional): Number of hidden layers.
+                                               Defaults to 1.
+            num_hidden_nodes  (int, optional): Number of hidden nodes per layer.
+                                               Defaults to 10.
+            batch_size        (int, optional): Size of data batch for SGD. Defaults to 4.
+            eta             (float, optional): Learning rate for NN. Defaults to 0.001.
+            lmbd            (float, optional): Regularization parameter. Defaults to 0.00.
+            gamma           (float, optional): Momentum parameter. Defaults to 0.0.
+            seed              (int, optional): Random seed, for SGD. Defaults to 4155.
+            activation        (str, optional): Choice of activation function.
+                                               Defaults to "sigmoid".
+            cost              (str, optional): Choice of cost function. Defaults to "MSE".
+            loss              (str, optional): Choice of loss func, for realtime tracking of accuracy.
+                                               Defaults to "MSE".
+            callback         (bool, optional): Bool, choice to track progress and loss accuracy.
+                                               Defaults to False.
         """
+
+        "---- Initialize object parameters ----"
         self.X = X  # Design matrix shape: N x features --> features x N
         self.t = t  # Target, shape: categories x N
         self.T = np.copy(t)
@@ -66,9 +83,12 @@ class NeuralNetwork:
 
         self.tol = 1e-8
 
+        "---- Create hidden layers, weights and biases ----"
         self.create_layers()
         self.create_biases_and_weights()
 
+
+        "---- Set activation, cost, derivation and loss functions ----"
         if activation == "sigmoid":
             self.activation = self.sigmoid_activation
         elif activation == "relu":
@@ -115,8 +135,6 @@ class NeuralNetwork:
         self.layers_z = self.layers_a.copy()
 
     def create_biases_and_weights(self):
-        """[summary]
-        """
         np.random.seed(self.seed)
         num_hidden_layers = self.num_hidden_layers
         num_features = self.num_features
@@ -150,8 +168,6 @@ class NeuralNetwork:
         self.local_gradient[0] = np.nan  # don't use first
 
     def update_parameters(self):
-        """[summary]
-        """
         self.backpropagation()
         if self.check_grad > self.tol and np.isfinite(self.check_grad):
             for l in range(1, self.L):
@@ -164,8 +180,6 @@ class NeuralNetwork:
                 self.bias[l] -= self.vel_bias[l]
 
     def feed_forward(self):
-        """[summary]
-        """
         for l in range(1, self.L):
             Z_l = self.layers_a[l - 1] @ self.weights[l].T + \
                 self.bias[l][np.newaxis, :]
@@ -174,10 +188,6 @@ class NeuralNetwork:
 
 
     def backpropagation(self):
-        """
-        Returns the gradient of the cost function
-        """
-
         self.local_gradient[-1] = self.cost_der(
             self.layers_a[-1]) * self.activation_der(self.layers_z[-1])
 
@@ -188,25 +198,11 @@ class NeuralNetwork:
         self.check_grad = np.linalg.norm(self.local_gradient[-1]*self.eta)
 
     def predict(self, X):
-        """
-        [summary]
-
-        Args:
-            X ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         self.layers_a[0] = X
         self.feed_forward()
         return self.layers_a[-1]
 
     def train_network_stochastic(self, epochs, plot=False):
-        """[summary]
-
-        Args:
-            epochs ([type]): [description]
-        """
         self.score = np.zeros((epochs + 1, self.score_shape))
         self.check_grad = 1
         epoch = 0
@@ -265,7 +261,6 @@ class NeuralNetwork:
         return batches
 
     def choose_mini_batch(self, batch):
-        """[summary]"""
         self.layers_a[0] = self.X[batch]
         self.t = self.T[batch]
 
@@ -274,61 +269,21 @@ class NeuralNetwork:
     """
 
     def sigmoid_activation(self, value):
-        """[summary]
-
-        Args:
-            value ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         return 1.0 / (1.0 + np.exp(-value))
 
     def sigmoid_activation_man_der(self, value):
-        """[summary]
-
-        Args:
-            value ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         sig = self.sigmoid_activation(value)
         return sig * (sig - 1)
 
     def RELU_activation(self, value):
-        """[summary]
-
-        Args:
-            value ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         vals = np.where(value > 0, value, 0)
         return vals
 
     def Leaky_RELU_activation(self, value):
-        """[summary]
-
-        Args:
-            value ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         vals = np.where(value > 0, value, 0.01 * value)
         return vals
 
     def soft_max_activation(self, value):
-        """[summary]
-
-        Args:
-            value ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         val_exp = np.exp(value)
         return val_exp / (np.sum(val_exp, axis=1, keepdims=True))
 
@@ -371,25 +326,9 @@ class NeuralNetwork:
     """
 
     def MSE(self, y_tilde):
-        """[summary]
-
-        Args:
-            y_tilde ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         return (y_tilde - self.t)**2
 
     def cross_entropy(self, y_tilde):
-        """[summary]
-
-        Args:
-            y_tilde ([type]): [description]
-
-        Returns:
-            [type]: [description]
-        """
         return -(self.t * np.log(y_tilde) + (1 - self.t) * np.log(1 - y_tilde))
 
     """
@@ -407,11 +346,13 @@ class NeuralNetwork:
 
     def __str__(self):
         text = "Information of the Neural Network \n"
-        text += "Hidden layers:      {} \n".format(self.num_hidden_layer)
-        text += "Hidden nodes:       {} \n".format(self.num_hidden_nodes)
-        text += "Output nodes:       {} \n".format(self.num_output_nodes)
-        text += "Number of features: {} \n".format(self.X.shape[1])
-
+        text += "--------------------------------- \n"
+        text += "Hidden layers:                 {} \n".format(self.num_hidden_layers)
+        text += "Hidden nodes in network:       {} \n".format(self.num_hidden_nodes*\
+                                                              self.num_hidden_layers)
+        text += "Output nodes:                  {} \n".format(self.num_output_nodes)
+        text += "Number of features:            {} \n".format(self.X.shape[1])
+        text += "--------------------------------- \n"
         return text
 
 
@@ -449,6 +390,6 @@ if __name__ == "__main__":
                        cost="MSE",
                        loss="R2",
                        callback=True)
-
+    print(NN)
     NN.train_network_stochastic(epochs, plot=False)
     print(NN.get_score(X_test, Z_test))
