@@ -49,7 +49,7 @@ if __name__ == "__main__":
     activation = "sigmoid"
     cost_func = "cross_entropy"
     test_scores = np.zeros((len(etas), len(lmbds)))
-    """
+
     NN = NeuralNetwork(X_train,
                        y_train,
                        num_hidden_layers,
@@ -59,14 +59,15 @@ if __name__ == "__main__":
                        0.0,
                        gamma,
                        seed,
-                       activation = "leaky_relu",
-                       cost = "MSE",
+                       activation = "relu",
+                       cost = "cross_entropy",
                        loss = "accuracy",
-                       callback = True)
-    NN.train_network_stochastic(int(epochs))
+                       callback = False,
+                       last_activation = "sigmoid")
+    NN.train_network_stochastic(int(100))
     NN.plot_score_history()
 
-    exit()"""
+    exit()
 
 
     for i, eta in enumerate(etas):

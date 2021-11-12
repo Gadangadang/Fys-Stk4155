@@ -32,6 +32,7 @@ class NeuralNetwork:
                  activation="sigmoid",
                  cost="MSE",
                  loss = "MSE",
+                 last_activation = None,
                  callback = False):
         """Initialization function for neural network.
 
@@ -83,50 +84,49 @@ class NeuralNetwork:
         self.amplitude = 2
 
         self.tol = 1e-8
-
-
         "---- Set activation, cost, derivation and loss functions ----"
-        if activation == "sigmoid":
-            self.activation = self.sigmoid_activation
-        elif activation == "relu":
-            self.activation = self.RELU_activation
+        Activations_functions = {"sigmoid" : self.sigmoid_activation,
+                                 "relu" : self.RELU_activation,
+                                 "leaky_relu" : self.Leaky_RELU_activation,
+                                 "soft_max": self.soft_max_activation}
+        Cost_functions = {"MSE": self.MSE, "cross_entropy": self.cross_entropy}
+        Loss_functions = {"accuracy": self.accuracy_score,
+                          "MSE": self.MSE_score,
+                          "R2": self.R2_score,
+                          "probability": self.probability_score}
+        self.activations = [Activations_functions[activation] for _ in  range(self.L)]
+        self.cost = Cost_functions[cost]
+        self.score_func = Loss_functions[loss]
+
+
+        if activation == "relu" or  activation == "leaky_relu":
             self.scaled_weight = [num_hidden_nodes**2, \
             num_hidden_nodes*self.num_features, self.num_output_nodes * num_hidden_nodes ]
-            print(self.scaled_weight)
-        elif activation == "leaky_relu":
-            self.activation = self.Leaky_RELU_activation
-            self.scaled_weight = [num_hidden_nodes**2, \
-            num_hidden_nodes*self.num_features, self.num_output_nodes * num_hidden_nodes]
-        elif activation == "soft_max":
-            self.activation = self.soft_max_activation
-        if cost == "MSE":
-            self.cost = self.MSE
-        elif cost == "cross_entropy":
-            self.cost = self.cross_entropy
-            
+
         "---- Create hidden layers, weights and biases ----"
         self.create_layers()
         self.create_biases_and_weights()
 
-        self.activation_der = elementwise_grad(self.activation)
-        self.cost_der = elementwise_grad(self.cost)
+
         self.score_shape = 1
 
         if loss == "accuracy":
-            self.score_func = self.accuracy_score
             self.score_shape = self.num_categories
-        elif loss == "MSE":
-            self.score_func = self.MSE_score
-        elif loss == "R2":
-            self.score_func = self.R2_score
-        elif loss == "probability":
-            self.score_func = self.probability_score
 
         self.callback_label = loss
+
         if callback:
             self.callback_print = lambda epoch, score_epoch: print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
         else:
              self.callback_print = lambda epoch, score_epoch: None
+
+        if isinstance(last_activation, str):
+            self.activations[-1] = Activations_functions[last_activation]
+
+        self.activation_der = elementwise_grad(self.activations[0])
+        self.last_activation_der = elementwise_grad(self.activations[-1])
+        self.cost_der = elementwise_grad(self.cost)
+
 
     def create_layers(self):
         """
@@ -148,7 +148,6 @@ class NeuralNetwork:
         num_hidden_nodes = self.num_hidden_nodes
         num_categories = self.num_categories
         bias_shift = 0.1
-        print(self.scaled_weight)
         self.weights = [np.random.randn(
             num_hidden_nodes, num_hidden_nodes)/(self.scaled_weight[0]) for i in range(num_hidden_layers - 1)]
         self.weights.insert(0, np.random.randn(num_hidden_nodes, num_features)/(self.scaled_weight[1]))
@@ -191,23 +190,21 @@ class NeuralNetwork:
             Z_l = self.layers_a[l - 1] @ self.weights[l].T + \
                 self.bias[l][np.newaxis, :]
             self.layers_z[l] = Z_l
-            self.layers_a[l] = self.activation(Z_l)
+            self.layers_a[l] = self.activations[l](Z_l)
 
 
     def backpropagation(self):
         self.local_gradient[-1] = self.cost_der(
-            self.layers_a[-1]) * self.activation_der(self.layers_z[-1])
-
+            self.layers_a[-1]) * self.last_activation_der(self.layers_z[-1])
+        self.check_grad = np.linalg.norm(self.local_gradient[-1]*self.eta)
         for l in reversed(range(1, self.L - 1)):
             self.local_gradient[l] = self.local_gradient[l + 1]\
                 @ self.weights[l + 1] * self.activation_der(self.layers_z[l])
 
-        self.check_grad = np.linalg.norm(self.local_gradient[-1]*self.eta)
-
     def predict(self, X):
         self.layers_a[0] = X
         self.feed_forward()
-        return self.sigmoid_activation(self.layers_z[-1])
+        return self.activations[-1](self.layers_z[-1])
 
     def train_network_stochastic(self, epochs, plot=False):
         self.score = np.zeros((epochs + 1, self.score_shape))
@@ -220,13 +217,13 @@ class NeuralNetwork:
         while epoch < epochs and self.check_grad > self.tol and np.isfinite(self.check_grad):
             self.eta_func(epoch)
             batches = self.get_batches()
+            epoch += 1
             for batch in batches:
                 self.choose_mini_batch(batch)
                 self.feed_forward()
                 self.update_parameters()
             self.score[epoch] = self.get_score(self.X, self.T)
             self.callback_print(epoch, self.score[epoch])
-            epoch += 1
         self.num_epochs = epoch
 
 
@@ -278,8 +275,12 @@ class NeuralNetwork:
     def sigmoid_activation(self, value):
         return 1.0 / (1.0 + np.exp(-value))
 
+    def sigmoid_activation_man_der(self, value):
+        sig = self.sigmoid_activation(value)
+        return sig * (1-sig)
+
     def RELU_activation(self, value):
-        vals = np.where(value > 0, value, 1e-8)
+        vals = np.where(value > 0, value, 0)
         return vals
 
     def Leaky_RELU_activation(self, value):
@@ -292,8 +293,6 @@ class NeuralNetwork:
 
 
     def get_score(self, X, target):
-        self.layers_a[0] = X
-        self.feed_forward()
         return self.score_func(X, target)
 
     """
@@ -318,6 +317,8 @@ class NeuralNetwork:
             np.sum((target - np.mean(target, axis=0) ** 2))
 
     def probability_score(self, X, target):
+        self.layers_a[0] = X
+        self.feed_forward()
         pred = self.soft_max_activation(self.layers_z[-1])
         guess = np.argmax(pred, axis=1)
         target = np.argmax(target, axis=1)

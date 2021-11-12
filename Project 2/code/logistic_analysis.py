@@ -12,7 +12,7 @@ if __name__ == "__main__":
     #plot_digits(digits)
     data = digits.data
     print(data[0].shape)
-    exit()
+
     # Create a classifier: a support vector classifier
     X = data
     y_flat = digits.target
@@ -36,22 +36,17 @@ if __name__ == "__main__":
     num_hidden_layers = 2
     num_hidden_nodes = 30
     batch_size = int(50)
-    gamma = 0.9
+    gamma = 0.
     seed = 4155
-    n_categories = 1
     epochs = int(200)
     batch_size = int(50)
 
 
-    etas = np.logspace(-4, -2, 4)
-    etasSGDL = np.logspace(-4, -3, 4)
+    etas = np.logspace(-3, -2, 4)
+    etasSGDL = np.logspace(-3, -2, 4)
     lmbds = np.logspace(-3, -1, 4)
     lmbdsSGDL = np.logspace(-1, 0.5, 4)
-    #gammas = np.linspace(0, 0.5, 4)
 
-    activation = "sigmoid"
-    cost_func = "cross_entropy"
-    loss = "probability"
     test_scores_NN = np.zeros((len(etas), len(lmbds)))
     test_scores_SGDL = np.zeros((len(etas), len(lmbds)))
 
@@ -66,16 +61,17 @@ if __name__ == "__main__":
                                lmbd,
                                gamma,
                                seed,
-                               activation,
-                               cost_func,
-                               loss,
-                               callback = True)
+                               activation = "sigmoid",
+                               cost = "cross_entropy",
+                               loss = "probability",
+                               callback = True
+                              )
 
             SGDL = SGD(X_train, y_train,
                        etasSGDL[i],
                        m = batch_size,
                        num_epochs = epochs,
-                       lmbd = lmbd*100,
+                       lmbd = lmbd*10,
                        gradient_func = "Logistic",
                        loss = "probability", callback = True)
 
@@ -111,7 +107,7 @@ if __name__ == "__main__":
                        lmbds[indxNN[1][0]],
                        gamma,
                        seed,
-                       activation,
+                       "sigmoid",
                        cost_func,
                        loss,
                        callback = True)
