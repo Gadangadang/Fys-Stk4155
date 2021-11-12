@@ -103,7 +103,7 @@ class NeuralNetwork:
             self.cost = self.MSE
         elif cost == "cross_entropy":
             self.cost = self.cross_entropy
-            
+
         "---- Create hidden layers, weights and biases ----"
         self.create_layers()
         self.create_biases_and_weights()
@@ -342,9 +342,9 @@ class NeuralNetwork:
         self.eta = self.eta_0 * self.amplitude*self.sigmoid_activation(self.k*(self.dropp_time-epoch))
 
     def set_eta_decay(self, k, dropp_time):
-        self.amplitude = 1
         self.k = k #steepness
         self.dropp_time = dropp_time #time of half decay
+        self.amplitude = 1/self.sigmoid_activation(self.k*self.dropp_time)
 
 
     def __str__(self):

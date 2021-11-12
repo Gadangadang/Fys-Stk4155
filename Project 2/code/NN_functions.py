@@ -3,6 +3,7 @@ import seaborn as sns
 import numpy as np
 import matplotlib.ticker as tkr
 import matplotlib.pyplot as plt
+from NeuralNetwork import Ne
 
 def standard_scale(*args):
     scaled = []
@@ -95,3 +96,6 @@ def plot_predictions(X_test, predict, Y_test):
 #        NN.train_network_stochastic(int(epochs))
 #        test_accuracy[i][j] = NN.accuracy_score(X_test, y_test)
 #indx = np.where(test_accuracy == np.max(test_accuracy))
+
+if __name__ == "__main__":
+    pass
