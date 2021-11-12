@@ -10,9 +10,9 @@ from sklearn.linear_model import LinearRegression
 if __name__ == "__main__":
     digits = datasets.load_digits()
     #plot_digits(digits)
-
-    # flatten the images
     data = digits.data
+    print(data[0].shape)
+    exit()
     # Create a classifier: a support vector classifier
     X = data
     y_flat = digits.target
@@ -102,3 +102,25 @@ if __name__ == "__main__":
     print(f"{100*NN_best:.0f}% NN accuracy. ")
     print(f"{100*SGDL_best:.0f}% Logistic regression accuracy. ")
     print(f"{100*Scikit_best:.0f}% Sklearn logistic regression accuracy. ")
+
+    NN = NeuralNetwork(X_train, y_train,
+                       num_hidden_layers,
+                       num_hidden_nodes,
+                       batch_size,
+                       etas[indxNN[0][0]],
+                       lmbds[indxNN[1][0]],
+                       gamma,
+                       seed,
+                       activation,
+                       cost_func,
+                       loss,
+                       callback = True)
+
+    NN.train_network_stochastic(int(epochs))
+    NN.layers_a[0] = X_test
+    NN.feed_forward()
+    predict = NN.soft_max_activation(NN.layers_z[-1])
+    predict = np.argmax(predict, axis=1)
+    target = np.argmax(y_test, axis=1)
+
+    plot_predictions(X_test, predict, target)

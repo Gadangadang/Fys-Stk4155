@@ -38,17 +38,35 @@ if __name__ == "__main__":
     gamma = 0
     seed = 4155
     n_categories = 1
-    epochs = int(100)
-    batch_size = int(50)
+    epochs = int(200)
+    batch_size = int(25)
 
 
-    etas = np.logspace(-3, -1, 3)
-    lmbds = np.logspace(-4, 0, 3)
+    etas = np.logspace(-3, -1, 5)
+    lmbds = np.logspace(-4, 0, 5)
 
 
     activation = "sigmoid"
     cost_func = "cross_entropy"
     test_scores = np.zeros((len(etas), len(lmbds)))
+    """
+    NN = NeuralNetwork(X_train,
+                       y_train,
+                       num_hidden_layers,
+                       num_hidden_nodes,
+                       batch_size,
+                       0.01,
+                       0.0,
+                       gamma,
+                       seed,
+                       activation = "leaky_relu",
+                       cost = "MSE",
+                       loss = "accuracy",
+                       callback = True)
+    NN.train_network_stochastic(int(epochs))
+    NN.plot_score_history()
+
+    exit()"""
 
 
     for i, eta in enumerate(etas):
@@ -67,21 +85,21 @@ if __name__ == "__main__":
                                cost="cross_entropy",
                                loss = "accuracy",
                                callback = True)
-            NN.train_network_stochastic(int(epochs), plot = False)
+            NN.train_network_stochastic(int(epochs))
             test_scores[i][j] = NN.get_score(X_test, y_test)
 
-    plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = None, name = None)
+    plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = "Neural network test accuracy for Breast cancer data", name = None)
     indx = np.where(test_scores == np.max(test_scores))
-
 
     sklearn_pred, sklearn_accuracy = sklearn_NN_WIP(X,
                                                 y,
-                                                best_eta,
-                                                best_lmbd,
+                                                etas[indx[0][0]],
+                                                lmbds[indx[1][0]],
                                                 epochs,
                                                 num_hidden_layers,
                                                 num_hidden_nodes,
                                                 n_categories,
                                                 'logistic')
-    print(f"{100*best_val:.0f}% NN accuracy. ")
+
+    print(f"{100*test_scores[indx[0][0]][indx[1][0]]:.0f}% NN accuracy. ")
     print(f"{100*sklearn_accuracy:.0f}% Sklearn accuracy")
