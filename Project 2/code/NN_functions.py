@@ -3,7 +3,7 @@ import seaborn as sns
 import numpy as np
 import matplotlib.ticker as tkr
 import matplotlib.pyplot as plt
-from NeuralNetwork import Ne
+from NeuralNetwork import NeuralNetwork
 
 def standard_scale(*args):
     scaled = []
@@ -73,29 +73,6 @@ def plot_predictions(X_test, predict, Y_test):
     plt.show()
 
 
-#Setup arrays for accuracy score
-#test_accuracy = np.zeros((len(etas), len(lmbds)))
-
-#for i, param1_i in enumerate(param1):
-#    for j, param1_j in enumerate(param2):
-#        print(f"\r(eta_val, lmbd_val) = ({i},{j})/({len(etas)-1},{len(lmbds)-1})", end="")
-#        NN = NeuralNetwork(X_train,
-#                           y_train,
-#                           num_hidden_layers,
-#                           num_hidden_nodes,
-#                           batch_size=batch_size,
-#                           eta,
-#                           lmbd,
-#                           gamma,
-#                           seed,
-#                           activation,
-#                           cost,
-#                           loss,
-#                           callback = True)
-#
-#        NN.train_network_stochastic(int(epochs))
-#        test_accuracy[i][j] = NN.accuracy_score(X_test, y_test)
-#indx = np.where(test_accuracy == np.max(test_accuracy))
 
 if __name__ == "__main__":
     pass
