@@ -177,7 +177,7 @@ def SGD_test_learning_rate(X, y):
     plt.ylabel(r"MSE train", fontsize=14)
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/SGD_learning_rate_MSE.pdf", bbox_inches="tight")
+    # plt.savefig("../article/figures/SGD_learning_rate_MSE.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -205,7 +205,7 @@ def SGD_convergence_rate(X, y):
     MSE_arr = np.zeros((len(bsp_vals), num_epochs+1))
     epoch_arr = np.linspace(0, num_epochs, num_epochs+1)
     for i, bsp_pct in enumerate(bsp_vals):
-        np.random.seed(4155) #RN Seed
+        np.random.seed(415599) #RN Seed
         SGD_regression.reset()
         SGD_regression.m = int(bsp_pct*N)
 
@@ -266,7 +266,7 @@ def SGD_convergence_rate(X, y):
     ax.yaxis.grid(True, which='minor')
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/SGD_learning_rate_convergence.pdf", bbox_inches="tight")
+    # plt.savefig("../article/figures/SGD_learning_rate_convergence.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -340,7 +340,7 @@ def SGD_VS_OLS():
     plt.ylabel(r"MSE", fontsize=14)
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/SGD_VS_OLS.pdf", bbox_inches="tight")
+    # plt.savefig("../article/figures/SGD_VS_OLS.pdf", bbox_inches="tight")
     plt.show()
 
 def SGD_VS_Ridge(X, y):
@@ -444,7 +444,7 @@ def SGD_VS_Ridge(X, y):
     plt.ylabel(r"MSE test", fontsize=14)
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/SGD_VS_Ridge.pdf", bbox_inches="tight")
+    # plt.savefig("../article/figures/SGD_VS_Ridge.pdf", bbox_inches="tight")
     plt.show()
 
 def SGD_timing_batch_size():
@@ -505,7 +505,7 @@ def SGD_timing_batch_size():
     # ax.yaxis.grid(True, which='minor')
     plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/SGD_timing.pdf", bbox_inches="tight")
+    # plt.savefig("../article/figures/SGD_timing.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -553,7 +553,7 @@ def SGD_momentum_convergence_rate(X, y):
         ax.yaxis.grid(True, which='minor')
         plt.legend(fontsize = 13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-        plt.savefig(f"../article/figures/SGD_momentum_convergence_eta{eta_val}.pdf", bbox_inches="tight")
+        # plt.savefig(f"../article/figures/SGD_momentum_convergence_eta{eta_val}.pdf", bbox_inches="tight")
         plt.show()
 
 
@@ -654,12 +654,12 @@ if __name__ == "__main__":
 
 
     #--- Validation / testing ---#
-    # SGD_convergence_rate(X, z)
+    SGD_convergence_rate(X, z)
     # SGD_optimization_test(X, z) # not included in report so far
     # SGD_test_learning_rate(X, z)
     # SGD_VS_OLS()
     # SGD_VS_Ridge(X,z)
-    SGD_momentum_convergence_rate(X,z)
+    # SGD_momentum_convergence_rate(X,z)
     # SGD_momentum_optimization(X,z)
 
 
