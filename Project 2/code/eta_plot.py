@@ -19,5 +19,7 @@ def eta_func(k, epoch):
 
 eta_vals = eta_func(k, epochs)
 print(eta_vals)
-plt.plot(epochs, eta_vals)
-plt.show()
+#plt.plot(epochs, eta_vals)
+#plt.show()
+
+print(np.random.randn(2,2))
