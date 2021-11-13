@@ -30,9 +30,9 @@ class NeuralNetwork:
                  seed=4155,
                  activation="sigmoid",
                  cost="MSE",
-                 loss = "MSE",
-                 last_activation = None,
-                 callback = False):
+                 loss="MSE",
+                 last_activation=None,
+                 callback=False):
         """Initialization function for neural network.
 
         Args:
@@ -72,7 +72,7 @@ class NeuralNetwork:
         self.num_hidden_nodes = num_hidden_nodes
         self.num_output_nodes = self.num_categories
         self.L = self.num_hidden_layers + 2  # number of layer in total
-        self.scaled_weight = [1,1,1]
+        self.scaled_weight = [1, 1, 1]
 
         self.batch_size = batch_size
         self.lmbd = lmbd
@@ -86,28 +86,27 @@ class NeuralNetwork:
 
         self.tol = 1e-8
         "---- Set activation, cost, derivation and loss functions ----"
-        Activations_functions = {"sigmoid" : self.sigmoid_activation,
-                                 "relu" : self.RELU_activation,
-                                 "leaky_relu" : self.Leaky_RELU_activation,
+        Activations_functions = {"sigmoid": self.sigmoid_activation,
+                                 "relu": self.RELU_activation,
+                                 "leaky_relu": self.Leaky_RELU_activation,
                                  "soft_max": self.soft_max_activation}
         Cost_functions = {"MSE": self.MSE, "cross_entropy": self.cross_entropy}
         Loss_functions = {"accuracy": self.accuracy_score,
                           "MSE": self.MSE_score,
                           "R2": self.R2_score,
                           "probability": self.probability_score}
-        self.activations = [Activations_functions[activation] for _ in  range(self.L)]
+        self.activations = [Activations_functions[activation]
+                            for _ in range(self.L)]
         self.cost = Cost_functions[cost]
         self.score_func = Loss_functions[loss]
 
-
-        if activation == "relu" or  activation == "leaky_relu":
-            self.scaled_weight = [num_hidden_nodes**2, \
-            num_hidden_nodes*self.num_features, self.num_output_nodes * num_hidden_nodes ]
+        if activation == "relu" or activation == "leaky_relu":
+            self.scaled_weight = [num_hidden_nodes**2,
+                                  num_hidden_nodes * self.num_features, self.num_output_nodes * num_hidden_nodes]
 
         "---- Create hidden layers, weights and biases ----"
         self.create_layers()
         self.create_biases_and_weights()
-
 
         self.score_shape = 1
 
@@ -117,9 +116,10 @@ class NeuralNetwork:
         self.callback_label = loss
 
         if callback:
-            self.callback_print = lambda epoch, score_epoch: print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
+            self.callback_print = lambda epoch, score_epoch: print(
+                f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
         else:
-             self.callback_print = lambda epoch, score_epoch: None
+            self.callback_print = lambda epoch, score_epoch: None
 
         if isinstance(last_activation, str):
             self.activations[-1] = Activations_functions[last_activation]
@@ -127,7 +127,6 @@ class NeuralNetwork:
         self.activation_der = elementwise_grad(self.activations[0])
         self.last_activation_der = elementwise_grad(self.activations[-1])
         self.cost_der = elementwise_grad(self.cost)
-
 
     def create_layers(self):
         """
@@ -150,13 +149,14 @@ class NeuralNetwork:
         num_categories = self.num_categories
         bias_shift = 0.1
         self.weights = [np.random.randn(
-            num_hidden_nodes, num_hidden_nodes)/(self.scaled_weight[0]) for i in range(num_hidden_layers - 1)]
-        self.weights.insert(0, np.random.randn(num_hidden_nodes, num_features)/(self.scaled_weight[1]))
+            num_hidden_nodes, num_hidden_nodes) / (self.scaled_weight[0]) for i in range(num_hidden_layers - 1)]
+        self.weights.insert(0, np.random.randn(
+            num_hidden_nodes, num_features) / (self.scaled_weight[1]))
 
         # insert unused weight to get nice indexes
         self.weights.insert(0, np.nan)
         self.weights.append(np.random.randn(
-            self.num_output_nodes, num_hidden_nodes)/(self.scaled_weight[2]))
+            self.num_output_nodes, num_hidden_nodes) / (self.scaled_weight[2]))
 
         self.bias = [np.ones(num_hidden_nodes) * bias_shift
                      for i in range(num_hidden_layers)]
@@ -183,7 +183,9 @@ class NeuralNetwork:
                 self.weights[l] -= self.vel_weights[l]
 
                 self.vel_bias[l] = self.gamma * self.vel_bias[l] + \
-                    self.eta * np.mean(self.local_gradient[l], axis=0)
+                    self.eta * \
+                    np.mean(self.local_gradient[l],
+                            axis=0) + self.lmbd * self.bias[l]
                 self.bias[l] -= self.vel_bias[l]
 
     def feed_forward(self):
@@ -193,11 +195,10 @@ class NeuralNetwork:
             self.layers_z[l] = Z_l
             self.layers_a[l] = self.activations[l](Z_l)
 
-
     def backpropagation(self):
         self.local_gradient[-1] = self.cost_der(
             self.layers_a[-1]) * self.last_activation_der(self.layers_z[-1])
-        self.check_grad = np.linalg.norm(self.local_gradient[-1]*self.eta)
+        self.check_grad = np.linalg.norm(self.local_gradient[-1] * self.eta)
         for l in reversed(range(1, self.L - 1)):
             self.local_gradient[l] = self.local_gradient[l + 1]\
                 @ self.weights[l + 1] * self.activation_der(self.layers_z[l])
@@ -227,8 +228,7 @@ class NeuralNetwork:
             self.callback_print(epoch, self.score[epoch])
         self.num_epochs = epoch
 
-
-    def plot_score_history(self, name=None, legend = []):
+    def plot_score_history(self, name=None, legend=[]):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
         if self.num_epochs > 150:
             linestyle = "-"
@@ -243,17 +243,16 @@ class NeuralNetwork:
         plt.xlabel("epoch", fontsize=14)
         plt.ylabel(self.callback_label, fontsize=14)
         if self.score.shape[1] > 1:
-            if len(legend) == 0: # no legend in arg
+            if len(legend) == 0:  # no legend in arg
                 plt.legend(["category " + str(i)
-                       for i in range(self.score.shape[1])], fontsize=13)
-            else: # legend from arg
+                            for i in range(self.score.shape[1])], fontsize=13)
+            else:  # legend from arg
                 plt.legend(legend)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         if isinstance(name, str):
             plt.savefig(f"../article/figures/{name}_score_history.pdf",
-                    bbox_inches="tight")
+                        bbox_inches="tight")
         plt.show()
-
 
     def get_batches(self):
         idx = np.arange(self.N)
@@ -278,7 +277,7 @@ class NeuralNetwork:
 
     def sigmoid_activation_man_der(self, value):
         sig = self.sigmoid_activation(value)
-        return sig * (1-sig)
+        return sig * (1 - sig)
 
     def RELU_activation(self, value):
         vals = np.where(value > 0, value, 0)
@@ -291,7 +290,6 @@ class NeuralNetwork:
     def soft_max_activation(self, value):
         val_exp = np.exp(value)
         return val_exp / (np.sum(val_exp, axis=1, keepdims=True))
-
 
     def get_score(self, X, target):
         return self.score_func(X, target)
@@ -341,30 +339,31 @@ class NeuralNetwork:
     """
 
     def eta_func(self, epoch):
-        self.eta = self.eta_0 * self.amplitude*self.sigmoid_activation(self.k*(self.dropp_time-epoch))
+        self.eta = self.eta_0 * self.amplitude * \
+            self.sigmoid_activation(self.k * (self.dropp_time - epoch))
 
     def set_eta_decay(self, k, dropp_time):
-        self.k = k #steepness
-        self.dropp_time = dropp_time #time of half decay
-        self.amplitude = 1/self.sigmoid_activation(self.k*self.dropp_time)
-
+        self.k = k  # steepness
+        self.dropp_time = dropp_time  # time of half decay
+        self.amplitude = 1 / self.sigmoid_activation(self.k * self.dropp_time)
 
     def __str__(self):
         text = "Information of the Neural Network \n"
         text += "--------------------------------- \n"
-        text += "Hidden layers:                 {} \n".format(self.num_hidden_layers)
-        text += "Hidden nodes in network:       {} \n".format(self.num_hidden_nodes*\
+        text += "Hidden layers:                 {} \n".format(
+            self.num_hidden_layers)
+        text += "Hidden nodes in network:       {} \n".format(self.num_hidden_nodes *
                                                               self.num_hidden_layers)
-        text += "Output nodes:                  {} \n".format(self.num_output_nodes)
+        text += "Output nodes:                  {} \n".format(
+            self.num_output_nodes)
         text += "Number of features:            {} \n".format(self.X.shape[1])
         text += "--------------------------------- \n"
         return text
 
 
-
 if __name__ == "__main__":
     # Get modules from project 1
-    sys.path.insert(1,"../../Project 1/code/")
+    sys.path.insert(1, "../../Project 1/code/")
     from Functions import *
     # The above imports numpy as np so we have to redefine:
     import autograd.numpy as np

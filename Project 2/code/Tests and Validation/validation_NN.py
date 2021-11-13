@@ -1,4 +1,9 @@
 # This allows using whichever regularizer we want (l1,l2,l1_l2)
+from matplotlib.ticker import MaxNLocator
+from NeuralNetwork import NeuralNetwork
+from NN_functions import plot_heatmap
+import matplotlib.pyplot as plt
+import numpy as np
 from tensorflow.keras import regularizers
 # This allows using whichever optimiser we want (sgd,adam,RMSprop)
 from tensorflow.keras import optimizers
@@ -13,13 +18,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.neural_network import MLPClassifier
 from import_folders import *
 import_all_folders()
-import numpy as np
-import matplotlib.pyplot as plt
-from NN_functions import plot_heatmap
-
-from NeuralNetwork import NeuralNetwork
-from matplotlib.ticker import MaxNLocator
-
 
 
 # sklearn classifier
@@ -172,10 +170,10 @@ def Franke_NN():
     """
     #layers and mse
 
-    lmbd = 10**(-4)
+    lmbd = 0  # 10**(-4)
     eta = 0.1
     num_hidden_layers = np.arange(1, 20)
-    """
+
     num_nodes = np.arange(1, 10)
     for node in num_nodes:
         test_scores_train = np.zeros(len(num_hidden_layers))
@@ -207,10 +205,10 @@ def Franke_NN():
         plt.ylabel(r"$MSE$", fontsize=14)
         plt.legend(fontsize=13)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-        plt.savefig(f"../article/figures/mse_hidden_layers_node_{node}.pdf",
+        plt.savefig(f"../../article/figures/mse_hidden_layers_node_{node}.pdf",
                     bbox_inches="tight")
         plt.show()
-
+    """
     num_nodes = np.arange(41, 51)
     num_layers = np.arange(2, 8)
     test_scores_NN_lay_node = np.zeros((len(num_layers), len(num_nodes)))
@@ -238,7 +236,7 @@ def Franke_NN():
     plot_heatmap(test_scores_NN_lay_node, [r"Number of nodes", num_nodes],
                  [r"Number of layers", num_layers], title="Grid search Neural Network", name=None)
 
-    """
+
 
 
     num_hidden_layers = 3
@@ -288,7 +286,7 @@ def Franke_NN():
 
     "---- Tensorflow test against our neural net ----"
 
-    """
+
     epochs1 = 400
     gamma = 0.0
     cost_func="mean_squared_error"
@@ -407,7 +405,7 @@ def tensorflow_copy():
 
 
 if __name__ == "__main__":
-    sys.path.insert(1,"../../../Project 1/code/")
+    sys.path.insert(1, "../../../Project 1/code/")
     from Functions import *
     from prediction_plots import plot_3D_shuffled
     # logic_gates_NN()

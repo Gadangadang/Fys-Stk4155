@@ -4,14 +4,26 @@ from sklearn.model_selection import train_test_split
 from tqdm import trange
 import matplotlib.pyplot as plt
 
+
 class SGD:
     """
     Stochastic Gradient Descent
     with mini batches
     """
-    def __init__(self, X, y, eta_val=0.1, m = 0, num_epochs = int(1e4), lmbd = 0 , gamma = 0,  gradient_func = "Ridge", loss = "accuracy", callback = False):
+
+    def __init__(self,
+                 X,
+                 y,
+                 eta_val=0.1,
+                 m=0,
+                 num_epochs=int(1e4),
+                 lmbd=0,
+                 gamma=0,
+                 gradient_func="Ridge",
+                 loss="accuracy",
+                 callback=False):
         self.X = X
-        self.N = X.shape[0] # Number of data points
+        self.N = X.shape[0]  # Number of data points
         self.y = y
         self.num_categories = y.shape[1]
 
@@ -19,9 +31,9 @@ class SGD:
         assert dim_check, "Dimensions of X and y does not match"
 
         self.eta_val = eta_val
-        if m == 0: # full gradient descent
+        if m == 0:  # full gradient descent
             self.m = self.N
-        else: # user defined m
+        else:  # user defined m
             self.m = m
 
         self.num_epochs = num_epochs
@@ -35,12 +47,13 @@ class SGD:
                           "MSE": self.MSE_score,
                           "R2": self.R2_score,
                           "probability": self.probability_score}
-        Gradient_funcs = {"Logistic": self.gradient_Logistic, "Ridge": self.gradient_Ridge}
+        Gradient_funcs = {"Logistic": self.gradient_Logistic,
+                          "Ridge": self.gradient_Ridge}
 
         self.gradient_func = Gradient_funcs[gradient_func]
         self.score_func = Loss_functions[loss]
 
-        self.eta_func = self.eta_const # Default
+        self.eta_func = self.eta_const  # Default
 
         self.score_shape = 1
         if loss == "accuracy":
@@ -48,34 +61,32 @@ class SGD:
 
         self.callback_label = loss
         if callback:
-            self.callback_print = lambda epoch, score_epoch: print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
+            self.callback_print = lambda epoch, score_epoch: print(
+                f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
         else:
-             self.callback_print = lambda epoch, score_epoch: None
+            self.callback_print = lambda epoch, score_epoch: None
         # Initializa theta and set epoch = 1
         self.reset()
-
 
     def reset(self):
         self.epoch = 0
         self.initialize_theta_normal()
 
-
     def initialize_theta_normal(self):
         """
         Initialize theta with normal disttribution
         """
-        self.theta = np.random.normal(0, 1, size=(self.X.shape[1], self.num_categories))
-
+        self.theta = np.random.normal(0, 1, size=(
+            self.X.shape[1], self.num_categories))
 
     def get_batches(self):
         idx = np.arange(self.N)
         np.random.shuffle(idx)
-        int_max = self.N//self.m
-        batches = [idx[i*self.m:(i+1)*self.m] for i in range(int_max)]
-        if self.N%self.m != 0:
-            batches.append(idx[int_max*self.m:])
+        int_max = self.N // self.m
+        batches = [idx[i * self.m:(i + 1) * self.m] for i in range(int_max)]
+        if self.N % self.m != 0:
+            batches.append(idx[int_max * self.m:])
         return batches
-
 
     def SGD_evolve(self):
         """
@@ -85,11 +96,9 @@ class SGD:
         for batch in batches:
             X = self.X[batch]
             y = self.y[batch]
-            g = self.gradient_func(X,y)
-            self.vel = self.gamma*self.vel + self.eta_func(self.epoch) * g
+            g = self.gradient_func(X, y)
+            self.vel = self.gamma * self.vel + self.eta_func(self.epoch) * g
             self.theta -= self.vel
-
-
 
     def SGD_train(self):
         """
@@ -100,15 +109,14 @@ class SGD:
         self.score[self.epoch] = self.get_score(self.X, self.y)
         self.callback_print(self.epoch, self.score[self.epoch])
 
-
         while self.epoch < self.num_epochs:
             self.SGD_evolve()
-            self.epoch +=1
+            self.epoch += 1
             self.score[self.epoch] = self.get_score(self.X, self.y)
             self.callback_print(self.epoch, self.score[self.epoch])
         return self.theta.ravel()
 
-    def plot_score_history(self, name=None, legend = []):
+    def plot_score_history(self, name=None, legend=[]):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
         if self.num_epochs > 150:
             linestyle = "-"
@@ -123,20 +131,19 @@ class SGD:
         plt.xlabel("epoch", fontsize=14)
         plt.ylabel(self.callback_label, fontsize=14)
         if self.score.shape[1] > 1:
-            if len(legend) == 0: # no legend in arg
+            if len(legend) == 0:  # no legend in arg
                 plt.legend(["category " + str(i)
-                       for i in range(self.score.shape[1])], fontsize=13)
-            else: # legend from arg
+                            for i in range(self.score.shape[1])], fontsize=13)
+            else:  # legend from arg
                 plt.legend(legend)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         if isinstance(name, str):
             plt.savefig(f"../article/figures/{name}_score_history.pdf",
-                    bbox_inches="tight")
+                        bbox_inches="tight")
         plt.show()
 
-
     def predict(self, X):
-        prediction = np.exp(X @ self.theta)/(1+np.exp(X @ self.theta))
+        prediction = np.exp(X @ self.theta) / (1 + np.exp(X @ self.theta))
         return prediction
 
     def get_score(self, X, target):
@@ -168,22 +175,23 @@ class SGD:
 
     # --- eta and gradient functions --- #
 
-    def eta_const(self, epoch): # Constant learning rate
+    def eta_const(self, epoch):  # Constant learning rate
         return self.eta_val
 
-    def gradient_Logistic(self, X, y): # Logistic gradient
-        g = -X.T @ (y - np.exp(X @ self.theta)/(1+np.exp(X @ self.theta))) + 2*self.lmbd * self.theta
+    def gradient_Logistic(self, X, y):  # Logistic gradient
+        g = -X.T @ (y - np.exp(X @ self.theta) /
+                    (1 + np.exp(X @ self.theta))) + 2 * self.lmbd * self.theta
         return g
 
-    def gradient_Ridge(self, X, y): # Ridge gradient
-        g = 2*(1/self.N * X.T @ ((X @ self.theta) - y) + self.lmbd*self.theta)
+    def gradient_Ridge(self, X, y):  # Ridge gradient
+        g = 2 * (1 / self.N * X.T @ ((X @ self.theta) - y) +
+                 self.lmbd * self.theta)
         return g
-
 
 
 if __name__ == "__main__":
     # Get modules from project 1
-    sys.path.insert(1,"../../Project 1/code/")
+    sys.path.insert(1, "../../Project 1/code/")
     from Functions import *
 
     # #--- Create data from Franke Function ---#
@@ -211,7 +219,6 @@ if __name__ == "__main__":
     # print("SGD: ", MSE(ztilde_SGD, z))
     # print("OLS: ", MSE(ztilde_OLS, z))
 
-
     # --- Logistic run --- #
     from sklearn import datasets, svm, metrics
     from NN_functions import *
@@ -228,10 +235,9 @@ if __name__ == "__main__":
         y.append(y_i)
     y = np.asarray(y)
 
-
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    X_train, X_test, y_train, y_test = standard_scale(X_train, X_test, y_train, y_test)
-
+    X_train, X_test, y_train, y_test = standard_scale(
+        X_train, X_test, y_train, y_test)
 
     gamma = 0.5
     seed = 4155
@@ -239,10 +245,8 @@ if __name__ == "__main__":
     eta_val = 1e-1
     epochs = 1000
 
-
-
-
-    SGDL = SGD(X_train, y_train, eta_val, m = batch_size, num_epochs = epochs, gradient_func = "Ridge", loss = "probability", callback = True)
+    SGDL = SGD(X_train, y_train, eta_val, m=batch_size, num_epochs=epochs,
+               gradient_func="Ridge", loss="probability", callback=True)
     SGDL.SGD_train()
     SGDL.plot_score_history()
     print(SGDL.get_score(X_test, y_test))
