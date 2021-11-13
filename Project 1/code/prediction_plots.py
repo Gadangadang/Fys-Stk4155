@@ -77,7 +77,8 @@ def plot_3D_shuffled(title, x, y, z, z_label, save_name, show = False, save = Tr
     # surf = ax.plot_trisurf(x, y, z,
     #             cmap=cm.coolwarm, edgecolor='none');
     surf = ax.plot_trisurf(x, y, z,
-                cmap=cm.coolwarm, edgecolor='darkgrey',  linewidth=0.2, antialiased=True)
+                cmap=cm.coolwarm,  linewidth=0.2, antialiased=True)
+                #, edgecolor='darkgrey'
 
 
 
@@ -99,7 +100,7 @@ def plot_3D_shuffled(title, x, y, z, z_label, save_name, show = False, save = Tr
     plt.tight_layout(pad=1.5, w_pad=0.7, h_pad=0.2)
     ax.view_init(azim=70)
     if save:
-        plt.savefig(f"../article/figures/zprediction_real_data/{save_name}.pdf", bbox_inches="tight")
+        plt.savefig(f"../../article/figures/zprediction_real_data/{save_name}.pdf", bbox_inches="tight")
     if show:
         plt.show()
     else:

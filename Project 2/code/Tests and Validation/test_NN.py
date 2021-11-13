@@ -12,7 +12,7 @@ import os
 import sys
 # Get modules from project 1
 path = os.getcwd()  # Current working directory
-path += '/../../Project 1/code'
+path += '/../../../Project 1/code'
 sys.path.append(path)
 from Functions import *
 
