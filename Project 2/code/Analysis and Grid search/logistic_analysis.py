@@ -13,7 +13,6 @@ if __name__ == "__main__":
     digits = datasets.load_digits()
     #plot_digits(digits)
     data = digits.data
-    print(data[0].shape)
 
     # Create a classifier: a support vector classifier
     X = data
@@ -66,7 +65,7 @@ if __name__ == "__main__":
                                activation = "sigmoid",
                                cost = "cross_entropy",
                                loss = "probability",
-                               callback = True
+                               callback = False
                               )
 
             SGDL = SGD(X_train, y_train,
@@ -75,7 +74,7 @@ if __name__ == "__main__":
                        num_epochs = epochs,
                        lmbd = lmbd*10,
                        gradient_func = "Logistic",
-                       loss = "probability", callback = True)
+                       loss = "probability", callback = False)
 
             SGDL.SGD_train()
             NN.train_network_stochastic(int(epochs))
@@ -110,9 +109,9 @@ if __name__ == "__main__":
                        gamma,
                        seed,
                        "sigmoid",
-                       cost_func,
-                       loss,
-                       callback = True)
+                       "cross_entropy",
+                       "probability",
+                       callback = False)
 
     NN.train_network_stochastic(int(epochs))
     NN.layers_a[0] = X_test

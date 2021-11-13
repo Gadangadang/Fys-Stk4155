@@ -42,11 +42,12 @@ if __name__ == "__main__":
     batch_size = int(25)
 
     activations = ["sigmoid", "relu", "leaky_relu"]
+    labels = ["Sigmoid", "Relu", "Leaky relu"]
     cost_func = "cross_entropy"
 
 
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-    for activation in activations:
+    for i, activation in enumerate(activations):
         NN = NeuralNetwork(X_train,
                            y_train,
                            num_hidden_layers,
@@ -65,12 +66,12 @@ if __name__ == "__main__":
         epoch = len(NN.score)
         epochs_lin = np.linspace(0, epoch, epoch)
         plt.plot(epochs_lin,
-                 NN.score, label = activation, linestyle="-",
+                 NN.score, label = labels[i], linestyle="-",
                  marker = "None", markersize=3)
     plt.xlabel("epoch", fontsize=14)
     plt.ylim([0.92,1])
     plt.ylabel("Accuracy", fontsize=14)
-
-    plt.legend()
+    plt.title("Activation function comparison for Breast cancer")
+    plt.legend(fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.show()
