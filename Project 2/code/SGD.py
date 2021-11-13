@@ -32,33 +32,26 @@ class SGD:
 
         # Set gradient and learning rate functions
 
-        if gradient_func == "Logistic":
-            self.gradient_func = self.gradient_Logistic
+        Loss_functions = {"accuracy": self.accuracy_score,
+                          "MSE": self.MSE_score,
+                          "R2": self.R2_score,
+                          "probability": self.probability_score}
+        Gradient_funcs = {"Logistic": self.gradient_Logistic, "Ridge": self.gradient_Ridge}
 
-        else:
-            self.gradient_func = self.gradient_Ridge # Default
+        self.gradient_func = Gradient_funcs[gradient_func]
+        self.score_func = Loss_functions[loss]
 
         self.eta_func = self.eta_const # Default
 
         self.score_shape = 1
         if loss == "accuracy":
-            self.score_func = self.accuracy_score
             self.score_shape = self.num_categories
-        elif loss == "MSE":
-            self.score_func = self.MSE_score
-        elif loss == "R2":
-            self.score_func = self.R2_score
-        elif loss == "probability":
-            self.score_func = self.probability_score
 
         self.callback_label = loss
         if callback:
             self.callback_print = lambda epoch, score_epoch: print(f"epoch: {epoch}, {self.callback_label} = {score_epoch}")
         else:
              self.callback_print = lambda epoch, score_epoch: None
-
-
-
         # Initializa theta and set epoch = 1
         self.reset()
 
