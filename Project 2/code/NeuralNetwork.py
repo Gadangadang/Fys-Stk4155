@@ -3,7 +3,7 @@ import autograd.numpy as np
 from autograd import elementwise_grad
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from FunctionsV2.plot_set import *
+#from FunctionsV2.plot_set import *
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 

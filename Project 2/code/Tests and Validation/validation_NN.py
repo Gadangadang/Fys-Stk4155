@@ -244,7 +244,7 @@ def Franke_NN():
     num_hidden_layers = 3
     num_hidden_nodes = 42
     activation = "sigmoid"
-    """
+
     NN = NeuralNetwork(X_train, Z_train,
                        num_hidden_layers,
                        num_hidden_nodes,
@@ -261,7 +261,7 @@ def Franke_NN():
     NN.train_network_stochastic(int(epochs))
     print("MSE: {}".format(NN.MSE_score(X_test, Z_test)))
     print("R2: {}".format(NN.R2_score(X_test, Z_test)))
-    """
+
 
     N = 1000
     x_val = np.random.uniform(0, 1, N)
@@ -274,18 +274,21 @@ def Franke_NN():
 
     X_validation, x_val, y_val = mean_scale(X_validation, x_val, y_val)
 
-    """
+
     prediction = NN.predict(X_validation)
     print(prediction.shape)
+
 
     plot_3D_shuffled("Neural Net prediction on Franke's func",
                      x_val, y_val, prediction.ravel(), "Prediction", "test.pdf", show = True, save = True)
 
     plot_3D_shuffled("Franke's function data with noise",
                      x_val, y_val, z_val, "Actual data", "act_data.pdf", show = True, save = True)
-    """
+
 
     "---- Tensorflow test against our neural net ----"
+
+    """
     epochs1 = 400
     gamma = 0.0
     cost_func="mean_squared_error"
@@ -304,7 +307,7 @@ def Franke_NN():
     ts_pred = model.predict(X_validation)
     print("MSE: ", MSE(ts_pred.ravel(), z_val))
     print("R2: ", R2(z_val,ts_pred.ravel()))
-
+    """
 
 
 def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers,
@@ -404,11 +407,7 @@ def tensorflow_copy():
 
 
 if __name__ == "__main__":
-    import os
-    import sys
-    path = os.getcwd()  # Current working directory
-    path += '/../../Project 1/code'
-    sys.path.append(path)
+    sys.path.insert(1,"../../../Project 1/code/")
     from Functions import *
     from prediction_plots import plot_3D_shuffled
     # logic_gates_NN()

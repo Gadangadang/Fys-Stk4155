@@ -68,7 +68,7 @@ if __name__ == "__main__":
                        last_activation = "sigmoid")
     NN.train_network_stochastic(int(100))
     NN.plot_score_history()
-    
+
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
             print(f"\r(eta_val, lmbd_val) = ({i},{j})/({len(etas)-1},{len(lmbds)-1})", end="")
