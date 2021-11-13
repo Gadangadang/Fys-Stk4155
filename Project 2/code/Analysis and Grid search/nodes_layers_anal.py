@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
+from import_folders import *
+import_all_folders()
 from NN_functions import *
 from NeuralNetwork import NeuralNetwork
 

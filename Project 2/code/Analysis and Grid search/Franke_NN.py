@@ -1,10 +1,9 @@
 import os
 import sys
 from sklearn.model_selection import train_test_split
-# Get modules from project 1
-path = os.getcwd()  # Current working directory
-path += '/../../Project 1/code'
-sys.path.append(path)
+from import_folders import *
+import_all_folders()
+sys.path.insert(1,"../../../Project 1/code/")
 from Functions import *
 from NeuralNetwork import *
 # The above imports numpy as np so we have to redefine:
@@ -35,7 +34,7 @@ if __name__ == "__main__":
     #pseudo code
     x = np.randnum(0,1, num_points)
     y = np.randnum(0,1, num_points)
-    z = Franke(x,y + noise
+    z = Franke(x,y + noise)
     X = [x, y]
 
 

@@ -1,7 +1,11 @@
 import numpy as np
+import sys
+from import_folders import *
+import_all_folders()
+from plot_set import *
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
-from plot_set import *
+
 from NN_functions import *
 from NeuralNetwork import NeuralNetwork
 
@@ -39,7 +43,7 @@ if __name__ == "__main__":
 
     activations = ["sigmoid", "relu", "leaky_relu"]
     cost_func = "cross_entropy"
-    test_scores = np.zeros((len(etas), len(lmbds)))
+
 
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     for activation in activations:

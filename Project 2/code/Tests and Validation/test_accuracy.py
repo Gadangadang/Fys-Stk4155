@@ -1,5 +1,6 @@
-import os
-import sys
+from import_folders import *
+import_all_folders()
+from NeuralNetwork import *
 import autograd.numpy as np
 from autograd import elementwise_grad
 import matplotlib.pyplot as plt
@@ -79,11 +80,8 @@ def test_accuracy_nn():
 
 if __name__ == "__main__":
     # Get modules from project 1
-    path = os.getcwd()  # Current working directory
-    path += '/../../Project 1/code'
-    sys.path.append(path)
+    sys.path.insert(1,"../../../Project 1/code/")
     from Functions import *
-    from NeuralNetwork import *
     # The above imports numpy as np so we have to redefine:
     import autograd.numpy as np
     #--- Create data from Franke Function ---#
@@ -98,5 +96,5 @@ if __name__ == "__main__":
     X = create_X(x, y, n)
 
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
-    
+
     test_accuracy_nn()  # Test accuracy of network

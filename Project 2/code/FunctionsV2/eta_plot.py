@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.ticker as tkr
 import matplotlib.pyplot as plt
+from import_folders import *
+import_all_folders()
 from NeuralNetwork import NeuralNetwork
 from matplotlib.ticker import MaxNLocator
 

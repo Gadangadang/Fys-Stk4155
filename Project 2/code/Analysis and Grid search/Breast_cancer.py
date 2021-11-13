@@ -1,4 +1,6 @@
 import numpy as np
+from import_folders import *
+import_all_folders()
 from sklearn.datasets import load_breast_cancer
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
@@ -66,10 +68,7 @@ if __name__ == "__main__":
                        last_activation = "sigmoid")
     NN.train_network_stochastic(int(100))
     NN.plot_score_history()
-
-    exit()
-
-
+    
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
             print(f"\r(eta_val, lmbd_val) = ({i},{j})/({len(etas)-1},{len(lmbds)-1})", end="")

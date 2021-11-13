@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from import_folders import *
+import_all_folders()
 from NeuralNetwork import NeuralNetwork
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score

@@ -1,10 +1,9 @@
-import os
 import sys
 import autograd.numpy as np
 from autograd import elementwise_grad
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from plot_set import *
+from FunctionsV2.plot_set import *
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
@@ -363,9 +362,7 @@ class NeuralNetwork:
 
 if __name__ == "__main__":
     # Get modules from project 1
-    path = os.getcwd()  # Current working directory
-    path += '/../../Project 1/code'
-    sys.path.append(path)
+    sys.path.insert(1,"../../Project 1/code/")
     from Functions import *
     # The above imports numpy as np so we have to redefine:
     import autograd.numpy as np
