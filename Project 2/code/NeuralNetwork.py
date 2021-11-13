@@ -12,10 +12,11 @@ class NeuralNetwork:
     Neural Network using stochastic gradient descent with optional
     momentum, for faster convergence. The basis of the algorithm is:
 
-    *
-    *
-    *
-    *
+    * Stochastic gradient descent 
+    * Feed forward
+    * Backpropagation
+    * Updating the weights and biases
+    * Prediction
     """
 
     def __init__(self,
