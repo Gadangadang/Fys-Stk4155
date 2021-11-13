@@ -52,6 +52,8 @@ class NeuralNetwork:
             cost              (str, optional): Choice of cost function. Defaults to "MSE".
             loss              (str, optional): Choice of loss func, for realtime tracking of accuracy.
                                                Defaults to "MSE".
+            last_activation   (str, optional): Choice of activation function on last layer.
+                                               Defaults to None -> Same activation on all layers.
             callback         (bool, optional): Bool, choice to track progress and loss accuracy.
                                                Defaults to False.
         """
