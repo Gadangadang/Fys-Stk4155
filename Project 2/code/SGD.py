@@ -1,5 +1,4 @@
 import numpy as np
-import os
 import sys
 from sklearn.model_selection import train_test_split
 from tqdm import trange
@@ -184,9 +183,7 @@ class SGD:
 
 if __name__ == "__main__":
     # Get modules from project 1
-    path = os.getcwd()  # Current working directory
-    path += '/../../Project 1/code'
-    sys.path.append(path)
+    sys.path.insert(1,"../../Project 1/code/")
     from Functions import *
 
     # #--- Create data from Franke Function ---#

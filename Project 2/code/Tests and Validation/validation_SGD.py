@@ -1,12 +1,11 @@
+from import_folders import *
+import_all_folders()
 from SGD import *
 import seaborn as sns; sns.set_theme()
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from matplotlib.ticker import MaxNLocator
 from plot_set import*
-
-# from matplotlib.ticker import FormatStrFormatter
-# from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 # Get modules from project 1
 path = os.getcwd()  # Current working directory

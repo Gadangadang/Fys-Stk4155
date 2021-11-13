@@ -1,4 +1,6 @@
 import numpy as np
+from import_folders import *
+import_all_folders()
 from sklearn.datasets import load_breast_cancer
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score

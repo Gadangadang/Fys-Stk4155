@@ -1,4 +1,6 @@
 from sklearn import datasets, svm, metrics
+from import_folders import *
+import_all_folders()
 from SGD import *
 from NN_functions import *
 from NeuralNetwork import NeuralNetwork
