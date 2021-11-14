@@ -13,7 +13,7 @@ class SGD:
 
     def __init__(self,
                  X,
-                 y,
+                 t,
                  eta_val=0.1,
                  m=0,
                  num_epochs=int(1e4),
@@ -24,10 +24,10 @@ class SGD:
                  callback=False):
         self.X = X
         self.N = X.shape[0]  # Number of data points
-        self.y = y
-        self.num_categories = y.shape[1]
+        self.t = t
+        self.num_categories = t.shape[1]
 
-        dim_check = X.shape[0] == y.shape[0]
+        dim_check = X.shape[0] == t.shape[0]
         assert dim_check, "Dimensions of X and y does not match"
 
         self.eta_val = eta_val
@@ -95,8 +95,8 @@ class SGD:
         batches = self.get_batches()
         for batch in batches:
             X = self.X[batch]
-            y = self.y[batch]
-            g = self.gradient_func(X, y)
+            t = self.t[batch]
+            g = self.gradient_func(X, t)
             self.vel = self.gamma * self.vel + self.eta_func(self.epoch) * g
             self.theta -= self.vel
 
@@ -106,13 +106,13 @@ class SGD:
         """
 
         self.score = np.zeros((self.num_epochs + 1, self.score_shape))
-        self.score[self.epoch] = self.get_score(self.X, self.y)
+        self.score[self.epoch] = self.get_score(self.X, self.t)
         self.callback_print(self.epoch, self.score[self.epoch])
 
         while self.epoch < self.num_epochs:
             self.SGD_evolve()
             self.epoch += 1
-            self.score[self.epoch] = self.get_score(self.X, self.y)
+            self.score[self.epoch] = self.get_score(self.X, self.t)
             self.callback_print(self.epoch, self.score[self.epoch])
         return self.theta.ravel()
 
@@ -178,13 +178,13 @@ class SGD:
     def eta_const(self, epoch):  # Constant learning rate
         return self.eta_val
 
-    def gradient_Logistic(self, X, y):  # Logistic gradient
-        g = -X.T @ (y - np.exp(X @ self.theta) /
+    def gradient_Logistic(self, X, t):  # Logistic gradient
+        g = -X.T @ (t - np.exp(X @ self.theta) /
                     (1 + np.exp(X @ self.theta))) + 2 * self.lmbd * self.theta
         return g
 
-    def gradient_Ridge(self, X, y):  # Ridge gradient
-        g = 2 * (1 / self.N * X.T @ ((X @ self.theta) - y) +
+    def gradient_Ridge(self, X, t):  # Ridge gradient
+        g = 2 * (1 / self.N * X.T @ ((X @ self.theta) - t) +
                  self.lmbd * self.theta)
         return g
 
@@ -194,59 +194,59 @@ if __name__ == "__main__":
     sys.path.insert(1, "../../Project 1/code/")
     from Functions import *
 
-    # #--- Create data from Franke Function ---#
-    # N = 10               # Number of points in each dimension
-    # z_noise = 0.2       # Added noise to the z-value
-    # n = 3               # Highest order of polynomial for X
-    # x, y, z = generate_data(N, z_noise)
-    # X = create_X(x, y, n)
-    #
-    #
-    # # --- Test run --- #
-    # eta = 0.001
-    # m = 0 # m=0 gives full gradient descent
-    #
-    # #--- Regression ---#
-    # solver = SGD(X, z, eta_val=0.1, m = m, num_epochs = int(1e2))
-    # solver.gamma = 0.8
-    # theta_SGD = solver.SGD_train()      # Stochastic Gradient Descent
-    # theta_OLS = OLS_regression(X, z)  # OLS regression
-    #
-    #
-    # ztilde_SGD = (X @ theta_SGD).ravel()
-    # ztilde_OLS = (X @ theta_OLS).ravel()
-    #
-    # print("SGD: ", MSE(ztilde_SGD, z))
-    # print("OLS: ", MSE(ztilde_OLS, z))
+    #--- Create data from Franke Function ---#
+    N = 10               # Number of points in each dimension
+    z_noise = 0.2       # Added noise to the z-value
+    n = 3               # Highest order of polynomial for X
+    x, y, z = generate_data(N, z_noise)
+    X = create_X(x, y, n)
 
-    # --- Logistic run --- #
-    from sklearn import datasets, svm, metrics
-    from NN_functions import *
-    digits = datasets.load_digits()
 
-    # flatten the images
-    data = digits.data
-    # Create a classifier: a support vector classifier
-    X = data
-    y_flat = digits.target
-    y = []
-    for i in range(len(y_flat)):
-        y_i = np.asarray([j == y_flat[i] for j in range(10)])
-        y.append(y_i)
-    y = np.asarray(y)
+    # --- Test run --- #
+    eta = 0.001
+    m = 0 # m=0 gives full gradient descent
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    X_train, X_test, y_train, y_test = standard_scale(
-        X_train, X_test, y_train, y_test)
+    #--- Regression ---#
+    solver = SGD(X, z, eta_val=0.1, m = m, num_epochs = int(1e2))
+    solver.gamma = 0.8
+    theta_SGD = solver.SGD_train()      # Stochastic Gradient Descent
+    theta_OLS = OLS_regression(X, z)  # OLS regression
 
-    gamma = 0.5
-    seed = 4155
-    batch_size = 0
-    eta_val = 1e-1
-    epochs = 1000
 
-    SGDL = SGD(X_train, y_train, eta_val, m=batch_size, num_epochs=epochs,
-               gradient_func="Ridge", loss="probability", callback=True)
-    SGDL.SGD_train()
-    SGDL.plot_score_history()
-    print(SGDL.get_score(X_test, y_test))
+    ztilde_SGD = (X @ theta_SGD).ravel()
+    ztilde_OLS = (X @ theta_OLS).ravel()
+
+    print("SGD: ", MSE(ztilde_SGD, z))
+    print("OLS: ", MSE(ztilde_OLS, z))
+
+    # # --- Logistic run --- #
+    # from sklearn import datasets, svm, metrics
+    # from NN_functions import *
+    # digits = datasets.load_digits()
+    #
+    # # flatten the images
+    # data = digits.data
+    # # Create a classifier: a support vector classifier
+    # X = data
+    # y_flat = digits.target
+    # y = []
+    # for i in range(len(y_flat)):
+    #     y_i = np.asarray([j == y_flat[i] for j in range(10)])
+    #     y.append(y_i)
+    # y = np.asarray(y)
+    #
+    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    # X_train, X_test, y_train, y_test = standard_scale(
+    #     X_train, X_test, y_train, y_test)
+    #
+    # gamma = 0.5
+    # seed = 4155
+    # batch_size = 0
+    # eta_val = 1e-1
+    # epochs = 1000
+    #
+    # SGDL = SGD(X_train, y_train, eta_val, m=batch_size, num_epochs=epochs,
+    #            gradient_func="Ridge", loss="probability", callback=True)
+    # SGDL.SGD_train()
+    # SGDL.plot_score_history()
+    # print(SGDL.get_score(X_test, y_test))
