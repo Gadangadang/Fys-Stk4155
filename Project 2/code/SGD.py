@@ -201,17 +201,15 @@ if __name__ == "__main__":
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
-
     # --- Test run --- #
     eta = 0.001
-    m = 0 # m=0 gives full gradient descent
+    m = 0  # m=0 gives full gradient descent
 
     #--- Regression ---#
-    solver = SGD(X, z, eta_val=0.1, m = m, num_epochs = int(1e2))
+    solver = SGD(X, z, eta_val=0.1, m=m, num_epochs=int(1e2))
     solver.gamma = 0.8
     theta_SGD = solver.SGD_train()      # Stochastic Gradient Descent
     theta_OLS = OLS_regression(X, z)  # OLS regression
-
 
     ztilde_SGD = (X @ theta_SGD).ravel()
     ztilde_OLS = (X @ theta_OLS).ravel()

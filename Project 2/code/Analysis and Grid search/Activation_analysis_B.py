@@ -1,33 +1,35 @@
-import numpy as np
-import sys
 from import_folders import *
 import_all_folders()
-from plot_set import *
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-
-from NN_functions import *
 from NeuralNetwork import NeuralNetwork
+from NN_functions import *
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_breast_cancer
+from plot_set import *
+import numpy as np
+import sys
+
 
 
 if __name__ == "__main__":
     """Load breast cancer dataset"""
 
-    np.random.seed(0)        #create same seed for random number every time
-    cancer=load_breast_cancer()      #Download breast cancer dataset
+    np.random.seed(0)  # create same seed for random number every time
+    cancer = load_breast_cancer()  # Download breast cancer dataset
 
-    inputs=cancer.data                     #Feature matrix of 569 rows (samples) and 30 columns (parameters)
-    outputs= cancer.target                #Label array of 569 rows (0 for benign and 1 for malignant)
+    # Feature matrix of 569 rows (samples) and 30 columns (parameters)
+    inputs = cancer.data
+    # Label array of 569 rows (0 for benign and 1 for malignant)
+    outputs = cancer.target
 
     x = inputs
     y = outputs.reshape((len(outputs), 1))
 
-    #Sampling only certain features.
-    X = np.reshape(x[:,1],(len(x[:,1]),1))
+    # Sampling only certain features.
+    X = np.reshape(x[:, 1], (len(x[:, 1]), 1))
     features = range(1, 30)
     for i in features:
-        temp = np.reshape(x[:,i],(len(x[:,i]),1))
-        X=np.hstack((X,temp))
+        temp = np.reshape(x[:, i], (len(x[:, i]), 1))
+        X = np.hstack((X, temp))
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     X_train, X_test = standard_scale(X_train, X_test)
@@ -45,7 +47,6 @@ if __name__ == "__main__":
     labels = ["Sigmoid", "Relu", "Leaky relu"]
     cost_func = "cross_entropy"
 
-
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     for i, activation in enumerate(activations):
         NN = NeuralNetwork(X_train,
@@ -57,21 +58,21 @@ if __name__ == "__main__":
                            0.0,
                            gamma,
                            seed,
-                           activation = activation,
-                           cost = "cross_entropy",
-                           loss = "accuracy",
-                           callback = False,
-                           last_activation = "sigmoid")
+                           activation=activation,
+                           cost="cross_entropy",
+                           loss="accuracy",
+                           callback=False,
+                           last_activation="sigmoid")
         NN.train_network_stochastic(int(epochs))
         epoch = len(NN.score)
         epochs_lin = np.linspace(0, epoch, epoch)
         plt.plot(epochs_lin,
-                 NN.score, label = labels[i], linestyle="-",
-                 marker = "None", markersize=3)
+                 NN.score, label=labels[i], linestyle="-",
+                 marker="None", markersize=3)
     plt.xlabel("epoch", fontsize=14)
-    plt.ylim([0.92,1])
+    plt.ylim([0.92, 1])
     plt.ylabel("Accuracy", fontsize=14)
     plt.title("Activation function comparison for Breast cancer")
-    plt.legend(fontsize = 13)
+    plt.legend(fontsize=13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.show()

@@ -1,10 +1,11 @@
 from import_folders import *
 import_all_folders()
-from NeuralNetwork import *
-import autograd.numpy as np
-from autograd import elementwise_grad
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from autograd import elementwise_grad
+import autograd.numpy as np
+from NeuralNetwork import *
+
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
@@ -78,9 +79,10 @@ def test_accuracy_nn():
     ax.set_xlabel("$\lambda$")
     plt.show()
 
+
 if __name__ == "__main__":
     # Get modules from project 1
-    sys.path.insert(1,"../../../Project 1/code/")
+    sys.path.insert(1, "../../../Project 1/code/")
     from Functions import *
     # The above imports numpy as np so we have to redefine:
     import autograd.numpy as np

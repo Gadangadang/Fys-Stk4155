@@ -1,17 +1,16 @@
-from sklearn import datasets, svm, metrics
 from import_folders import *
 import_all_folders()
-from SGD import *
-from NN_functions import *
-from NeuralNetwork import NeuralNetwork
 from sklearn.linear_model import LinearRegression
-
+from NeuralNetwork import NeuralNetwork
+from NN_functions import *
+from SGD import *
+from sklearn import datasets, svm, metrics
 
 
 
 if __name__ == "__main__":
     digits = datasets.load_digits()
-    #plot_digits(digits)
+    # plot_digits(digits)
     data = digits.data
 
     # Create a classifier: a support vector classifier
@@ -41,7 +40,6 @@ if __name__ == "__main__":
     seed = 4155
     epochs = int(200)
 
-
     etas = np.logspace(-3, -2, 4)
     etasSGDL = np.logspace(-3, -2, 4)
     lmbds = np.logspace(-3, -1, 4)
@@ -61,29 +59,31 @@ if __name__ == "__main__":
                                lmbd,
                                gamma,
                                seed,
-                               activation = "sigmoid",
-                               cost = "cross_entropy",
-                               loss = "probability",
-                               callback = True
-                              )
+                               activation="sigmoid",
+                               cost="cross_entropy",
+                               loss="probability",
+                               callback=True
+                               )
 
             SGDL = SGD(X_train, y_train,
                        etasSGDL[i],
-                       m = batch_size,
-                       num_epochs = epochs,
-                       lmbd = lmbd*10,
-                       gradient_func = "Logistic",
-                       loss = "probability", callback = False)
+                       m=batch_size,
+                       num_epochs=epochs,
+                       lmbd=lmbd * 10,
+                       gradient_func="Logistic",
+                       loss="probability", callback=False)
 
             SGDL.SGD_train()
             NN.train_network_stochastic(int(epochs))
             test_scores_NN[i][j] = NN.get_score(X_test, y_test)
             test_scores_SGDL[i][j] = SGDL.get_score(X_test, y_test)
 
-    plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
-    plot_heatmap(test_scores_SGDL, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etasSGDL)], title = "Grid search Logistic regression", name = None)
+    plot_heatmap(test_scores_NN, [r"log($\lambda$)", np.log10(lmbds)], [
+                 r"log($\eta$)", np.log10(etas)], title="Grid search Neural Network", name=None)
+    plot_heatmap(test_scores_SGDL, [r"log($\lambda$)", np.log10(lmbds)], [
+                 r"log($\eta$)", np.log10(etasSGDL)], title="Grid search Logistic regression", name=None)
 
-    #Scikit learn
+    # Scikit learn
     reg = LinearRegression().fit(X_train, y_train)
     pred = reg.predict(X_test)
     guess = np.argmax(pred, axis=1)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                        "sigmoid",
                        "cross_entropy",
                        "probability",
-                       callback = False)
+                       callback=False)
 
     NN.train_network_stochastic(int(epochs))
     NN.layers_a[0] = X_test
