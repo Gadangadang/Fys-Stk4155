@@ -3,7 +3,6 @@ import_all_folders()
 from NeuralNetwork import NeuralNetwork
 from NN_functions import *
 from SGD import SGD
-from test_NN import sklearn_NN_WIP
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.neural_network import MLPClassifier
@@ -80,7 +79,7 @@ if __name__ == "__main__":
         etas)], title="Neural network test accuracy for Breast cancer data", name=None)
     indx = np.where(test_scores == np.max(test_scores))
 
-    sklearn_pred, sklearn_accuracy = sklearn_NN_WIP(X,
+    sklearn_pred, sklearn_accuracy = sklearn_NN(X,
                                                     y,
                                                     etas[indx[0][0]],
                                                     lmbds[indx[1][0]],
