@@ -4,10 +4,12 @@ This can be done by typing the following line into the terminal from the appropr
 ```
 pip install -r requirements
 ```
+It is also good to remember to read the section in the main ReadME file regarding TensorFlow on M1 macs if one has that, <br />
+as the software will be used in some capacity in this project. 
 
-This project aimes to look at how Neural Networks handle different challanges, from regression to classification. 
-We look first at Stochastic gradient descent compared to OLS and Ridge, and then implement that method into
-the Neural Network and compare it to OLS and Ridge aswell. Then we will try to permorme classification on breast cancer 
+This project aimes to look at how Neural Networks handle different challanges, from regression to classification. <br />
+We look first at Stochastic gradient descent compared to OLS and Ridge, and then implement that method into <br />
+the Neural Network and compare it to OLS and Ridge aswell. Then we will try to permorme classification on breast cancer <br />
 and digit data from Sciki-Learn, and test its accuracy against logistic regression and Scikit-learn. 
 
 The project folder is structured in the following way: <br />
