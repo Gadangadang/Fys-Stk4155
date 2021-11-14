@@ -34,17 +34,17 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     X_train, X_test = standard_scale(X_train, X_test)
 
-    num_hidden_layers = 2
-    num_hidden_nodes = 30
+    num_hidden_layers = 3
+    num_hidden_nodes = 40
     batch_size = int(50)
     gamma = 0
     seed = 4155
     n_categories = 1
-    epochs = int(50)#int(200)
+    epochs = 200
     batch_size = int(25)
 
 
-    etas = np.logspace(-3, -1, 5)
+    etas = np.logspace(-4, 0, 5)
     lmbds = np.logspace(-4, 0, 5)
 
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
                                activation,
                                cost="cross_entropy",
                                loss = "accuracy",
-                               callback = True)
+                               callback = False)
             NN.train_network_stochastic(int(epochs))
             NN.train_network_stochastic(int(epochs))
             #NN.set_eta_decay(k=0.1, dropp_time = 10) Remove hastag for eta decay.
@@ -87,5 +87,5 @@ if __name__ == "__main__":
                                                 n_categories,
                                                 'logistic')
 
-    print(f"{100*test_scores[indx[0][0]][indx[1][0]]:.0f}% NN accuracy. ")
-    print(f"{100*sklearn_accuracy:.0f}% Sklearn accuracy")
+    print(f"{100*test_scores[indx[0][0]][indx[1][0]]:.2f}% NN accuracy. ")
+    print(f"{100*sklearn_accuracy:.2f}% Sklearn accuracy")
