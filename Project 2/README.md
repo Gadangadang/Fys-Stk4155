@@ -1,4 +1,4 @@
-# Project 2 Classification and Regression, from Linear and Logistic Regression to neural networks
+# Project 2 Classification and regression, from linear and logistic regression to neural networks
 Before running the code in project 2, please download the required python packages from the requirements.txt file <br />
 in the main file. This can be done by typing the following line into the terminal from the appropriate folder:
 ```
