@@ -8,9 +8,7 @@ from matplotlib.ticker import MaxNLocator
 from plot_set import*
 
 # Get modules from project 1
-path = os.getcwd()  # Current working directory
-path += '/../../Project 1/code'
-sys.path.append(path)
+sys.path.insert(1, "../../../Project 1/code/")
 from Functions import *
 
 def standard_scale(*args):
@@ -92,8 +90,6 @@ def SGD_optimization_test(X, y):
 
 
 
-    print()
-
 
     fig, ax = plt.subplots(figsize=(7, 7))
     # df = pd.DataFram(test_MSE), columns
@@ -122,6 +118,26 @@ def SGD_test_learning_rate(X, y):
     # eta_vals = np.logspace(-6, -2, 5)
     eta_vals = np.linspace(0.001, 1.5875, 100)
 
+    X_train = X_train[:,1:]
+
+    N = X_train.shape[0]
+    H = (X_train.T@X_train)
+    H_inv = np.linalg.pinv(H)
+    # HTH = H.T@H
+    eig_vals, eig_vecs = np.linalg.eig(H)
+    # print(eig_vals/N**2)
+    L_max = np.max(np.linalg.eig(H)[0])
+    L_test = np.min(np.linalg.eig(H_inv)[0])
+    print(L_test*X_train.shape[0])
+
+    bound = 1/(L_max)*8000
+    # print(bound)
+
+    # print(eig_vals)
+    # print(2*N**2/eig_vals)
+
+
+    exit()
 
     num_epochs = int(1e3)
     m = 0
@@ -136,6 +152,7 @@ def SGD_test_learning_rate(X, y):
 
         # Find theta
         np.random.seed(4155) #RN Seed
+
         SGD_regression.reset()
         SGD_regression.eta_val = eta_val
         theta_SGD = SGD_regression.SGD_train()
@@ -647,15 +664,15 @@ if __name__ == "__main__":
     N = 100             # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
     n = 5               # Highest order of polynomial for X
-    x, y, z = generate_data(N, z_noise)
+    x, y, z = generate_data(N, z_noise, seed = 12345)
     X = create_X(x, y, n)
 
 
 
     #--- Validation / testing ---#
-    SGD_convergence_rate(X, z)
+    # SGD_convergence_rate(X, z)
     # SGD_optimization_test(X, z) # not included in report so far
-    # SGD_test_learning_rate(X, z)
+    SGD_test_learning_rate(X, z)
     # SGD_VS_OLS()
     # SGD_VS_Ridge(X,z)
     # SGD_momentum_convergence_rate(X,z)
