@@ -86,7 +86,7 @@ def plot_3D_shuffled(title, x, y, z, z_label, save_name, show = False, save = Tr
 
     # ax.set_zlim(-0.10, 1.40)
     ax.zaxis.set_major_locator(LinearLocator(5))
-    ax.zaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+    ax.zaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 
 
     ax.zaxis.set_rotate_label(False)

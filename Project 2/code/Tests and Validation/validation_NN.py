@@ -1,6 +1,8 @@
 # This allows using whichever regularizer we want (l1,l2,l1_l2)
 from matplotlib.ticker import MaxNLocator
-from NeuralNetwork import NeuralNetwork
+from import_folders import *
+import_all_folders()
+
 from NN_functions import plot_heatmap
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,8 +18,9 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.neural_network import MLPClassifier
-from import_folders import *
-import_all_folders()
+#from plot_set import *
+
+from NeuralNetwork import NeuralNetwork
 
 
 # sklearn classifier
@@ -120,13 +123,13 @@ def Franke_NN():
 
     print(X_train.shape, Z_train.shape)
 
-    """eta = 0.001
+    eta = 0.001
     epochs = 100
     gamma = 0
     lmbd = 0.0
     lay = 2g
     nodes = 50
-    batch_size = 15"""
+    batch_size = 15
 
     num_hidden_layers = 2
     num_hidden_nodes = 70
@@ -145,7 +148,7 @@ def Franke_NN():
     test_scores_NN = np.zeros((len(etas), len(lmbds)))
 
     # eta and lambda
-    """
+
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
             print(f"\r(eta_val, lmbd_val) = ({eta},{lmbd})", end="")
@@ -165,16 +168,17 @@ def Franke_NN():
             NN.train_network_stochastic(int(epochs))
             test_scores_NN[i][j] = NN.get_score(X_test, Z_test)
 
-    #plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],
+    plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],
                   [r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
-    """
+
     #layers and mse
 
-    lmbd = 0  # 10**(-4)
+    lmbd = 10**(-4)
     eta = 0.1
-    num_hidden_layers = np.arange(1, 20)
 
-    num_nodes = np.arange(1, 10)
+    num_hidden_layers = np.arange(1,20)
+
+    num_nodes = np.arange(1,10)
     for node in num_nodes:
         test_scores_train = np.zeros(len(num_hidden_layers))
         test_scores_test = np.zeros(len(num_hidden_layers))
@@ -208,8 +212,8 @@ def Franke_NN():
         plt.savefig(f"../../article/figures/mse_hidden_layers_node_{node}.pdf",
                     bbox_inches="tight")
         plt.show()
-    """
-    num_nodes = np.arange(41, 51)
+
+    num_nodes = np.arange(41, 46)
     num_layers = np.arange(2, 8)
     test_scores_NN_lay_node = np.zeros((len(num_layers), len(num_nodes)))
 
@@ -277,11 +281,11 @@ def Franke_NN():
     print(prediction.shape)
 
 
-    plot_3D_shuffled("Neural Net prediction on Franke's func",
-                     x_val, y_val, prediction.ravel(), "Prediction", "test.pdf", show = True, save = True)
+    plot_3D_shuffled("Neural network prediction on Franke's function",
+                     x_val, y_val, prediction.ravel(), "z", "test.pdf", show = True, save = True)
 
-    plot_3D_shuffled("Franke's function data with noise",
-                     x_val, y_val, z_val, "Actual data", "act_data.pdf", show = True, save = True)
+    plot_3D_shuffled("Input data",
+                     x_val, y_val, z_val, "z", "act_data.pdf", show = True, save = True)
 
 
     "---- Tensorflow test against our neural net ----"
@@ -305,103 +309,12 @@ def Franke_NN():
     ts_pred = model.predict(X_validation)
     print("MSE: ", MSE(ts_pred.ravel(), z_val))
     print("R2: ", R2(z_val,ts_pred.ravel()))
-    """
+    
 
 
-def sklearn_NN(X, y, eta, lmbd, epochs, num_hidden_layers,
-               num_hidden_nodes, n_categories, activation_func):
-    n_inputs, n_features = X.shape
-    hidden_layer_sizes = [num_hidden_nodes for i in range(num_hidden_layers)]
-    dnn = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes,
-                        activation=activation_func,
-                        alpha=lmbd,
-                        learning_rate_init=eta,
-                        max_iter=epochs)
-    dnn.fit(X, y)
-    test_pred = dnn.predict(X)
-    test_accuracy = accuracy_score(y, test_pred)
-    return test_pred, test_accuracy
 
 
-def tensorflow_logic_gates():
-    # Input for logic gates
-    x1 = np.array([0, 0, 1, 1])
-    x2 = np.array([0, 1, 0, 1])
-    X = np.array([x1, x2], dtype=np.float64).T  # Design matrix
 
-    # Types of logical gates
-    y_AND = np.array([0, 0, 0, 1])  # And
-    y_OR = np.array([0, 1, 1, 1])  # Or
-    y_XOR = np.array([0, 1, 1, 0])  # Exclusive OR
-
-    # Output for logic gates
-    y_gates = [y_AND, y_OR, y_XOR]
-
-    #
-    # X = np.array([ [0, 0], [0, 1], [1, 0],[1, 1]],dtype=np.float64)
-    # y_XOR = np.array( [ 0, 1 ,1, 0])
-    # y_OR = np.array( [ 0, 1 ,1, 1])
-    # y_AND = np.array( [ 0, 0 ,0, 1])
-
-    # Architecture
-    y = y_OR
-    num_hidden_nodes = 16
-    batch_size = 4  # Full GD
-    n_categories = 1
-    eta = 1e-1
-    lmbd = 0
-    gamma = 0.9
-
-    activation = "relu"
-    # cost_func = "categorical_crossentropy"
-    cost_func = "mean_squared_error"
-    # cost_func = "binary_crossentropy"
-    epochs = 500
-
-    # Tensorflow (tf) network
-    model = Sequential()
-    model.add(Input(shape=2))
-    model.add(Dense(num_hidden_nodes, activation=activation,
-              kernel_regularizer=regularizers.l2(lmbd)))
-    # model.add(Dense(num_hidden_nodes, activation=activation, kernel_regularizer=regularizers.l2(lmbd)))
-    model.add(Dense(n_categories))
-
-    sgd = optimizers.SGD(learning_rate=eta,  momentum=gamma)
-    model.compile(loss=cost_func, optimizer=sgd, metrics=['accuracy'])
-    model.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=2)
-    # model.summary()
-
-    # Evaluate results
-    tf_pred = model.predict(X)  # Tensorflow prediction
-
-    print(tf_pred)
-    # print(np.round(tf_pred))
-    # score = accuracy_score(y, np.round(tf_pred))
-    # print(score)
-
-
-def tensorflow_copy():
-    import numpy as np
-    from keras.models import Sequential
-    from keras.layers.core import Dense
-
-    # the four different states of the XOR gate
-    training_data = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], "float32")
-
-    # the four expected results in the same order
-    target_data = np.array([[0], [1], [1], [0]], "float32")
-
-    model = Sequential()
-    model.add(Dense(16, input_dim=2, activation='relu'))
-    model.add(Dense(1, activation='sigmoid'))
-
-    model.compile(loss='mean_squared_error',
-                  optimizer='adam',
-                  metrics=['binary_accuracy'])
-
-    model.fit(training_data, target_data, epochs=100, verbose=2)
-
-    print(model.predict(training_data).round())
 
 
 if __name__ == "__main__":

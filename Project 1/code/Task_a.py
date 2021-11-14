@@ -120,17 +120,19 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
     R2_train = R2(z_train, ztilde)
     R2_test = R2(z_test, zpredict)
 
+
+
     # alpha-% confidential interval (standard normal distribution)
     alpha = 0.95
     from scipy.stats import norm
 
-    conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(
-        beta, X_train)
-    conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(
-        beta, X_test)
+    #conf_int_train, beta_uncertainty_print_train, uncertainty_train = confidence_interval(
+    #    beta, X_train)
+    #conf_int_test, beta_uncertainty_print_test, uncertainty_test = confidence_interval(
+    #    beta, X_test)
 
-    confidence_plot(conf_int_train, conf_int_test)
-    latex_table(beta, uncertainty_train, uncertainty_test)
+    #confidence_plot(conf_int_train, conf_int_test)
+    #latex_table(beta, uncertainty_train, uncertainty_test)
 
     #--- print result ---#
     print_results = True
@@ -140,20 +142,21 @@ def evaluate_regression(beta, X_train, X_test, z_train, z_test):
         print(f"MSE: {MSE_train:2.3f} | {MSE_test:2.3f}")
         print(f"R2 : {R2_train:2.3f} | {R2_test:2.3f}")
 
+
         print(f"\n#----- {alpha}% confidence intervals -----#")
 
         print(f"\n__Training-set__")
         # print(conf_int_train)
-        print(beta_uncertainty_print_train)
+        #print(beta_uncertainty_print_train)
         print(f"\n__Test-set__")
         # print(conf_int_test)
-        print(beta_uncertainty_print_test)
+        #print(beta_uncertainty_print_test)
 
 
 if __name__ == "__main__":
 
     #--- settings ---#
-    N = 30             # Number of points in each dimension
+    N = 10             # Number of points in each dimension
     z_noise = 0.2       # Added noise to the z-value
     n = 6               # Highest order of polynomial for X
 
@@ -168,5 +171,10 @@ if __name__ == "__main__":
     mean_scale(X_train, X_test, z_train, z_test)
 
     # OLS regression
+    print("--- MSE ---")
     beta_OLS = OLS_regression(X_train, z_train)
     evaluate_regression(beta_OLS, X_train, X_test, z_train, z_test)
+    print("--- Ridge ---")
+    lmbd = 1e-10
+    beta_ridge = RIDGE_regression(X_train, z_train, lmbd)
+    evaluate_regression(beta_ridge, X_train, X_test, z_train, z_test)
