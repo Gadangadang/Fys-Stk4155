@@ -23,10 +23,6 @@ from sklearn.neural_network import MLPClassifier
 from NeuralNetwork import NeuralNetwork
 
 
-# sklearn classifier
-
-# Tensorflow
-
 
 def get_logic_gates():
     # Input
@@ -309,7 +305,7 @@ def Franke_NN():
     ts_pred = model.predict(X_validation)
     print("MSE: ", MSE(ts_pred.ravel(), z_val))
     print("R2: ", R2(z_val,ts_pred.ravel()))
-    
+
 
 
 
