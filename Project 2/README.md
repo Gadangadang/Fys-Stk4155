@@ -14,5 +14,10 @@ The project folder is structured in the following way: <br />
 The "article" folder contains figures and the project raport. <br />
 
 The "code" folder contains several subfolders: <br />
-*"data" contains the raw mnist data from scikit-learn. 
-*"Analysis and grid search" contains all code doing analysis on data or gridsearch for hyperparameters
+* "data" contains the raw mnist data from scikit-learn. 
+* "Analysis and grid search" contains all code doing analysis on data or gridsearch for hyperparameters
+* "FunctionsV2" containts commonly used functions for other scripts
+* "Tests and Validation" containts validation and test scripts to ensure that the model works compared to existing software
+
+Outside the subfolders are the two main classes NeuralNetwork.py as SGD.py. They are the main engines for this project <br />
+and have documentation inside the constructur. 
