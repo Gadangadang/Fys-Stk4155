@@ -43,6 +43,7 @@ if __name__ == "__main__":
 
     activations = ["sigmoid", "relu", "leaky_relu"]
     labels = ["Sigmoid", "Relu", "Leaky relu"]
+    linestyles = ["-", "-", "--"]
     cost_func = "MSE"
 
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         epoch = len(NN.score)
         epochs_lin = np.linspace(0, epoch, epoch)
         plt.plot(epochs_lin,
-                 NN.score, label = labels[i], linestyle="-",
+                 NN.score, label = labels[i], linestyle=linestyles[i],
                  marker = "None", markersize=3)
     plt.xlabel("epoch", fontsize=14)
     plt.ylabel("MSE", fontsize=14)

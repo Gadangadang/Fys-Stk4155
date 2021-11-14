@@ -40,7 +40,7 @@ if __name__ == "__main__":
     gamma = 0
     seed = 4155
     n_categories = 1
-    epochs = int(200)
+    epochs = int(50)#int(200)
     batch_size = int(25)
 
 
@@ -52,22 +52,6 @@ if __name__ == "__main__":
     cost_func = "cross_entropy"
     test_scores = np.zeros((len(etas), len(lmbds)))
 
-    NN = NeuralNetwork(X_train,
-                       y_train,
-                       num_hidden_layers,
-                       num_hidden_nodes,
-                       batch_size,
-                       0.01,
-                       0.0,
-                       gamma,
-                       seed,
-                       activation = "relu",
-                       cost = "cross_entropy",
-                       loss = "accuracy",
-                       callback = False,
-                       last_activation = "sigmoid")
-    NN.train_network_stochastic(int(100))
-    NN.plot_score_history()
 
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
@@ -86,9 +70,11 @@ if __name__ == "__main__":
                                loss = "accuracy",
                                callback = True)
             NN.train_network_stochastic(int(epochs))
+            NN.train_network_stochastic(int(epochs))
+            #NN.set_eta_decay(k=0.1, dropp_time = 10) Remove hastag for eta decay.
             test_scores[i][j] = NN.get_score(X_test, y_test)
 
-    plot_heatmap(test_scores,[r"log($\eta$)",np.log10(etas)], [r"log($\lambda$)",np.log10(lmbds)], title = "Neural network test accuracy for Breast cancer data", name = None)
+    plot_heatmap(test_scores, [r"log($\lambda$)",np.log10(lmbds)],[r"log($\eta$)",np.log10(etas)], title = "Neural network test accuracy for Breast cancer data", name = None)
     indx = np.where(test_scores == np.max(test_scores))
 
     sklearn_pred, sklearn_accuracy = sklearn_NN_WIP(X,

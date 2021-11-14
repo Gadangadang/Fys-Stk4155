@@ -40,7 +40,6 @@ if __name__ == "__main__":
     gamma = 0.
     seed = 4155
     epochs = int(200)
-    batch_size = int(50)
 
 
     etas = np.logspace(-3, -2, 4)
@@ -65,7 +64,7 @@ if __name__ == "__main__":
                                activation = "sigmoid",
                                cost = "cross_entropy",
                                loss = "probability",
-                               callback = False
+                               callback = True
                               )
 
             SGDL = SGD(X_train, y_train,
@@ -119,5 +118,4 @@ if __name__ == "__main__":
     predict = NN.soft_max_activation(NN.layers_z[-1])
     predict = np.argmax(predict, axis=1)
     target = np.argmax(y_test, axis=1)
-
     plot_predictions(X_test, predict, target)
