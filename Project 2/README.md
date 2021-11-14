@@ -14,5 +14,5 @@ The project folder is structured in the following way: <br />
 The "article" folder contains figures and the project raport. <br />
 
 The "code" folder contains several subfolders: <br />
-"data" contains the raw mnist data from scikit-learn. <br />
-"Analysis and grid search" contains all <br />
+*"data" contains the raw mnist data from scikit-learn. 
+*"Analysis and grid search" contains all code doing analysis on data or gridsearch for hyperparameters
