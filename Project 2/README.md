@@ -10,9 +10,9 @@ We look first at Stochastic gradient descent compared to OLS and Ridge, and then
 the Neural Network and compare it to OLS and Ridge aswell. Then we will try to permorme classification on breast cancer 
 and digit data from Sciki-Learn, and test its accuracy against logistic regression and Scikit-learn. 
 
-The project folder is structured in the following way: \n
-The "article" folder contains figures and the project raport. \n
+The project folder is structured in the following way: <br />
+The "article" folder contains figures and the project raport. <br />
 
-The "code" folder contains several subfolders:\n
-"data" contains the raw mnist data from scikit-learn. \n
-"Analysis and grid search" contains all \n
+The "code" folder contains several subfolders: <br />
+"data" contains the raw mnist data from scikit-learn. <br />
+"Analysis and grid search" contains all <br />
