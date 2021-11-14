@@ -1,24 +1,22 @@
+from import_folders import *
+import_all_folders()
+sys.path.insert(1, "../../../Project 1/code/")
+import matplotlib.pyplot as plt
+import matplotlib.ticker as tkr
+import seaborn as sns
+import autograd.numpy as np
+from NeuralNetwork import *
+from Functions import *
 import os
 import sys
 from sklearn.model_selection import train_test_split
-from import_folders import *
-import_all_folders()
-sys.path.insert(1,"../../../Project 1/code/")
-from Functions import *
-from NeuralNetwork import *
+
 # The above imports numpy as np so we have to redefine:
-import autograd.numpy as np
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
-import seaborn as sns
-import matplotlib.ticker as tkr
-import matplotlib.pyplot as plt
 sns.set()
 
 
 if __name__ == "__main__":
-
-
-
 
     #--- Create data from Franke Function ---#
     N = 10               # Number of points in each dimension
@@ -31,24 +29,19 @@ if __name__ == "__main__":
     x, y, z = generate_data(N, z_noise)
     X = create_X(x, y, n)
 
-    #pseudo code
-    x = np.randnum(0,1, num_points)
-    y = np.randnum(0,1, num_points)
-    z = Franke(x,y + noise)
+    # pseudo code
+    x = np.randnum(0, 1, num_points)
+    y = np.randnum(0, 1, num_points)
+    z = Franke(x, y + noise)
     X = [x, y]
-
 
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
 
     beta = OLS_regression(X_train, Z_train)
     z_ols = X_test @ beta
 
-
     etas = np.logspace(-4, 1, 10)
     lmbds = np.logspace(-4, 1, 10)
-
-
-
 
     MSE_accuracy = np.zeros((len(etas), len(lmbds)))
     R2_accuracy = np.zeros((len(etas), len(lmbds)))
@@ -70,8 +63,9 @@ if __name__ == "__main__":
             MSE_accuracy[i, j] = MSE(Z_test, prediction)
             R2_accuracy[i, j] = R2(Z_test, prediction)
 
-    fig, ax = plt.subplots(figsize = (10, 10))
-    sns.heatmap(MSE_accuracy, xticklabels = np.log10(lmbds), yticklabels = np.log10(etas), annot=True, ax=ax, cmap="viridis")
+    fig, ax = plt.subplots(figsize=(10, 10))
+    sns.heatmap(MSE_accuracy, xticklabels=np.log10(lmbds),
+                yticklabels=np.log10(etas), annot=True, ax=ax, cmap="viridis")
     ax.yaxis.set_major_formatter(tkr.FuncFormatter(lambda y, p: f'{y:.1f}'))
     ax.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, p: f'{x:.1f}'))
     ax.set_title(f"Test Accuracy with sigmoid")
@@ -83,8 +77,9 @@ if __name__ == "__main__":
                 bbox_inches="tight")
     plt.show()
 
-    fig, ax = plt.subplots(figsize = (10, 10))
-    sns.heatmap(R2_accuracy, xticklabels = np.log10(lmbds), yticklabels = np.log10(etas), annot=True, ax=ax, cmap="viridis")
+    fig, ax = plt.subplots(figsize=(10, 10))
+    sns.heatmap(R2_accuracy, xticklabels=np.log10(lmbds),
+                yticklabels=np.log10(etas), annot=True, ax=ax, cmap="viridis")
     ax.yaxis.set_major_formatter(tkr.FuncFormatter(lambda y, p: f'{y:.1f}'))
     ax.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, p: f'{x:.1f}'))
     ax.set_title(f"Test Accuracy with sigmoid")

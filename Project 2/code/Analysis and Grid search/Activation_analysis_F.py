@@ -1,15 +1,15 @@
-import numpy as np
 import sys
 from import_folders import *
 import_all_folders()
-from plot_set import *
-sys.path.insert(1,"../../../Project 1/code/")
-from Functions import *
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-
-from NN_functions import *
+sys.path.insert(1, "../../../Project 1/code/")
 from NeuralNetwork import NeuralNetwork
+from NN_functions import *
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_breast_cancer
+from Functions import *
+from plot_set import *
+import numpy as np
+
 
 
 if __name__ == "__main__":
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     z = z.reshape(N, 1)
 
     X_train, X_test, Z_train, Z_test = train_test_split(X, z, test_size=0.2)
-    Z_train, Z_test = mean_scale_new( Z_train, Z_test)
+    Z_train, Z_test = mean_scale_new(Z_train, Z_test)
 
     num_hidden_layers = 2
     num_hidden_nodes = 30
@@ -46,7 +46,6 @@ if __name__ == "__main__":
     linestyles = ["-", "-", "--"]
     cost_func = "MSE"
 
-
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     for i, activation in enumerate(activations):
         NN = NeuralNetwork(X,
@@ -58,19 +57,19 @@ if __name__ == "__main__":
                            0.0,
                            gamma,
                            seed,
-                           activation = activation,
-                           cost = cost_func,
-                           loss = "MSE",
-                           callback = False)
+                           activation=activation,
+                           cost=cost_func,
+                           loss="MSE",
+                           callback=False)
         NN.train_network_stochastic(int(epochs))
         epoch = len(NN.score)
         epochs_lin = np.linspace(0, epoch, epoch)
         plt.plot(epochs_lin,
-                 NN.score, label = labels[i], linestyle=linestyles[i],
-                 marker = "None", markersize=3)
+                 NN.score, label=labels[i], linestyle=linestyles[i],
+                 marker="None", markersize=3)
     plt.xlabel("epoch", fontsize=14)
     plt.ylabel("MSE", fontsize=14)
     plt.title("Activation function comparison for Franke")
-    plt.legend(fontsize = 13)
+    plt.legend(fontsize=13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.show()
