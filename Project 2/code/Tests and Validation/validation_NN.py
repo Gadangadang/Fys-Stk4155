@@ -123,7 +123,7 @@ def Franke_NN():
     epochs = 100
     gamma = 0
     lmbd = 0.0
-    lay = 2g
+
     nodes = 50
     batch_size = 15
 
@@ -144,7 +144,7 @@ def Franke_NN():
     test_scores_NN = np.zeros((len(etas), len(lmbds)))
 
     # eta and lambda
-
+    """
     for i, eta in enumerate(etas):
         for j, lmbd in enumerate(lmbds):
             print(f"\r(eta_val, lmbd_val) = ({eta},{lmbd})", end="")
@@ -166,7 +166,7 @@ def Franke_NN():
 
     plot_heatmap(test_scores_NN, [r"log($\lambda$)",np.log10(lmbds)],
                   [r"log($\eta$)",np.log10(etas)], title = "Grid search Neural Network", name = None)
-
+    """
     #layers and mse
 
     lmbd = 10**(-4)
@@ -175,6 +175,7 @@ def Franke_NN():
     num_hidden_layers = np.arange(1,20)
 
     num_nodes = np.arange(1,10)
+    """
     for node in num_nodes:
         test_scores_train = np.zeros(len(num_hidden_layers))
         test_scores_test = np.zeros(len(num_hidden_layers))
@@ -208,11 +209,11 @@ def Franke_NN():
         plt.savefig(f"../../article/figures/mse_hidden_layers_node_{node}.pdf",
                     bbox_inches="tight")
         plt.show()
-
+    """
     num_nodes = np.arange(41, 46)
     num_layers = np.arange(2, 8)
     test_scores_NN_lay_node = np.zeros((len(num_layers), len(num_nodes)))
-
+    """
     #Nodes and layers
     for i, layers in enumerate(num_layers):
         for j, nodes in enumerate(num_nodes):
@@ -235,14 +236,14 @@ def Franke_NN():
 
     plot_heatmap(test_scores_NN_lay_node, [r"Number of nodes", num_nodes],
                  [r"Number of layers", num_layers], title="Grid search Neural Network", name=None)
-
+    """
 
 
 
     num_hidden_layers = 3
     num_hidden_nodes = 42
     activation = "sigmoid"
-
+    """
     NN = NeuralNetwork(X_train, Z_train,
                        num_hidden_layers,
                        num_hidden_nodes,
@@ -259,7 +260,7 @@ def Franke_NN():
     NN.train_network_stochastic(int(epochs))
     print("MSE: {}".format(NN.MSE_score(X_test, Z_test)))
     print("R2: {}".format(NN.R2_score(X_test, Z_test)))
-
+    """
 
     N = 1000
     x_val = np.random.uniform(0, 1, N)
@@ -273,16 +274,16 @@ def Franke_NN():
     X_validation, x_val, y_val = mean_scale(X_validation, x_val, y_val)
 
 
-    prediction = NN.predict(X_validation)
-    print(prediction.shape)
+    #prediction = NN.predict(X_validation)
+    #print(prediction.shape)
 
-
+    """
     plot_3D_shuffled("Neural network prediction on Franke's function",
                      x_val, y_val, prediction.ravel(), "z", "test.pdf", show = True, save = True)
 
     plot_3D_shuffled("Input data",
                      x_val, y_val, z_val, "z", "act_data.pdf", show = True, save = True)
-
+    """
 
     "---- Tensorflow test against our neural net ----"
 
