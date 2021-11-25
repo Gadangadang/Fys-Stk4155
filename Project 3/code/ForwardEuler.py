@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class wave_solver:
+class PDE_solver:
     def __init__(self, I, L, T, dx, dt, c, d):
         # Read class arguments
         self.I = I
@@ -68,5 +68,13 @@ class wave_solver:
             self.u_complete[i] = self.u[1:-1]
             self.advance_solution()
         return self.u_complete
+        
 if __name__ == "__main__":
-    
+    I = lambda x: np.sin(np.pi * x)
+    L  = 1
+    T = 1
+    dx = 0.01
+    dt = 0.1
+    c = d = 0
+    PDE = PDE_solver(I, L, T, dx, dt, c, d)
+    solution = PDE.run_simulation()
