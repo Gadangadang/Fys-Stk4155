@@ -68,18 +68,19 @@ class PDE_solver:
 
         t_index = np.around(np.linspace(0,self.Nt-1, 6)).astype(int)
         fig, axes = plt.subplots(2, 3, sharex='col', sharey='row')
+        fig.suptitle(f"Numerical vs Exact: dx = {self.dx}", fontsize = 18)
         counter = 0
         for i in range(2):
             for j in range(3):
                 axes[i,j].set_title(f"t = {self.t[t_index[counter]]:.1f}", fontsize = 15)
-                axes[i,j].plot(self.x, self.u_complete[t_index[counter]], color='k', lw=2, label = "Numerical")
-                axes[i,j].plot(self.x, self.exact_solution(t_index[counter]), color='b', lw=2, label = "Exact")
-                axes[i,j].set_ylim([-0.1,1])
+                axes[i,j].plot(self.x, self.u_complete[t_index[counter]], lw=2, label = "Numerical")
+                axes[i,j].plot(self.x, self.exact_solution(t_index[counter]), "--", lw=2, label = "Exact")
+                axes[i,j].set_ylim([-0.1,1.1])
                 counter += 1
         plt.subplots_adjust(hspace = 2, wspace= 0.11)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         plt.legend()
-        plt.savefig("../article/figures/ExplicitPDE.pdf", bbox_inches="tight")
+        plt.savefig(f"../article/figures/ExplicitPDE_dx{self.dx}.pdf", bbox_inches="tight")
         plt.show()
 
     def animator(self):
@@ -104,11 +105,11 @@ if __name__ == "__main__":
     I = lambda x: np.sin(np.pi * x)
     L  = 1
     T = 0.5
-    dx = 0.1
-    dt = 0.005
+    dx = 1/100
+    dt = 0.5*dx**2
     c = 0
     d = 0
     PDE = PDE_solver(I, L, T, dx, dt, c, d)
     solution = PDE.run_simulation()
-    PDE.animator()
-    #PDE.plot_comparison()
+    #PDE.animator()
+    PDE.plot_comparison()
