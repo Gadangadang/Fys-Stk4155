@@ -19,19 +19,20 @@ class PDE_ml_solver:
         self.x = x
         self.time = t
         self.u = initial_func
-
-    def tf_run(self):
-        """Func explanation"""
-        #Setup model
+    def get_model(self):
         model = tf.model.Sequential([
             tf.keras.layers.Dense(10, activation="sigmoid", input_shape=(5,)),
             tf.keras.layers.Dense(10, activation="sigmoid"),
             tf.keras.layers.Dense(3, activation="sigmoid"),
         ])
+        model.compile(loss = "cost_function", optimizer="adam", metrics=["MSE"])
+        return model
 
-        #
-        #model.compile(loss = "cost_function", optimizer="adam", metrics=["MSE"])
-        ...
+    def tf_run(self):
+        """Func explanation"""
+        model = self.get_model()
+        """Train somehow."""
+
 
     # The right side of the ODE:
     def f(self, point):
@@ -42,12 +43,30 @@ class PDE_ml_solver:
         loss_value = cost_function(model, inputs, targets, training=True)
       return loss_value, tape.gradient(loss_value, model.trainable_variables)
 
-    def cost_function(self, model, inputs, target, training=True):
-        self.model_tf = model(x, training=training)
-        y_ = self.g_trial()
-        y = target
+    # The cost function:
+    def cost_function(P, x, t):
+        cost_sum = 0
 
-        return (y_ - y)**2
+        g_t_jacobian_func = jacobian(g_trial)
+        g_t_hessian_func = hessian(g_trial)
+
+        for x_ in x:
+            for t_ in t:
+                point = np.array([x_,t_])
+
+                g_t = g_trial(point,P)
+                g_t_jacobian = g_t_jacobian_func(point,P)
+                g_t_hessian = g_t_hessian_func(point,P)
+
+                g_t_dt = g_t_jacobian[1]
+                g_t_d2x = g_t_hessian[0][0]
+
+                func = f(point)
+
+                err_sqr = ( (g_t_dt - g_t_d2x) - func)**2
+                cost_sum += err_sqr
+
+        return cost_sum /( np.size(x)*np.size(t) )
 
 
     def g_trial(self):
