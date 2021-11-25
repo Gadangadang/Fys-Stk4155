@@ -23,14 +23,40 @@ class PDE_ml_solver:
     def tf_run():
         ...
 
+    # The right side of the ODE:
+    def f(self, point):
+        return 0.
+
     def cost_function(self, P, x, t):
-        ...
+        cost_sum = 0
+
+        g_t_jacobian_func = jacobian(self.g_trial)
+        g_t_hessian_func = hessian(self.g_trial)
+
+        for x_ in self.x:
+            for t_ in self.time:
+                point = np.array([x_,t_])
+
+                g_t = g_trial(point,P)
+                g_t_jacobian = g_t_jacobian_func(point,P)
+                g_t_hessian = g_t_hessian_func(point,P)
+
+                g_t_dt = g_t_jacobian[1]
+                g_t_d2x = g_t_hessian[0][0]
+
+                func = self.f(point)
+
+                err_sqr = ( (g_t_dt - g_t_d2x) - func)**2
+                cost_sum += err_sqr
+
+        return cost_sum /( np.size(x)*np.size(t) )
 
     def g_trial(self):
         """
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
+        h_1 and h_2 are functions to control boundary and inital conditions
         """
-        return (1-self.time)*self.u(self.x) +
+        return (1-self.time)*self.u(self.x) + self.x*(1-self.x)*self.time*self.model_tf
 
 def g_analytic(x, t):
     return np.exp(-np.pi**2*t)*np.sin(np.pi*x)
