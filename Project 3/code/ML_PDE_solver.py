@@ -8,7 +8,7 @@ from tensorflow.keras import optimizers, regularizers
 # This allows defining the characteristics of a particular layer
 from tensorflow.keras.layers import Dense, Input
 # This allows appending layers to existing models
-from tensorflow.keras.models import Sequential
+
 
 
 class PDE_ml_solver:
@@ -20,7 +20,13 @@ class PDE_ml_solver:
         self.time = t
         self.u = initial_func
 
-    def tf_run():
+    def tf_run(self):
+        model = tf.model.Sequential([
+            tf.keras.layers.Dense(10, activation="sigmoid", input_shape=(5,)),
+            tf.keras.layers.Dense(10, activation="sigmoid"),
+            tf.keras.layers.Dense(3, activation="sigmoid"),
+        ])
+
         ...
 
     # The right side of the ODE:
@@ -66,4 +72,6 @@ def u(x):
 
 
 if __name__ == "__main__":
-    ...
+    #Check tensorflow version and eager execution
+    print("TensorFlow version: {}".format(tf.__version__))
+    print("Eager execution: {}".format(tf.executing_eagerly()))
