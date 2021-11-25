@@ -21,41 +21,34 @@ class PDE_ml_solver:
         self.u = initial_func
 
     def tf_run(self):
+        """Func explanation"""
+        #Setup model
         model = tf.model.Sequential([
             tf.keras.layers.Dense(10, activation="sigmoid", input_shape=(5,)),
             tf.keras.layers.Dense(10, activation="sigmoid"),
             tf.keras.layers.Dense(3, activation="sigmoid"),
         ])
 
+        #
+        #model.compile(loss = "cost_function", optimizer="adam", metrics=["MSE"])
         ...
 
     # The right side of the ODE:
     def f(self, point):
         return 0.
 
-    def cost_function(self, P, x, t):
-        cost_sum = 0
+    def gradient(self, model, inputs, targets):
+      with tf.GradientTape() as tape:
+        loss_value = cost_function(model, inputs, targets, training=True)
+      return loss_value, tape.gradient(loss_value, model.trainable_variables)
 
-        g_t_jacobian_func = jacobian(self.g_trial)
-        g_t_hessian_func = hessian(self.g_trial)
-        
-        for x_i in self.x:
-            for t_i in self.time:
-                point = np.array([x_i,t_i])
+    def cost_function(self, model, inputs, target, training=True):
+        self.model_tf = model(x, training=training)
+        y_ = self.g_trial()
+        y = target
 
-                g_t = g_trial(point,P)
-                g_t_jacobian = g_t_jacobian_func(point,P)
-                g_t_hessian = g_t_hessian_func(point,P)
+        return (y_ - y)**2
 
-                g_t_dt = g_t_jacobian[1]
-                g_t_d2x = g_t_hessian[0][0]
-
-                func = self.f(point)
-
-                err_sqr = ( (g_t_dt - g_t_d2x) - func)**2
-                cost_sum += err_sqr
-
-        return cost_sum /( np.size(x)*np.size(t) )
 
     def g_trial(self):
         """
@@ -65,9 +58,11 @@ class PDE_ml_solver:
         return (1-self.time)*self.u(self.x) + self.x*(1-self.x)*self.time*self.model_tf
 
 def g_analytic(x, t):
+    #Analytic solution to function
     return np.exp(-np.pi**2*t)*np.sin(np.pi*x)
 
 def u(x):
+    #Initial condition
     return np.sin(np.pi*x)
 
 
