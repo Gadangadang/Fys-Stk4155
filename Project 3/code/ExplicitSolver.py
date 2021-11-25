@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from plot_set import *
 from tqdm import trange
 import matplotlib.animation as animation
 import seaborn as sns
@@ -24,6 +24,7 @@ class PDE_solver:
         self.C = dt/dx**2
 
         self.x = np.linspace(0, self.L, self.Nx)
+        self.t = np.linspace(0,self.T, self.Nt)
 
         # Solution array (with space for ghost points)
         self.u = np.zeros((self.Nx))   # solution at t
@@ -60,30 +61,54 @@ class PDE_solver:
             self.u_complete[i] = self.u
         return self.u_complete
 
+    def exact_solution(self,i):
+        return np.sin(np.pi*self.x)*np.exp(-np.pi**2*self.t[i])
+
+    def plot_comparison(self):
+
+        t_index = np.around(np.linspace(0,self.Nt-1, 6)).astype(int)
+        fig, axes = plt.subplots(2, 3, sharex='col', sharey='row')
+        counter = 0
+        for i in range(2):
+            for j in range(3):
+                axes[i,j].set_title(f"t = {self.t[t_index[counter]]:.1f}", fontsize = 15)
+                axes[i,j].plot(self.x, self.u_complete[t_index[counter]], color='k', lw=2, label = "Numerical")
+                axes[i,j].plot(self.x, self.exact_solution(t_index[counter]), color='b', lw=2, label = "Exact")
+                axes[i,j].set_ylim([-0.1,1])
+                counter += 1
+        plt.subplots_adjust(hspace = 2, wspace= 0.11)
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        plt.legend()
+        plt.savefig("../article/figures/ExplicitPDE.pdf", bbox_inches="tight")
+        plt.show()
+
     def animator(self):
-        x = np.linspace(0, self.L, self.Nx)
-        t = np.linspace(0,self.T, self.Nt)
         fig, ax = plt.subplots()
-        line, = ax.plot(x, self.u_complete[0, :], color='k', lw=2)
+        line1, = ax.plot(self.x, self.u_complete[0, :], color='k', lw=2)
+        line2, = ax.plot(self.x, self.exact_solution(0), color='b', lw=2)
+        text = plt.text(0.6, 0.75, f"MSE: {np.abs(np.mean(self.u_complete[0, :]-self.exact_solution(0))):2.2e}", fontsize = 15)
         v_min = np.min(self.u_complete[0])
         v_max = np.max(self.u_complete[0])
-        ax.set(xlim=(x[0], x[-1]), ylim=(v_min-v_max/10, v_max))
+        ax.set(xlim=(self.x[0], self.x[-1]), ylim=(v_min-v_max/10, v_max))
         def animate(i):
-            plt.title(f"t = {t[i]:.1f}/{t[-1]:.1f}")
-            line.set_ydata(self.u_complete[i, :])
-        ani = animation.FuncAnimation(fig, animate, frames = len(t)-1, interval=10)
-        ani.save('503.gif')
-        #plt.show()
+            plt.title(f"t = {self.t[i]:.1f}/{self.t[-1]:.1f}")
+            text.set_text(f"MSE: {np.abs(np.mean(self.u_complete[i, :]-self.exact_solution(i))):2.2e}")
+            line1.set_ydata(self.u_complete[i, :])
+            line2.set_ydata(self.exact_solution(i))
+        ani = animation.FuncAnimation(fig, animate, frames = len(self.t)-1, interval=10)
+        #ani.save('503.gif')
+        plt.show()
         return ani
 
 if __name__ == "__main__":
     I = lambda x: np.sin(np.pi * x)
     L  = 1
-    T = 1
+    T = 0.5
     dx = 0.1
     dt = 0.005
     c = 0
     d = 0
     PDE = PDE_solver(I, L, T, dx, dt, c, d)
     solution = PDE.run_simulation()
-    PDE.animator()
+    #PDE.animator()
+    PDE.plot_comparison()
