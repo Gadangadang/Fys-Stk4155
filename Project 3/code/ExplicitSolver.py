@@ -96,7 +96,7 @@ class PDE_solver:
             line1.set_ydata(self.u_complete[i, :])
             line2.set_ydata(self.exact_solution(i))
         ani = animation.FuncAnimation(fig, animate, frames = len(self.t)-1, interval=10)
-        #ani.save('503.gif')
+        ani.save("../article/animations/ExplicitPDEGif.gif")
         plt.show()
         return ani
 
@@ -110,5 +110,5 @@ if __name__ == "__main__":
     d = 0
     PDE = PDE_solver(I, L, T, dx, dt, c, d)
     solution = PDE.run_simulation()
-    #PDE.animator()
-    PDE.plot_comparison()
+    PDE.animator()
+    #PDE.plot_comparison()
