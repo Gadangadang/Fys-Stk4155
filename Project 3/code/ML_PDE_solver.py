@@ -32,10 +32,10 @@ class PDE_ml_solver:
 
         g_t_jacobian_func = jacobian(self.g_trial)
         g_t_hessian_func = hessian(self.g_trial)
-
-        for x_ in self.x:
-            for t_ in self.time:
-                point = np.array([x_,t_])
+        
+        for x_i in self.x:
+            for t_i in self.time:
+                point = np.array([x_i,t_i])
 
                 g_t = g_trial(point,P)
                 g_t_jacobian = g_t_jacobian_func(point,P)
