@@ -6,7 +6,7 @@ import matplotlib.animation as animation
 import seaborn as sns
 
 
-class PDE_solver:
+class ExplicitSolver:
     def __init__(self, I, L, T, dx, dt, c, d):
         # Read class arguments
         self.I = I
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     dt = 0.5*dx**2
     c = 0
     d = 0
-    PDE = PDE_solver(I, L, T, dx, dt, c, d)
-    solution = PDE.run_simulation()
+    ES = ExplicitSolver(I, L, T, dx, dt, c, d)
+    solution = ES.run_simulation()
     #PDE.animator()
-    PDE.plot_comparison()
+    ES.plot_comparison()
