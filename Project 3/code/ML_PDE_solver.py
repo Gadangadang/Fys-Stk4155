@@ -63,18 +63,18 @@ class PDE_ml_solver:
         return cost_sum /( np.size(x)*np.size(t) )
 
 
-    def g_trial(self):
+    def g_trial(self, model):
         """
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
         h_1 and h_2 are functions to control boundary and inital conditions
         """
-        return (1-self.time)*self.u(self.x) + self.x*(1-self.x)*self.time*self.model_tf
+        return (1-self.time)*self.I(self.x) + self.x*(1-self.x)*self.time*model
 
 def g_analytic(x, t):
     #Analytic solution to function
-    return np.exp(-np.pi**2*t)*np.sin(np.pi*x)
+    return np.exp(-np.pi**2*t)*I(x)
 
-def u(x):
+def I(x):
     #Initial condition
     return np.sin(np.pi*x)
 
