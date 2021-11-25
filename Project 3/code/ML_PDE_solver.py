@@ -12,8 +12,7 @@ from tensorflow.keras.layers import Dense, Input
 
 
 class PDE_ml_solver:
-    def __init__(self, X, y, g_analytical, x, t, initial_func):
-        self.X = X
+    def __init__(self, x, t, g_analytical, initial_func):
         self.target = y
         self.g_analytical = g_analytical
         self.x = x
@@ -37,11 +36,6 @@ class PDE_ml_solver:
     # The right side of the ODE:
     def f(self, point):
         return 0.
-
-    def gradient(self, model, inputs, targets):
-      with tf.GradientTape() as tape:
-        loss_value = cost_function(model, inputs, targets, training=True)
-      return loss_value, tape.gradient(loss_value, model.trainable_variables)
 
     # The cost function:
     def cost_function(P, x, t):
