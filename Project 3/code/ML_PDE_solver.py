@@ -22,7 +22,7 @@ class PDE_ml_solver:
 
     def get_model(self):
         model = tf.keras.Sequential([
-            tf.keras.layers.Dense(10, activation="sigmoid", input_shape=(1,2)),
+            tf.keras.layers.Dense(10, activation="sigmoid", input_shape=(2,)),
             tf.keras.layers.Dense(10, activation="sigmoid"),
             tf.keras.layers.Dense(1, activation="sigmoid"),
         ])
@@ -35,7 +35,7 @@ class PDE_ml_solver:
         model = self.get_model()
         epoch_loss_avg = tf.keras.metrics.Mean()
         epoch_accuracy = tf.keras.metrics.MeanSquaredError()
-        
+
         for epoch in range(self.num_epochs):
             loss_value, grads = self.grad(model)
             self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
@@ -51,27 +51,29 @@ class PDE_ml_solver:
     def grad(self,model):
 
         with tf.GradientTape() as tape:
-            loss_value = self.cost_function()
+            loss_value = self.cost_function(model)
             return loss_value, tape.gradient(loss_value, model.trainable_variables)
 
 
-    def cost_function(self,):
+    def cost_function(self,model):
         """
         Calculate derivatives.
         """
         x, t  = tf.convert_to_tensor(self.x), tf.convert_to_tensor(self.t)
 
-        with tf.GradientTape() as tape1:
+        with tf.GradientTape(persistent=True) as tape1:
             tape1.watch(x)
             with tf.GradientTape(persistent=True) as tape2:
                 tape1.watch([x,t])
-                g_trial = self.g_trial()
+                g_trial = self.g_trial(model)
             g_t = tape1.gradient(g_trial, t)
             g_x = tape1.gradient(g_trial, x)
-
         g_xx = tape2.gradient(g_x, x)
         residual =  g_xx - g_t
         MSE = np.mean(residual)
+        
+        del tape1
+        del tape2
         return MSE
 
 
@@ -82,10 +84,10 @@ class PDE_ml_solver:
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
         h_1 and h_2 are functions to control boundary and inital conditions
         """
-        x,t = point
-        point = np.array([x,t]).reshape(1,2)
-        return (1-self.t)*self.I(x) + x\
-        *(1-x)*self.t*model(point,training=True)
+        XT = tf.stack([self.t, self.x], axis=1)
+        #point = np.array([self.x,self.t]).reshape(1,2)
+        return (1-self.t)*self.I(self.x) + self.x\
+        *(1-self.x)*self.t*model(XT,training=True)
 
 def g_analytic(x, t):
     #Analytic solution to function
@@ -98,10 +100,13 @@ def I(x):
 
 if __name__ == "__main__":
     #Check tensorflow version and eager execution
-    L  = 1
+    L  = 10
     T = 0.5
-    dx = 1/100
-    dt = 0.5*dx**2
+    dx = 1/10
+    dt = 5/1000#0.5*dx**2
+    print(int(L/dx))
+    print(int(T/dt))
+    #exit()
     epochs = 10
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I)
     loss, acc = ML.tf_run()
