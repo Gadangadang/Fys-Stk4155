@@ -1,6 +1,7 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import autograd.numpy as np
+from plot_set import *
 from autograd import jacobian, hessian, grad
 
 from tensorflow.keras import optimizers, regularizers
@@ -107,13 +108,15 @@ if __name__ == "__main__":
     dx = 1 / 10
     dt = 5 / 1000  # 0.5*dx**2
 
-    epochs = 100
+    epochs = 1000
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I)
     loss = ML.tf_run()
 
     u = ML()
     x = np.linspace(0, L, int(L / dx))
+    t = np.linspace(0, T, int(T / dt))
     plt.plot(x, u[-1])
+    plt.plot(x,g_analytic(x,t), "--")
     plt.show()
     # plt.plot(np.arange(epochs), loss)
     # plt.show()
