@@ -42,49 +42,55 @@ class PDE_ml_solver:
 
             # Track progress
             epoch_loss_avg.update_state(loss_value)  # Add current batch loss
-            epoch_accuracy.update_state(y, model(x, training=True))
+            #epoch_accuracy.update_state(y, model(x, training=True))
 
             train_loss_results.append(epoch_loss_avg.result())
-            train_accuracy_results.append(epoch_accuracy.result())
-        return train_loss_results, train_accuracy_results
+            #train_accuracy_results.append(epoch_accuracy.result())
+        return train_loss_results#, train_accuracy_results
 
     def grad(self,model):
 
         with tf.GradientTape() as tape:
             loss_value = self.cost_function(model)
-            return loss_value, tape.gradient(loss_value, model.trainable_variables)
+            t_grad = tape.gradient(loss_value, model.trainable_variables)
+        del tape
+        return loss_value, t_grad
 
 
     def cost_function(self,model):
         """
         Calculate derivatives.
         """
-        x, t  = tf.convert_to_tensor(self.x), tf.convert_to_tensor(self.t)
+        x, t  = tf.convert_to_tensor(self.x, dtype="float32"), tf.convert_to_tensor(self.t, dtype="float32")
 
-        with tf.GradientTape(persistent=True) as tape1:
+        """with tf.GradientTape(persistent=True) as tape1:
             tape1.watch(x)
             with tf.GradientTape(persistent=True) as tape2:
                 tape1.watch([x,t])
                 g_trial = self.g_trial(model)
-            g_t = tape1.gradient(g_trial, t)
+            """
+        with tf.GradientTape(persistent=True) as tape1:
+            tape1.watch(x)
+            tape1.watch(t)
+            g_trial = self.g_trial(model,x,t)
             g_x = tape1.gradient(g_trial, x)
-        g_xx = tape2.gradient(g_x, x)
+        g_t = tape1.gradient(g_trial, t)
+        g_xx = tape1.gradient(g_x, x)
         residual =  g_xx - g_t
-        MSE = np.mean(residual)
-        
+        MSE = tf.reduce_mean(residual**2)
         del tape1
-        del tape2
         return MSE
 
 
 
 
-    def g_trial(self, model):
+    def g_trial(self, model,x,t):
         """
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
         h_1 and h_2 are functions to control boundary and inital conditions
         """
-        XT = tf.stack([self.t, self.x], axis=1)
+        #x, t  = tf.convert_to_tensor(x, dtype="float32"), tf.convert_to_tensor(t, dtype="float32")
+        XT = tf.stack([t, x], axis=1)
         #point = np.array([self.x,self.t]).reshape(1,2)
         return (1-self.t)*self.I(self.x) + self.x\
         *(1-self.x)*self.t*model(XT,training=True)
@@ -104,12 +110,15 @@ if __name__ == "__main__":
     T = 0.5
     dx = 1/10
     dt = 5/1000#0.5*dx**2
-    print(int(L/dx))
-    print(int(T/dt))
-    #exit()
+
     epochs = 10
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I)
-    loss, acc = ML.tf_run()
+    loss = ML.tf_run()
+    loss_list = []
+    print(loss)
+
+    plt.plot(np.arange(epochs),loss)
+    plt.show()
 
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
