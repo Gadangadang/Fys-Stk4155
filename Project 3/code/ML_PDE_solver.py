@@ -20,9 +20,8 @@ class PDE_ml_solver:
         self.optimizer = optimizers.SGD(learning_rate=0.01)
 
     def __call__(self):
-        pred = self.g_trial(self.model, self.x,self.t)
+        pred = self.g_trial(self.model, self.x, self.t)
         return pred
-
 
     def get_model(self):
         model = tf.keras.Sequential(
@@ -30,7 +29,8 @@ class PDE_ml_solver:
                 tf.keras.layers.Dense(10, activation="sigmoid", input_shape=(2,)),
                 tf.keras.layers.Dense(10, activation="sigmoid"),
                 tf.keras.layers.Dense(1, activation="sigmoid"),
-            ])
+            ]
+        )
         return model
 
     def tf_run(self):
@@ -50,28 +50,30 @@ class PDE_ml_solver:
     def grad(self, model):
         with tf.GradientTape() as tape:
             loss_value = self.cost_function(model)
-            t_grad = tape.gradient(loss_value, model.trainable_variables)
-            del tape
-            return loss_value, t_grad
+        t_grad = tape.gradient(loss_value, model.trainable_variables)
+        del tape
+        return loss_value, t_grad
 
     def cost_function(self, model):
         """
         Calculate derivatives.
         """
-        x, t = tf.convert_to_tensor(self.x, dtype="float32"), \
-        tf.convert_to_tensor(self.t, dtype="float32")
+        x, t = tf.convert_to_tensor(self.x, dtype="float32"), tf.convert_to_tensor(
+            self.t, dtype="float32"
+        )
 
         with tf.GradientTape(persistent=True) as tape1:
             tape1.watch(x)
             tape1.watch(t)
             g_trial = self.g_trial(model, x, t)
             g_x = tape1.gradient(g_trial, x)
-            g_t = tape1.gradient(g_trial, t)
             g_xx = tape1.gradient(g_x, x)
-            residual = g_xx - g_t
-            MSE = tf.reduce_mean(residual ** 2)
-            del tape1
-            return MSE
+
+        g_t = tape1.gradient(g_trial, t)
+        residual = g_xx - g_t
+        MSE = tf.reduce_mean(residual ** 2)
+        del tape1
+        return MSE
 
     def g_trial(self, model, x, t):
         """
@@ -79,8 +81,9 @@ class PDE_ml_solver:
         h_1 and h_2 are functions to control boundary and inital conditions
         """
         XT = tf.stack([t, x], axis=1)
-        return (1 - self.t) * self.I(self.x) + \
-        self.x * (1 - self.x) * self.t * model(XT, training=True)
+        h1 = (1 - self.t) * self.I(self.x)
+        h2 = self.x * (1 - self.x) * self.t
+        return h1 + h2 * model(XT, training=True)
 
 
 def g_analytic(x, t):
@@ -95,6 +98,10 @@ def I(x):
 
 if __name__ == "__main__":
     # Check tensorflow version and eager execution
+    print("TensorFlow version: {}".format(tf.__version__))
+    print("Eager execution: {}".format(tf.executing_eagerly()))
+
+    # Set params
     L = 10
     T = 0.5
     dx = 1 / 10
@@ -105,12 +112,8 @@ if __name__ == "__main__":
     loss = ML.tf_run()
 
     u = ML()
-    x = np.linspace(0,L, int(L/dx))
+    x = np.linspace(0, L, int(L / dx))
     plt.plot(x, u[-1])
     plt.show()
-    #plt.plot(np.arange(epochs), loss)
-    #plt.show()
-
-
-    print("TensorFlow version: {}".format(tf.__version__))
-    print("Eager execution: {}".format(tf.executing_eagerly()))
+    # plt.plot(np.arange(epochs), loss)
+    # plt.show()
