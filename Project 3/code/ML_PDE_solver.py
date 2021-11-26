@@ -53,8 +53,8 @@ class PDE_ml_solver:
         with tf.GradientTape() as tape:
             loss_value = self.cost_function(model)
             t_grad = tape.gradient(loss_value, model.trainable_variables)
-        del tape
-        return loss_value, t_grad
+            del tape
+            return loss_value, t_grad
 
 
     def cost_function(self,model):
@@ -74,12 +74,12 @@ class PDE_ml_solver:
             tape1.watch(t)
             g_trial = self.g_trial(model,x,t)
             g_x = tape1.gradient(g_trial, x)
-        g_t = tape1.gradient(g_trial, t)
-        g_xx = tape1.gradient(g_x, x)
-        residual =  g_xx - g_t
-        MSE = tf.reduce_mean(residual**2)
-        del tape1
-        return MSE
+            g_t = tape1.gradient(g_trial, t)
+            g_xx = tape1.gradient(g_x, x)
+            residual =  g_xx - g_t
+            MSE = tf.reduce_mean(residual**2)
+            del tape1
+            return MSE
 
 
 
@@ -111,11 +111,10 @@ if __name__ == "__main__":
     dx = 1/10
     dt = 5/1000#0.5*dx**2
 
-    epochs = 10
+    epochs = 5000
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I)
     loss = ML.tf_run()
-    loss_list = []
-    print(loss)
+
 
     plt.plot(np.arange(epochs),loss)
     plt.show()
