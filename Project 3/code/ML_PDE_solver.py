@@ -6,6 +6,7 @@ from autograd import jacobian, hessian, grad
 
 from tensorflow.keras import optimizers, regularizers
 from tensorflow.keras.layers import Dense, Input
+from tqdm import tqdm
 
 
 class PDE_ml_solver:
@@ -39,7 +40,7 @@ class PDE_ml_solver:
         model = self.get_model()
         epoch_loss_avg = tf.keras.metrics.Mean()
 
-        for epoch in range(self.num_epochs):
+        for epoch in tqdm(range(self.num_epochs)):
             loss_value, grads = self.grad(model)
             self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
             # Track progress
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
     plt.plot(x, u[-1])
-    plt.plot(x,g_analytic(x,t), "--")
+    plt.plot(x,g_analytic(x,T), "--")
     plt.show()
     # plt.plot(np.arange(epochs), loss)
     # plt.show()
