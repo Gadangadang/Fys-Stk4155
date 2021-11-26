@@ -21,15 +21,11 @@ class PDE_ml_solver:
         self.g_t_hessian_func = hessian(self.g_trial, 0)
         self.optimizer = optimizers.SGD(learning_rate=0.01)
 
-    def __call__(self):
-        sol = []
-        #pred = self.g_trial(self.model, self.x, self.t)
-        for i, ti in enumerate(self.t):
-            sol.append([])
-            for xi in self.x:
-                sol[i].append(self.g_trial(self.model, tf.Variable([xi]), tf.Variable([ti]))[0][0].numpy())
-
-        return sol
+    def __call__(self,t):
+        u_i = []
+        for i, xi in enumerate(self.x):
+            u_i.append(self.g_trial(self.model, tf.Variable([xi]), tf.Variable([t],dtype=tf.float32))[0][0].numpy())
+        return u_i
 
     def create_dataset(self,x,t,batch_size):
         data = tf.stack([tf.random.shuffle(t),tf.random.shuffle(x)], axis=1)#Dataset.zip((t, x))
@@ -40,12 +36,14 @@ class PDE_ml_solver:
     def get_model(self):
         model = tf.keras.Sequential(
             [
-                tf.keras.layers.Dense(10, activation="sigmoid", input_shape=(2,)),
-                tf.keras.layers.Dense(10, activation="sigmoid"),
+                tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
+                tf.keras.layers.Dense(20, activation="sigmoid"),
+                tf.keras.layers.Dense(20, activation="sigmoid"),
                 tf.keras.layers.Dense(1, activation="sigmoid"),
             ]
         )
         return model
+
 
     def tf_run(self):
         train_loss_results = []
@@ -59,17 +57,16 @@ class PDE_ml_solver:
                 loss_value, grads = self.grad(model)
                 self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 # Track progress
-                #epoch_loss_avg.update_state(loss_value)  # Add current batch loss
-                #train_loss_results.append(epoch_loss_avg.result())
-                train_loss_results.append(tf.math.reduce_mean(loss_value))
+                train_loss_results.append(loss_value)
         self.model = model
         return train_loss_results
 
     def grad(self, model):
         with tf.GradientTape() as tape:
+            tape.watch(model.trainable_variables)
             loss_value = self.cost_function(model)
-            t_grad = tape.gradient(loss_value, model.trainable_variables)
-            del tape
+        t_grad = tape.gradient(loss_value, model.trainable_variables)
+        del tape
         return loss_value, t_grad
 
     def cost_function(self, model):
@@ -90,8 +87,9 @@ class PDE_ml_solver:
         del tape1
         del tape2
         residual = (g_xx - g_t)
-        #MSE = residual
-        return tf.math.abs(residual)
+        MSE = tf.reduce_mean(tf.square(residual))
+
+        return MSE
 
     def g_trial(self, model, x, t):
         """
@@ -120,27 +118,29 @@ if __name__ == "__main__":
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
     # Set params
-    L = 10
-    T = 0.5
-    dx = 1 / 10
-    dt = 0.005  # 0.5*dx**2
+    #L = 10
+    #T = 0.5
+    #dx = 1 / 10
+    #dt = 0.005  # 0.5*dx**2
+    L = 1
+    T = 1
+    dx = 0.01
+    dt = 0.01
 
 
     epochs = 500
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, 50)
     loss = ML.tf_run()
 
-    u = ML()
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
-    for i in range(0,100,10):
-        plt.plot(x, u[i])
-        plt.plot(x,g_analytic(x,dt*i), "--")
+    for i in range(0,100,20):
+        plt.plot(x, ML(t[i]))
+        plt.plot(x,g_analytic(x,t[i]), "--")
 
 
     #plt.plot(x,g_analytic(x,dt), "--")
     #plt.xlim([0,1])
     plt.show()
-    """plt.plot(np.arange(len(loss)), loss)
+    plt.plot(np.arange(len(loss)), loss)
     plt.show()
-    """
