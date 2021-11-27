@@ -16,8 +16,7 @@ class PDE_ml_solver:
         self.Nt = int(T / dt)
         self.x = tf.cast(tf.linspace(0, L, self.Nx), tf.float32)
         self.t = tf.cast(tf.linspace(0., T, self.Nt), tf.float32)
-        self.batch_size = batch_size
-        self.dataset = self.create_dataset()
+        self.data = self.create_dataset()
 
         self.I = I
         self.num_epochs = epochs
@@ -25,22 +24,22 @@ class PDE_ml_solver:
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
 
-        self.optimizer = optimizers.SGD(learning_rate=0.01)
+        self.optimizer = optimizers.SGD(learning_rate=1)
 
     def __call__(self,t):
         u_i = []
         for i, xi in enumerate(self.x):
-            u_i.append(self.g_trial(self.model, tf.Variable([xi]), tf.Variable([t],dtype=tf.float32))[0][0].numpy())
+            u_i.append(self.g_trial(self.model, tf.Variable([xi]),\
+            tf.Variable([t],dtype=tf.float32))[0][0].numpy())
         return u_i
 
     def create_dataset(self):
-        x = tf.tile(self.x, [int(np.ceil(self.Nt/self.Nx))])#Repeat x if Nt>Nx
-        data = tf.stack([tf.random.shuffle(self.t),tf.random.shuffle(x[:self.Nt])], axis=1)
-        data = Dataset.from_tensor_slices(data)
-        data = data.batch(self.batch_size)
+        T, X = tf.meshgrid(self.t, self.x)
+        data = tf.stack([tf.reshape(T, [-1]),tf.reshape(X, [-1])], axis=1)
         return data
 
     def get_model(self):
+        bias_initializer = tf.keras.initializers.HeNormal()
         model = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
@@ -57,14 +56,10 @@ class PDE_ml_solver:
         model = self.get_model()
 
         for epoch in tqdm(range(self.num_epochs)):
-            loss_epoch = 0
-            for step, batch in enumerate(self.dataset):
-                self.batch = batch #Select batch
-                loss_value, grads = self.grad(model)#Calculate loss and gradient of loss.
-                self.optimizer.apply_gradients(zip(grads,\
-                    model.trainable_variables)) #Update parameters in network.
-                train_loss_results.append(loss_value)# Track progress
-            self.dataset = self.create_dataset()
+            loss_value, grads = self.grad(model)#Calculate loss and gradient of loss.
+            self.optimizer.apply_gradients(zip(grads,\
+                model.trainable_variables)) #Update parameters in network.
+            train_loss_results.append(loss_value)# Track progress
         self.model = model #Save trained network.
         return train_loss_results
 
@@ -80,28 +75,30 @@ class PDE_ml_solver:
         """
         Calculate derivatives.
         """
-        t,x = self.batch[:,0], self.batch[:,1]
-        with tf.GradientTape(persistent=True) as tape1:
+        with tf.GradientTape() as tape1:
+            t,x = self.data[0,:], self.data[1,:]
             tape1.watch(x)
-            with tf.GradientTape() as tape2:
-                tape2.watch(t)
+            with tf.GradientTape(persistent=True) as tape2:
+                tape2.watch([x,t])
                 g_trial = self.g_trial(model, x, t)
-                g_x = tape1.gradient(g_trial, x)
-        g_t = tape2.gradient(g_trial, t)
+            g_x = tape2.gradient(g_trial, x)
+            g_t = tape2.gradient(g_trial, t)
+
         g_xx = tape1.gradient(g_x, x)
         del tape1; del tape2
-        residual = (g_xx - g_t)
+        residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
         return MSE
 
     def g_trial(self, model, x, t):
         """
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
-        h_1 and h_2 are functions to control boundary and inital conditions
+        h_1 and h_2 are functions to control boundary and inital conditions.
         """
         XT = tf.stack([t, x], axis=1)
         h1 = (1 - t) * self.I(x)
         h2 = x * (1 - x) * t
+        #print( tf.reduce_mean(model(XT, training=True)))
         return h1 + h2 * model(XT, training=True)
 
 
@@ -127,31 +124,30 @@ if __name__ == "__main__":
     #dt = 0.005  # 0.5*dx**2
     L = 1
     T = 1
-    dx = 0.1
-    dt = 0.1
+    dx = 0.01
+    dt = 0.01
 
 
-    epochs = 10
+    epochs = 1000
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, 50)
     loss = ML.train()
 
+
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
-    """for i in range(0,100,20):
-        plt.plot(x, ML(t[i]))
-        plt.plot(x,g_analytic(x,t[i]), "--")"""
+
+    plt.plot(np.arange(len(loss)), loss)
+    plt.show()
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
     u_complete = np.empty((0,len(x)))
     for t_i in tqdm(t):
         u_complete = np.vstack((u_complete,np.asarray(ML(t_i))))
     ESS.u_complete = u_complete
     ESS.animator()
-    exit()
+    """
     plt.plot(x, ML(t[-1]))
     plt.plot(x,g_analytic(x,t[-1]), "--")
-
+    """
     #plt.plot(x,g_analytic(x,dt), "--")
     #plt.xlim([0,1])
-    plt.show()
-    plt.plot(np.arange(len(loss)), loss)
-    plt.show()
+    #plt.show()
