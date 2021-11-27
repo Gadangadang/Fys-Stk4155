@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import autograd.numpy as np
 from plot_set import *
 from autograd import jacobian, hessian, grad
-
+import ExplicitSolver as ES
 from tensorflow.keras import optimizers, regularizers
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.data import Dataset
@@ -14,11 +14,15 @@ class PDE_ml_solver:
     def __init__(self, L, T, dx, dt, epochs, I, batch_size):
         self.x = tf.cast(tf.linspace(0, L, int(L / dx)), tf.float32)
         self.t = tf.cast(tf.linspace(0., T, int(T / dt)), tf.float32)
-        self.dataset = self.create_dataset(self.x,self.t,batch_size)
+        self.batch_size = batch_size
+        self.dataset = self.create_dataset()
+
         self.I = I
         self.num_epochs = epochs
+
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
+
         self.optimizer = optimizers.SGD(learning_rate=0.01)
 
     def __call__(self,t):
@@ -27,10 +31,10 @@ class PDE_ml_solver:
             u_i.append(self.g_trial(self.model, tf.Variable([xi]), tf.Variable([t],dtype=tf.float32))[0][0].numpy())
         return u_i
 
-    def create_dataset(self,x,t,batch_size):
-        data = tf.stack([tf.random.shuffle(t),tf.random.shuffle(x)], axis=1)#Dataset.zip((t, x))
+    def create_dataset(self):
+        data = tf.stack([tf.random.shuffle(self.t),tf.random.shuffle(self.x)], axis=1)
         data = Dataset.from_tensor_slices(data)
-        data = data.batch(batch_size)
+        data = data.batch(self.batch_size)
         return data
 
     def get_model(self):
@@ -45,20 +49,20 @@ class PDE_ml_solver:
         return model
 
 
-    def tf_run(self):
+    def train(self):
         train_loss_results = []
         model = self.get_model()
-        epoch_loss_avg = tf.keras.metrics.Mean()
 
         for epoch in tqdm(range(self.num_epochs)):
             loss_epoch = 0
             for step, batch in enumerate(self.dataset):
-                self.batch = batch
-                loss_value, grads = self.grad(model)
-                self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
-                # Track progress
-                train_loss_results.append(loss_value)
-        self.model = model
+                self.batch = batch #Select batch
+                loss_value, grads = self.grad(model)#Calculate loss and gradient of loss.
+                self.optimizer.apply_gradients(zip(grads,\
+                    model.trainable_variables)) #Update parameters in network.
+                train_loss_results.append(loss_value)# Track progress
+            self.dataset = self.create_dataset()
+        self.model = model #Save trained network.
         return train_loss_results
 
     def grad(self, model):
@@ -76,19 +80,15 @@ class PDE_ml_solver:
         t,x = self.batch[:,0], self.batch[:,1]
         with tf.GradientTape(persistent=True) as tape1:
             tape1.watch(x)
-
             with tf.GradientTape() as tape2:
                 tape2.watch(t)
                 g_trial = self.g_trial(model, x, t)
                 g_x = tape1.gradient(g_trial, x)
-
-        g_xx = tape1.gradient(g_x, x)
         g_t = tape2.gradient(g_trial, t)
-        del tape1
-        del tape2
+        g_xx = tape1.gradient(g_x, x)
+        del tape1; del tape2
         residual = (g_xx - g_t)
         MSE = tf.reduce_mean(tf.square(residual))
-
         return MSE
 
     def g_trial(self, model, x, t):
@@ -104,12 +104,12 @@ class PDE_ml_solver:
 
 def g_analytic(x, t):
     # Analytic solution to function
-    return np.exp(-np.pi ** 2 * t) * I(x)
+    return np.exp(-np.pi**2 * t) * I(x)
 
 
 def I(x):
     # Initial condition
-    return np.sin(np.pi * x)
+    return tf.sin(np.pi * x)
 
 
 if __name__ == "__main__":
@@ -128,16 +128,24 @@ if __name__ == "__main__":
     dt = 0.01
 
 
-    epochs = 500
+    epochs = 10
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, 50)
-    loss = ML.tf_run()
+    loss = ML.train()
 
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
-    for i in range(0,100,20):
+    """for i in range(0,100,20):
         plt.plot(x, ML(t[i]))
-        plt.plot(x,g_analytic(x,t[i]), "--")
-
+        plt.plot(x,g_analytic(x,t[i]), "--")"""
+    ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
+    u_complete = np.empty((0,len(x)))
+    for t_i in tqdm(t):
+        u_complete = np.vstack((u_complete,np.asarray(ML(t_i))))
+    ESS.u_complete = u_complete
+    ESS.animator()
+    exit()
+    plt.plot(x, ML(t[-1]))
+    plt.plot(x,g_analytic(x,t[-1]), "--")
 
     #plt.plot(x,g_analytic(x,dt), "--")
     #plt.xlim([0,1])

@@ -85,8 +85,8 @@ class ExplicitSolver:
 
     def animator(self):
         fig, ax = plt.subplots()
-        line1, = ax.plot(self.x, self.u_complete[0, :], color='k', lw=2)
-        line2, = ax.plot(self.x, self.exact_solution(0), color='b', lw=2)
+        line1, = ax.plot(self.x, self.u_complete[0, :], label = "Solver",  lw=2)
+        line2, = ax.plot(self.x, self.exact_solution(0), "--", label = "Exact",  lw=2)
         text = plt.text(0.6, 0.75, f"MSE: {np.abs(np.mean(self.u_complete[0, :]-self.exact_solution(0))):2.2e}", fontsize = 15)
         v_min = np.min(self.u_complete[0])
         v_max = np.max(self.u_complete[0])
@@ -97,6 +97,7 @@ class ExplicitSolver:
             line1.set_ydata(self.u_complete[i, :])
             line2.set_ydata(self.exact_solution(i))
         ani = animation.FuncAnimation(fig, animate, frames = len(self.t)-1, interval=10)
+        plt.legend()
         ani.save("../article/animations/ExplicitPDEGif.gif")
         plt.show()
         return ani
