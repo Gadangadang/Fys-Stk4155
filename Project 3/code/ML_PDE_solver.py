@@ -12,8 +12,10 @@ from tqdm import tqdm
 
 class PDE_ml_solver:
     def __init__(self, L, T, dx, dt, epochs, I, batch_size):
-        self.x = tf.cast(tf.linspace(0, L, int(L / dx)), tf.float32)
-        self.t = tf.cast(tf.linspace(0., T, int(T / dt)), tf.float32)
+        self.Nx = int(L / dx)
+        self.Nt = int(T / dt)
+        self.x = tf.cast(tf.linspace(0, L, self.Nx), tf.float32)
+        self.t = tf.cast(tf.linspace(0., T, self.Nt), tf.float32)
         self.batch_size = batch_size
         self.dataset = self.create_dataset()
 
@@ -32,7 +34,8 @@ class PDE_ml_solver:
         return u_i
 
     def create_dataset(self):
-        data = tf.stack([tf.random.shuffle(self.t),tf.random.shuffle(self.x)], axis=1)
+        x = tf.tile(self.x, [int(np.ceil(self.Nt/self.Nx))])#Repeat x if Nt>Nx
+        data = tf.stack([tf.random.shuffle(self.t),tf.random.shuffle(x[:self.Nt])], axis=1)
         data = Dataset.from_tensor_slices(data)
         data = data.batch(self.batch_size)
         return data
@@ -124,8 +127,8 @@ if __name__ == "__main__":
     #dt = 0.005  # 0.5*dx**2
     L = 1
     T = 1
-    dx = 0.01
-    dt = 0.01
+    dx = 0.1
+    dt = 0.1
 
 
     epochs = 10
