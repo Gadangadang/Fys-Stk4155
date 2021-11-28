@@ -64,28 +64,29 @@ class ExplicitSolver:
     def exact_solution(self,i):
         return np.sin(np.pi*self.x)*np.exp(-np.pi**2*self.t[i])
 
-    def plot_comparison(self):
+    def plot_comparison(self, solver, name = None):
 
         t_index = np.around(np.linspace(0,self.Nt-1, 6)).astype(int)
         fig, axes = plt.subplots(2, 3, sharex='col', sharey='row')
-        fig.suptitle(f"Numerical vs Exact: dx = {self.dx}", fontsize = 18)
+        fig.suptitle(f"{solver} vs Exact: dx = {self.dx}", fontsize = 18)
         counter = 0
         for i in range(2):
             for j in range(3):
                 axes[i,j].set_title(f"t = {self.t[t_index[counter]]:.1f}", fontsize = 15)
-                axes[i,j].plot(self.x, self.u_complete[t_index[counter]], lw=2, label = "Numerical")
+                axes[i,j].plot(self.x, self.u_complete[t_index[counter]], lw=2, label = solver)
                 axes[i,j].plot(self.x, self.exact_solution(t_index[counter]), "--", lw=2, label = "Exact")
                 axes[i,j].set_ylim([-0.1,1.1])
                 counter += 1
         plt.subplots_adjust(hspace = 2, wspace= 0.11)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         plt.legend()
-        plt.savefig(f"../article/figures/ExplicitPDE_dx{self.dx}.pdf", bbox_inches="tight")
+        if name is not None:
+            plt.savefig(f"../article/figures/ExplicitPDE_dx{self.dx}.pdf", bbox_inches="tight")
         plt.show()
 
-    def animator(self):
+    def animator(self,solver, name = None):
         fig, ax = plt.subplots()
-        line1, = ax.plot(self.x, self.u_complete[0][:], label = "Solver",  lw=2)
+        line1, = ax.plot(self.x, self.u_complete[0][:], label = solver,  lw=2)
         line2, = ax.plot(self.x, self.exact_solution(0), "--", label = "Exact",  lw=2)
         text = plt.text(0.6, 0.75, f"MSE: {np.abs(np.mean(self.u_complete[0][:]-self.exact_solution(0))):2.2e}", fontsize = 15)
         v_min = np.min(self.u_complete[0])
@@ -98,7 +99,8 @@ class ExplicitSolver:
             line2.set_ydata(self.exact_solution(i))
         ani = animation.FuncAnimation(fig, animate, frames = len(self.t)-1, interval=10)
         plt.legend()
-        ani.save("../article/animations/ExplicitPDEGif.gif")
+        if name is not None:
+            ani.save("../article/animations/ExplicitPDEGif.gif")
         plt.show()
         return ani
 
@@ -113,4 +115,4 @@ if __name__ == "__main__":
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
     #PDE.animator()
-    ES.plot_comparison()
+    ES.plot_comparison("Explicit solver")

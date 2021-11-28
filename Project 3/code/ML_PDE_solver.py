@@ -14,7 +14,6 @@ class PDE_ml_solver:
     def __init__(self, L, T, dx, dt, epochs, I, lr):
         self.Nx = int(L / dx)
         self.Nt = int(T / dt)
-        self.eta = eta
         self.x = tf.cast(tf.linspace(0, L, self.Nx), tf.float32)
         self.t = tf.cast(tf.linspace(0.0, T, self.Nt), tf.float32)
         self.data = self.create_dataset()
@@ -75,7 +74,7 @@ class PDE_ml_solver:
                     zip(grads, model.trainable_variables)
                 )  # Update parameters in network.
                 train_loss_results.append(loss_value)  # Track progress
-                tvals.set_description(f"{loss_value:.2f}")
+                tvals.set_description(f"Residual={loss_value:.2f}")
             self.model = model  # Save trained network.
             return train_loss_results
         except:
@@ -104,8 +103,7 @@ class PDE_ml_solver:
             g_t = tape2.gradient(g_trial, t)
 
         g_xx = tape1.gradient(g_x, x)
-        del tape1
-        del tape2
+        del tape1; del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
         # print(MSE.numpy())
@@ -140,12 +138,12 @@ if __name__ == "__main__":
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
     L = 1
-    T = 1.2
+    T = 1
     dx = 0.01
     dt = 0.01
-    lr = 4e-2
+    lr = 5e-2
 
-    epochs = 300
+    epochs = 1000
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, lr)
     loss = ML.train()
 
@@ -162,4 +160,5 @@ if __name__ == "__main__":
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
     u_complete = ML()
     ESS.u_complete = u_complete
-    ESS.animator()
+    ESS.animator("Neural network")
+    ESS.plot_comparison("Neural network")
