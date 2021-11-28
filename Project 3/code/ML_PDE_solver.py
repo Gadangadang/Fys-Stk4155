@@ -24,9 +24,6 @@ class PDE_ml_solver:
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
 
-
-
-
     def __call__(self,t = None):
         if t is not None:
             u_i = []
@@ -137,7 +134,7 @@ if __name__ == "__main__":
     dt = 0.01
 
 
-    epochs = 200
+    epochs = 300
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, 50)
     loss = ML.train()
 
