@@ -24,14 +24,21 @@ class PDE_ml_solver:
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
 
-        self.optimizer = optimizers.SGD(learning_rate=1)
 
-    def __call__(self,t):
-        u_i = []
-        for i, xi in enumerate(self.x):
-            u_i.append(self.g_trial(self.model, tf.Variable([xi]),\
-            tf.Variable([t],dtype=tf.float32))[0][0].numpy())
-        return u_i
+
+
+    def __call__(self,t = None):
+        if t is not None:
+            u_i = []
+            for i, xi in enumerate(self.x):
+                u_i.append(self.g_trial(self.model, tf.Variable([xi]),\
+                tf.Variable([t],dtype=tf.float32))[0][0].numpy())
+            return u_i
+        else:
+            t,x = self.data[:,0], self.data[:,1]
+            u = self.g_trial(self.model, t, x).numpy()
+            return np.split(u,self.Nt)
+
 
     def create_dataset(self):
         T, X = tf.meshgrid(self.t, self.x)
@@ -39,29 +46,36 @@ class PDE_ml_solver:
         return data
 
     def get_model(self):
-        bias_initializer = tf.keras.initializers.HeNormal()
         model = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
-                tf.keras.layers.Dense(20, activation="sigmoid"),
-                tf.keras.layers.Dense(20, activation="sigmoid"),
-                tf.keras.layers.Dense(1, activation="sigmoid"),
+                tf.keras.layers.Dense(10, activation="sigmoid"),
+                tf.keras.layers.Dense(30, activation="sigmoid"),
+                tf.keras.layers.Dense(10, activation="sigmoid"),
+                tf.keras.layers.Dense(30, activation="sigmoid"),
+                tf.keras.layers.Dense(1),
             ]
         )
+        self.optimizer = optimizers.Adam(learning_rate=1e-2)
+        model.compile(optimizer=self.optimizer)
+        #model.summary()
         return model
 
 
     def train(self):
         train_loss_results = []
         model = self.get_model()
-
-        for epoch in tqdm(range(self.num_epochs)):
-            loss_value, grads = self.grad(model)#Calculate loss and gradient of loss.
-            self.optimizer.apply_gradients(zip(grads,\
-                model.trainable_variables)) #Update parameters in network.
-            train_loss_results.append(loss_value)# Track progress
-        self.model = model #Save trained network.
-        return train_loss_results
+        try:
+            for epoch in tqdm(range(self.num_epochs)):
+                loss_value, grads = self.grad(model)#Calculate loss and gradient of loss.
+                self.optimizer.apply_gradients(zip(grads,\
+                    model.trainable_variables)) #Update parameters in network.
+                train_loss_results.append(loss_value)# Track progress
+            self.model = model #Save trained network.
+            return train_loss_results
+        except:
+            self.model = model #Save trained network.
+            return train_loss_results
 
     def grad(self, model):
         with tf.GradientTape() as tape:
@@ -76,7 +90,7 @@ class PDE_ml_solver:
         Calculate derivatives.
         """
         with tf.GradientTape() as tape1:
-            t,x = self.data[0,:], self.data[1,:]
+            t,x = self.data[:,0], self.data[:,1]
             tape1.watch(x)
             with tf.GradientTape(persistent=True) as tape2:
                 tape2.watch([x,t])
@@ -88,6 +102,7 @@ class PDE_ml_solver:
         del tape1; del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
+        print(MSE.numpy())
         return MSE
 
     def g_trial(self, model, x, t):
@@ -98,8 +113,7 @@ class PDE_ml_solver:
         XT = tf.stack([t, x], axis=1)
         h1 = (1 - t) * self.I(x)
         h2 = x * (1 - x) * t
-        #print( tf.reduce_mean(model(XT, training=True)))
-        return h1 + h2 * model(XT, training=True)
+        return h1 + h2 * tf.squeeze(model(XT, training=True)) #self.I(x)*(1-t*model(XT, training=True))#
 
 
 def g_analytic(x, t):
@@ -117,18 +131,13 @@ if __name__ == "__main__":
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
-    # Set params
-    #L = 10
-    #T = 0.5
-    #dx = 1 / 10
-    #dt = 0.005  # 0.5*dx**2
     L = 1
     T = 1
     dx = 0.01
     dt = 0.01
 
 
-    epochs = 1000
+    epochs = 200
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, 50)
     loss = ML.train()
 
@@ -139,9 +148,10 @@ if __name__ == "__main__":
     plt.plot(np.arange(len(loss)), loss)
     plt.show()
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
-    u_complete = np.empty((0,len(x)))
+    """u_complete = np.empty((0,len(x)))
     for t_i in tqdm(t):
-        u_complete = np.vstack((u_complete,np.asarray(ML(t_i))))
+        u_complete = np.vstack((u_complete,np.asarray(ML(t_i))))"""
+    u_complete = ML()
     ESS.u_complete = u_complete
     ESS.animator()
     """
