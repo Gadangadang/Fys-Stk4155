@@ -37,10 +37,13 @@ class NeuralNetworkPDE:
 
     def get_model(self):
         model = tf.keras.Sequential(
-               [tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
+            [
+                tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
-                tf.keras.layers.Dense(1),])
+                tf.keras.layers.Dense(1),
+            ]
+        )
         self.optimizer = optimizers.Adam(learning_rate=self.learning_rate)
         model.compile(optimizer=self.optimizer)
         model.summary()
@@ -55,8 +58,7 @@ class NeuralNetworkPDE:
                 # Calculate loss and gradient of loss.
                 loss_value, grads = self.grad(model)
                 # Update parameters in network.
-                self.optimizer.apply_gradients(
-                    zip(grads, model.trainable_variables))
+                self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 # Track Loss
                 train_loss_results.append(loss_value)
                 tvals.set_description(f"Residual={loss_value:.3f}")
@@ -75,7 +77,6 @@ class NeuralNetworkPDE:
         del tape
         return loss_value, t_grad
 
-
     @tf.function
     def cost_function(self, model):
         """
@@ -91,7 +92,8 @@ class NeuralNetworkPDE:
             g_t = tape2.gradient(g_trial, t)
 
         g_xx = tape1.gradient(g_x, x)
-        del tape1; del tape2
+        del tape1
+        del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
         return MSE
@@ -148,6 +150,6 @@ if __name__ == "__main__":
     u_complete = ML()
 
     ESS.u_complete = u_complete
-    #ESS.animator("Neural network")
-    #ESS.plot_comparison("Neural network")
+    # ESS.animator("Neural network")
+    # ESS.plot_comparison("Neural network")
     ESS.plot_difference("Neural network")
