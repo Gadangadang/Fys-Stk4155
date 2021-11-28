@@ -10,7 +10,7 @@ from tensorflow.data import Dataset
 from tqdm import tqdm
 
 
-class PDE_ml_solver:
+class NeuralNetworkPDE:
     def __init__(self, L, T, dx, dt, epochs, I, lr):
         self.Nx = int(L / dx)
         self.Nt = int(T / dt)
@@ -74,7 +74,7 @@ class PDE_ml_solver:
                     zip(grads, model.trainable_variables)
                 )  # Update parameters in network.
                 train_loss_results.append(loss_value)  # Track progress
-                tvals.set_description(f"Residual={loss_value:.2f}")
+                tvals.set_description(f"Residual={loss_value:.3f}")
             self.model = model  # Save trained network.
             return train_loss_results
         except:
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     lr = 5e-2
 
     epochs = 1000
-    ML = PDE_ml_solver(L, T, dx, dt, epochs, I, lr)
+    ML = NeuralNetworkPDE(L, T, dx, dt, epochs, I, lr)
     loss = ML.train()
 
     x = np.linspace(0, L, int(L / dx))
