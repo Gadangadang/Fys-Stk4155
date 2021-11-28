@@ -25,22 +25,10 @@ class NeuralNetworkPDE:
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
 
-    def __call__(self, t=None):
-        if t is not None:
-            u_i = []
-            for i, xi in enumerate(self.x):
-                u_i.append(
-                    self.g_trial(
-                        self.model,
-                        tf.Variable([xi]),
-                        tf.Variable([t], dtype=tf.float32),
-                    )[0][0].numpy()
-                )
-            return u_i
-        else:
-            t, x = self.data[:, 0], self.data[:, 1]
-            u = self.g_trial(self.model, t, x).numpy()
-            return np.split(u, self.Nt)
+    def __call__(self):
+        t, x = self.data[:, 0], self.data[:, 1]
+        u = self.g_trial(self.model, t, x).numpy()
+        return np.split(u, self.Nt)
 
     def create_dataset(self):
         T, X = tf.meshgrid(self.t, self.x)
@@ -49,13 +37,10 @@ class NeuralNetworkPDE:
 
     def get_model(self):
         model = tf.keras.Sequential(
-            [
-                tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
+               [tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
-                tf.keras.layers.Dense(1),
-            ]
-        )
+                tf.keras.layers.Dense(1),])
         self.optimizer = optimizers.Adam(learning_rate=self.learning_rate)
         model.compile(optimizer=self.optimizer)
         model.summary()
@@ -67,13 +52,13 @@ class NeuralNetworkPDE:
         try:
             tvals = tqdm(range(self.num_epochs))
             for epoch in tvals:
-                loss_value, grads = self.grad(
-                    model
-                )  # Calculate loss and gradient of loss.
+                # Calculate loss and gradient of loss.
+                loss_value, grads = self.grad(model)
+                # Update parameters in network.
                 self.optimizer.apply_gradients(
-                    zip(grads, model.trainable_variables)
-                )  # Update parameters in network.
-                train_loss_results.append(loss_value)  # Track progress
+                    zip(grads, model.trainable_variables))
+                # Track Loss
+                train_loss_results.append(loss_value)
                 tvals.set_description(f"Residual={loss_value:.3f}")
             self.model = model  # Save trained network.
             return train_loss_results
@@ -109,7 +94,6 @@ class NeuralNetworkPDE:
         del tape1; del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
-        # print(MSE.numpy())
         return MSE
 
     @tf.function
@@ -121,9 +105,7 @@ class NeuralNetworkPDE:
         XT = tf.stack([t, x], axis=1)
         h1 = (1 - t) * self.I(x)
         h2 = x * (1 - x) * t
-        return h1 + h2 * tf.squeeze(
-            model(XT, training=True)
-        )  # self.I(x)*(1-t*model(XT, training=True))#
+        return h1 + h2 * tf.squeeze(model(XT, training=True))
 
 
 def g_analytic(x, t):
