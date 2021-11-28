@@ -81,6 +81,7 @@ class PDE_ml_solver:
             self.model = model  # Save trained network.
             return train_loss_results
 
+    @tf.function
     def grad(self, model):
         with tf.GradientTape() as tape:
             tape.watch(model.trainable_variables)
@@ -89,6 +90,8 @@ class PDE_ml_solver:
         del tape
         return loss_value, t_grad
 
+
+    @tf.function
     def cost_function(self, model):
         """
         Calculate derivatives.
@@ -109,6 +112,7 @@ class PDE_ml_solver:
         # print(MSE.numpy())
         return MSE
 
+    @tf.function
     def g_trial(self, model, x, t):
         """
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
