@@ -141,10 +141,10 @@ if __name__ == "__main__":
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
     L = 1
-    T = 1.2
+    T = 1
     dx = 0.01
     dt = 0.01  # dx**2/2 # Stability criteria for finite difference
-    eta = 1e-2
+    eta = 1e-1/2
 
     epochs = 400
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, eta)
