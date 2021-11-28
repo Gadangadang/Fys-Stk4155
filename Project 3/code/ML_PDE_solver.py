@@ -14,8 +14,9 @@ class PDE_ml_solver:
     def __init__(self, L, T, dx, dt, epochs, I, lr):
         self.Nx = int(L / dx)
         self.Nt = int(T / dt)
+        self.eta = eta
         self.x = tf.cast(tf.linspace(0, L, self.Nx), tf.float32)
-        self.t = tf.cast(tf.linspace(0., T, self.Nt), tf.float32)
+        self.t = tf.cast(tf.linspace(0.0, T, self.Nt), tf.float32)
         self.data = self.create_dataset()
 
         self.I = I
@@ -25,22 +26,26 @@ class PDE_ml_solver:
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
 
-    def __call__(self,t = None):
+    def __call__(self, t=None):
         if t is not None:
             u_i = []
             for i, xi in enumerate(self.x):
-                u_i.append(self.g_trial(self.model, tf.Variable([xi]),\
-                tf.Variable([t],dtype=tf.float32))[0][0].numpy())
+                u_i.append(
+                    self.g_trial(
+                        self.model,
+                        tf.Variable([xi]),
+                        tf.Variable([t], dtype=tf.float32),
+                    )[0][0].numpy()
+                )
             return u_i
         else:
-            t,x = self.data[:,0], self.data[:,1]
+            t, x = self.data[:, 0], self.data[:, 1]
             u = self.g_trial(self.model, t, x).numpy()
-            return np.split(u,self.Nt)
-
+            return np.split(u, self.Nt)
 
     def create_dataset(self):
         T, X = tf.meshgrid(self.t, self.x)
-        data = tf.stack([tf.reshape(T, [-1]),tf.reshape(X, [-1])], axis=1)
+        data = tf.stack([tf.reshape(T, [-1]), tf.reshape(X, [-1])], axis=1)
         return data
 
     def get_model(self):
@@ -54,22 +59,27 @@ class PDE_ml_solver:
         )
         self.optimizer = optimizers.Adam(learning_rate=self.learning_rate)
         model.compile(optimizer=self.optimizer)
-        #model.summary()
+        model.summary()
         return model
 
     def train(self):
         train_loss_results = []
         model = self.get_model()
         try:
-            for epoch in tqdm(range(self.num_epochs)):
-                loss_value, grads = self.grad(model)#Calculate loss and gradient of loss.
-                self.optimizer.apply_gradients(zip(grads,\
-                    model.trainable_variables)) #Update parameters in network.
-                train_loss_results.append(loss_value)# Track progress
-            self.model = model #Save trained network.
+            tvals = tqdm(range(self.num_epochs))
+            for epoch in tvals:
+                loss_value, grads = self.grad(
+                    model
+                )  # Calculate loss and gradient of loss.
+                self.optimizer.apply_gradients(
+                    zip(grads, model.trainable_variables)
+                )  # Update parameters in network.
+                train_loss_results.append(loss_value)  # Track progress
+                tvals.set_description(f"{loss_value:.2f}")
+            self.model = model  # Save trained network.
             return train_loss_results
         except:
-            self.model = model #Save trained network.
+            self.model = model  # Save trained network.
             return train_loss_results
 
     def grad(self, model):
@@ -85,19 +95,20 @@ class PDE_ml_solver:
         Calculate derivatives.
         """
         with tf.GradientTape() as tape1:
-            t,x = self.data[:,0], self.data[:,1]
+            t, x = self.data[:, 0], self.data[:, 1]
             tape1.watch(x)
             with tf.GradientTape(persistent=True) as tape2:
-                tape2.watch([x,t])
+                tape2.watch([x, t])
                 g_trial = self.g_trial(model, x, t)
             g_x = tape2.gradient(g_trial, x)
             g_t = tape2.gradient(g_trial, t)
 
         g_xx = tape1.gradient(g_x, x)
-        del tape1; del tape2
+        del tape1
+        del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
-        print(MSE.numpy())
+        # print(MSE.numpy())
         return MSE
 
     def g_trial(self, model, x, t):
@@ -108,12 +119,14 @@ class PDE_ml_solver:
         XT = tf.stack([t, x], axis=1)
         h1 = (1 - t) * self.I(x)
         h2 = x * (1 - x) * t
-        return h1 + h2 * tf.squeeze(model(XT, training=True)) #self.I(x)*(1-t*model(XT, training=True))#
+        return h1 + h2 * tf.squeeze(
+            model(XT, training=True)
+        )  # self.I(x)*(1-t*model(XT, training=True))#
 
 
 def g_analytic(x, t):
     # Analytic solution to function
-    return np.exp(-np.pi**2 * t) * I(x)
+    return np.exp(-np.pi ** 2 * t) * I(x)
 
 
 def I(x):
@@ -127,7 +140,7 @@ if __name__ == "__main__":
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
     L = 1
-    T = 1
+    T = 1.2
     dx = 0.01
     dt = 0.01
     lr = 4e-2
@@ -136,23 +149,17 @@ if __name__ == "__main__":
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, lr)
     loss = ML.train()
 
-
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
-    plt.plot(np.arange(len(loss)), loss)
+    plt.plot(np.arange(len(loss)), loss, label="Loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("MSE")
+    plt.title("MSE as function of epochs")
     plt.show()
+
+    # Run animation against exact solution
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
-    """u_complete = np.empty((0,len(x)))
-    for t_i in tqdm(t):
-        u_complete = np.vstack((u_complete,np.asarray(ML(t_i))))"""
     u_complete = ML()
     ESS.u_complete = u_complete
     ESS.animator()
-    """
-    plt.plot(x, ML(t[-1]))
-    plt.plot(x,g_analytic(x,t[-1]), "--")
-    """
-    #plt.plot(x,g_analytic(x,dt), "--")
-    #plt.xlim([0,1])
-    #plt.show()
