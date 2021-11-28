@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 
 class PDE_ml_solver:
-    def __init__(self, L, T, dx, dt, epochs, I, eta):
+    def __init__(self, L, T, dx, dt, epochs, I, lr):
         self.Nx = int(L / dx)
         self.Nt = int(T / dt)
         self.eta = eta
@@ -21,6 +21,7 @@ class PDE_ml_solver:
 
         self.I = I
         self.num_epochs = epochs
+        self.learning_rate = lr
 
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
@@ -51,14 +52,12 @@ class PDE_ml_solver:
         model = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
-                tf.keras.layers.Dense(10, activation="sigmoid"),
-                tf.keras.layers.Dense(30, activation="sigmoid"),
-                tf.keras.layers.Dense(10, activation="sigmoid"),
-                tf.keras.layers.Dense(30, activation="sigmoid"),
+                tf.keras.layers.Dense(20, activation="sigmoid"),
+                tf.keras.layers.Dense(20, activation="sigmoid"),
                 tf.keras.layers.Dense(1),
             ]
         )
-        self.optimizer = optimizers.Adam(learning_rate=self.eta)
+        self.optimizer = optimizers.Adam(learning_rate=self.learning_rate)
         model.compile(optimizer=self.optimizer)
         model.summary()
         return model
@@ -143,11 +142,11 @@ if __name__ == "__main__":
     L = 1
     T = 1
     dx = 0.01
-    dt = 0.01  # dx**2/2 # Stability criteria for finite difference
-    eta = 1e-1/2
+    dt = 0.01
+    lr = 4e-2
 
-    epochs = 400
-    ML = PDE_ml_solver(L, T, dx, dt, epochs, I, eta)
+    epochs = 300
+    ML = PDE_ml_solver(L, T, dx, dt, epochs, I, lr)
     loss = ML.train()
 
     x = np.linspace(0, L, int(L / dx))
