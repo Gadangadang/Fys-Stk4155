@@ -14,7 +14,6 @@ class PDE_ml_solver:
     def __init__(self, L, T, dx, dt, epochs, I, lr):
         self.Nx = int(L / dx)
         self.Nt = int(T / dt)
-        self.eta = eta
         self.x = tf.cast(tf.linspace(0, L, self.Nx), tf.float32)
         self.t = tf.cast(tf.linspace(0.0, T, self.Nt), tf.float32)
         self.data = self.create_dataset()
@@ -140,10 +139,10 @@ if __name__ == "__main__":
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
     L = 1
-    T = 1
+    T = 1.2
     dx = 0.01
     dt = 0.01
-    lr = 4e-2
+    lr = 1e-1/2
 
     epochs = 300
     ML = PDE_ml_solver(L, T, dx, dt, epochs, I, lr)
