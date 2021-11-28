@@ -158,11 +158,14 @@ if __name__ == "__main__":
     plt.xlabel("Epochs")
     plt.ylabel("MSE")
     plt.title("MSE as function of epochs")
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.show()
 
     # Run animation against exact solution
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
     u_complete = ML()
+
     ESS.u_complete = u_complete
-    ESS.animator("Neural network")
-    ESS.plot_comparison("Neural network")
+    #ESS.animator("Neural network")
+    #ESS.plot_comparison("Neural network")
+    ESS.plot_difference("Neural network")

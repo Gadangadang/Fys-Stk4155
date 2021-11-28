@@ -64,6 +64,21 @@ class ExplicitSolver:
     def exact_solution(self,i):
         return np.sin(np.pi*self.x)*np.exp(-np.pi**2*self.t[i])
 
+
+    def plot_difference(self, solver, name = None, title_extension = ""):
+        error = np.zeros(len(self.t))
+
+        for index, time in enumerate(self.t):
+            error[index] = np.mean(np.abs(self.u_complete[index][:] - self.exact_solution(index)))
+
+
+        plt.plot(self.t, error, label="Error")
+        plt.xlabel("Time t")
+        plt.ylabel("Error")
+        plt.title(f"Mean Error {solver} vs Exact as function of time")
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        plt.show()
+
     def plot_comparison(self, solver, name = None, title_extension = ""):
 
         t_index = np.around(np.linspace(0,self.Nt-1, 6)).astype(int)
