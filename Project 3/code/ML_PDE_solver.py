@@ -11,9 +11,10 @@ from tqdm import tqdm
 
 
 class PDE_ml_solver:
-    def __init__(self, L, T, dx, dt, epochs, I, batch_size):
+    def __init__(self, L, T, dx, dt, epochs, I, eta):
         self.Nx = int(L / dx)
         self.Nt = int(T / dt)
+        self.eta = eta
         self.x = tf.cast(tf.linspace(0, L, self.Nx), tf.float32)
         self.t = tf.cast(tf.linspace(0.0, T, self.Nt), tf.float32)
         self.data = self.create_dataset()
@@ -57,7 +58,7 @@ class PDE_ml_solver:
                 tf.keras.layers.Dense(1),
             ]
         )
-        self.optimizer = optimizers.Adam(learning_rate=1e-3)
+        self.optimizer = optimizers.Adam(learning_rate=self.eta)
         model.compile(optimizer=self.optimizer)
         model.summary()
         return model
@@ -66,7 +67,8 @@ class PDE_ml_solver:
         train_loss_results = []
         model = self.get_model()
         try:
-            for epoch in tqdm(range(self.num_epochs)):
+            tvals = tqdm(range(self.num_epochs))
+            for epoch in tvals:
                 loss_value, grads = self.grad(
                     model
                 )  # Calculate loss and gradient of loss.
@@ -74,6 +76,7 @@ class PDE_ml_solver:
                     zip(grads, model.trainable_variables)
                 )  # Update parameters in network.
                 train_loss_results.append(loss_value)  # Track progress
+                tvals.set_description(f"{loss_value:.2f}")
             self.model = model  # Save trained network.
             return train_loss_results
         except:
@@ -138,12 +141,13 @@ if __name__ == "__main__":
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
     L = 1
-    T = 1
+    T = 1.2
     dx = 0.01
     dt = 0.01  # dx**2/2 # Stability criteria for finite difference
+    eta = 1e-2
 
-    epochs = 300
-    ML = PDE_ml_solver(L, T, dx, dt, epochs, I, 50)
+    epochs = 400
+    ML = PDE_ml_solver(L, T, dx, dt, epochs, I, eta)
     loss = ML.train()
 
     x = np.linspace(0, L, int(L / dx))
