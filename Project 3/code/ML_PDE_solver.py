@@ -11,11 +11,9 @@ from tqdm import tqdm
 
 
 class NeuralNetworkPDE:
-    def __init__(self, L, T, dx, dt, epochs, I, lr):
-        self.Nx = int(L / dx)
-        self.Nt = int(T / dt)
-        self.x = tf.cast(tf.linspace(0, L, self.Nx), tf.float32)
-        self.t = tf.cast(tf.linspace(0.0, T, self.Nt), tf.float32)
+    def __init__(self, x, t, epochs, I, lr):
+        self.x = tf.cast(tf.convert_to_tensor(x), tf.float32)
+        self.t = tf.cast(tf.convert_to_tensor(t), tf.float32)
         self.data = self.create_dataset()
 
         self.I = I
@@ -28,7 +26,7 @@ class NeuralNetworkPDE:
     def __call__(self):
         t, x = self.data[:, 0], self.data[:, 1]
         u = self.g_trial(self.model, t, x).numpy()
-        return np.split(u, self.Nt)
+        return np.split(u, len(self.t))
 
     def create_dataset(self):
         T, X = tf.meshgrid(self.t, self.x)
@@ -123,6 +121,13 @@ if __name__ == "__main__":
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
+    #v1 = np.arange(6).reshape((1,6))
+    #v2 = v1.reshape((6,1))
+
+
+    #print(v2@v1)
+    #exit()
+
     L = 1
     T = 1
     dx = 0.01
@@ -130,11 +135,11 @@ if __name__ == "__main__":
     lr = 5e-2
 
     epochs = 1000
-    ML = NeuralNetworkPDE(L, T, dx, dt, epochs, I, lr)
-    loss = ML.train()
-
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
+    ML = NeuralNetworkPDE(x, t, epochs, I, lr)
+    loss = ML.train()
+
 
     plt.plot(np.arange(len(loss)), loss, label="Loss")
     plt.xlabel("Epochs")
