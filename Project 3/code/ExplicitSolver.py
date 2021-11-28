@@ -64,11 +64,11 @@ class ExplicitSolver:
     def exact_solution(self,i):
         return np.sin(np.pi*self.x)*np.exp(-np.pi**2*self.t[i])
 
-    def plot_comparison(self, solver, name = None):
+    def plot_comparison(self, solver, name = None, title_extension = ""):
 
         t_index = np.around(np.linspace(0,self.Nt-1, 6)).astype(int)
         fig, axes = plt.subplots(2, 3, sharex='col', sharey='row')
-        fig.suptitle(f"{solver} vs Exact: dx = {self.dx}", fontsize = 18)
+        fig.suptitle(f"{solver} vs Exact {title_extension}", fontsize = 18)
         counter = 0
         for i in range(2):
             for j in range(3):
@@ -115,4 +115,4 @@ if __name__ == "__main__":
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
     #PDE.animator()
-    ES.plot_comparison("Explicit solver")
+    ES.plot_comparison("Explicit solver", title_extension = f": dx = {dx}")
