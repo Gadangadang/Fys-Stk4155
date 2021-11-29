@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 
 class NeuralNetworkPDE:
-    def __init__(self, x, t, epochs, I, lr, in_out = [2,1]):
+    def __init__(self, x, t, epochs, I, lr):
         self.x = tf.cast(tf.convert_to_tensor(x), tf.float32)
         self.t = tf.cast(tf.convert_to_tensor(t), tf.float32)
         self.data = self.create_dataset()
@@ -19,7 +19,7 @@ class NeuralNetworkPDE:
         self.I = I
         self.num_epochs = epochs
         self.learning_rate = lr
-        self.in_out = in_out
+        self.in_out = [2,1]
 
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
@@ -51,7 +51,8 @@ class NeuralNetworkPDE:
 
     def train(self):
         train_loss_results = []
-        model = self.get_model()
+        self.model = self.get_model()
+        model = self.model
         try:
             tvals = tqdm(range(self.num_epochs))
             for epoch in tvals:
@@ -60,12 +61,12 @@ class NeuralNetworkPDE:
                 # Update parameters in network.
                 self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 # Track Loss
-                self.tracker(loss_value, model)
+                self.tracker(loss_value)
                 tvals.set_description(f"Residual={loss_value:.3f}")
-            self.model = model  # Save trained network.
+                self.model = model  # Save trained network.
             return self.process
-        except:
-            self.model = model  # Save trained network.
+        except NameError:
+            raise
             return self.process
 
     @tf.function
@@ -110,7 +111,7 @@ class NeuralNetworkPDE:
         h2 = x * (1 - x) * t
         return h1 + h2 * tf.squeeze(model(XT, training=True))
 
-    def track_loss(self,loss, model):
+    def track_loss(self,loss):
         self.process.append(loss)
 
 
