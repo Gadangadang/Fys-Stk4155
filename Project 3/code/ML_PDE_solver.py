@@ -120,6 +120,17 @@ class NeuralNetworkPDE:
     def load_model(self, name):
         self.model = tf.keras.models.load_model(f'tf_models/model_{name}.h5')
 
+    def save_checkpoint(self, checkpoint_name):
+        self.model.save_weights(f'checkpoints/{checkpoint_name}')
+
+
+        ...
+
+    def load_from_checkpoint(self, checkpoint_name):
+        self.model.load_weights(f"tf_checkpoints/{checkpoint_name}")
+
+
+
 
 def I(x):
     # Initial condition
