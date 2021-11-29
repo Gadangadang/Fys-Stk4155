@@ -62,11 +62,11 @@ class NeuralNetworkPDE:
                 self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 # Track Loss
                 self.tracker(loss_value)
-                tvals.set_description(f"Residual={loss_value:.3f}")
+                tvals.set_description(f"Residual={tf.reduce_mean(loss_value):.2e}")
                 self.model = model  # Save trained network.
             return self.process
-        except NameError:
-            raise
+        except :#NameError:
+            #raise #Remove when code work.
             return self.process
 
     @tf.function
