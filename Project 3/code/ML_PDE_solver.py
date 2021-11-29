@@ -77,11 +77,6 @@ class NeuralNetworkPDE:
         del tape
         return loss_value, t_grad
 
-    def track_loss(self,loss, model):
-        self.process.append(loss)
-
-
-
     @tf.function
     def cost_function(self, model):
         """
@@ -114,6 +109,9 @@ class NeuralNetworkPDE:
         h1 = (1 - t) * self.I(x)
         h2 = x * (1 - x) * t
         return h1 + h2 * tf.squeeze(model(XT, training=True))
+
+    def track_loss(self,loss, model):
+        self.process.append(loss)
 
 
 def I(x):
