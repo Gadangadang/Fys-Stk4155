@@ -114,6 +114,23 @@ class NeuralNetworkPDE:
     def track_loss(self,loss):
         self.process.append(loss)
 
+    def save_model(self, name):
+        self.model.save(f'tf_models/model_{name}.h5')
+
+    def load_model(self, name):
+        self.model = tf.keras.models.load_model(f'tf_models/model_{name}.h5')
+
+    def save_checkpoint(self, checkpoint_name):
+        self.model.save_weights(f'checkpoints/{checkpoint_name}')
+
+
+        ...
+
+    def load_from_checkpoint(self, checkpoint_name):
+        self.model.load_weights(f"tf_checkpoints/{checkpoint_name}")
+
+
+
 
 def I(x):
     # Initial condition
@@ -142,14 +159,20 @@ if __name__ == "__main__":
         ML = NeuralNetworkPDE(x, t, epochs, I, lr)
         loss = ML.train()
         u_complete = ML()
+        ML.save_model("test")
 
+    #ML.load_model("test")
+    #u_complete = ML()
+
+
+    """
     plt.plot(np.arange(len(loss)), loss, label="Loss")
     plt.xlabel("Epochs")
     plt.ylabel("MSE")
     plt.title("MSE as function of epochs")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.show()
-
+    """
     # Run animation against exact solution
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
 
