@@ -124,6 +124,7 @@ if __name__ == "__main__":
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
+
     L = 1
     T = 1
     dx = 0.01
@@ -133,9 +134,13 @@ if __name__ == "__main__":
     epochs = 1000
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
-    ML = NeuralNetworkPDE(x, t, epochs, I, lr)
-    loss = ML.train()
 
+
+    # Place tensors on the CPU
+    with tf.device('/CPU:0'): #Write '/GPU:0' for large networks
+        ML = NeuralNetworkPDE(x, t, epochs, I, lr)
+        loss = ML.train()
+        u_complete = ML()
 
     plt.plot(np.arange(len(loss)), loss, label="Loss")
     plt.xlabel("Epochs")
@@ -146,7 +151,7 @@ if __name__ == "__main__":
 
     # Run animation against exact solution
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
-    u_complete = ML()
+
 
     ESS.u_complete = u_complete
     ESS.animator("Neural network")

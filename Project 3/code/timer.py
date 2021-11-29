@@ -26,9 +26,11 @@ if __name__ == "__main__":
     print("Runtime FD: {:.2f}s".format(toc - tic))
 
     tic1 = time.perf_counter()
-    ML = NeuralNetworkPDE(x, t, epochs, I, lr)
-    loss = ML.train()
-    u_complete = ML()
+    # Place tensors on the CPU
+    with tf.device('/CPU:0'):
+        ML = NeuralNetworkPDE(x, t, epochs, I, lr)
+        loss = ML.train()
+        u_complete = ML()
     toc1 = time.perf_counter()
     print("Runtime ML: {:.2f}s".format(toc1 - tic1))
 
