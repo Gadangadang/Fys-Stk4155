@@ -1,6 +1,7 @@
 from ML_PDE_solver import NeuralNetworkPDE
 import tensorflow as tf
 import ExplicitSolver as ES
+import numpy as np
 import time
 
 
@@ -30,3 +31,7 @@ if __name__ == "__main__":
     u_complete = ML()
     toc1 = time.perf_counter()
     print("Runtime ML: {:.2f}s".format(toc1 - tic1))
+
+# Timing results from Mikkels mac
+# Finite: 0.12 s
+# Network: 4.01 s
