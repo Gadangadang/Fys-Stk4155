@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 
 class NeuralNetworkPDE:
-    def __init__(self, x, t, epochs, I, lr):
+    def __init__(self, x, t, epochs, I, lr, in_out = [2,1]):
         self.x = tf.cast(tf.convert_to_tensor(x), tf.float32)
         self.t = tf.cast(tf.convert_to_tensor(t), tf.float32)
         self.data = self.create_dataset()
@@ -19,9 +19,14 @@ class NeuralNetworkPDE:
         self.I = I
         self.num_epochs = epochs
         self.learning_rate = lr
+        self.in_out = in_out
 
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
+
+        self.tracker = self.track_loss
+        self.process = []
+
 
     def __call__(self):
         t, x = self.data[:, 0], self.data[:, 1]
@@ -35,10 +40,10 @@ class NeuralNetworkPDE:
 
     def get_model(self):
         model = tf.keras.Sequential(
-               [tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(2,)),
+               [tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(self.in_out[0],)),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
-                tf.keras.layers.Dense(1),])
+                tf.keras.layers.Dense(self.in_out[1]),])
         self.optimizer = optimizers.Adam(learning_rate=self.learning_rate)
         model.compile(optimizer=self.optimizer)
         model.summary()
@@ -56,13 +61,13 @@ class NeuralNetworkPDE:
                 self.optimizer.apply_gradients(
                     zip(grads, model.trainable_variables))
                 # Track Loss
-                train_loss_results.append(loss_value)
+                self.tracker(loss_value, model)
                 tvals.set_description(f"Residual={loss_value:.3f}")
             self.model = model  # Save trained network.
-            return train_loss_results
+            return self.process
         except:
             self.model = model  # Save trained network.
-            return train_loss_results
+            return self.process
 
     @tf.function
     def grad(self, model):
@@ -72,6 +77,10 @@ class NeuralNetworkPDE:
         t_grad = tape.gradient(loss_value, model.trainable_variables)
         del tape
         return loss_value, t_grad
+
+    def track_loss(self,loss, model):
+        self.process.append(loss)
+
 
 
     @tf.function
@@ -87,12 +96,13 @@ class NeuralNetworkPDE:
                 g_trial = self.g_trial(model, x, t)
             g_x = tape2.gradient(g_trial, x)
             g_t = tape2.gradient(g_trial, t)
-
         g_xx = tape1.gradient(g_x, x)
         del tape1; del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
         return MSE
+
+
 
     @tf.function
     def g_trial(self, model, x, t):
@@ -106,11 +116,6 @@ class NeuralNetworkPDE:
         return h1 + h2 * tf.squeeze(model(XT, training=True))
 
 
-def g_analytic(x, t):
-    # Analytic solution to function
-    return np.exp(-np.pi ** 2 * t) * I(x)
-
-
 def I(x):
     # Initial condition
     return tf.sin(np.pi * x)
@@ -120,13 +125,6 @@ if __name__ == "__main__":
     # Check tensorflow version and eager execution
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
-
-    #v1 = np.arange(6).reshape((1,6))
-    #v2 = v1.reshape((6,1))
-
-
-    #print(v2@v1)
-    #exit()
 
     L = 1
     T = 1
@@ -153,6 +151,6 @@ if __name__ == "__main__":
     u_complete = ML()
 
     ESS.u_complete = u_complete
-    #ESS.animator("Neural network")
-    #ESS.plot_comparison("Neural network")
-    ESS.plot_difference("Neural network")
+    ESS.animator("Neural network")
+    ESS.plot_comparison("Neural network")
+    #ESS.plot_difference("Neural network")
