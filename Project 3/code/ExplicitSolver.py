@@ -115,7 +115,7 @@ class ExplicitSolver:
         ani = animation.FuncAnimation(fig, animate, frames = len(self.t)-1, interval=10)
         plt.legend()
         if name is not None:
-            ani.save("../article/animations/ExplicitPDEGif.gif")
+            ani.save(f"../article/animations/PDEGif_{solver}_{name}.gif")
         plt.show()
         return ani
 
@@ -129,5 +129,5 @@ if __name__ == "__main__":
     d = 0
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
-    #PDE.animator()
+    ES.animator("Explicit solver", "dx_001")
     ES.plot_comparison("Explicit solver", title_extension = f": dx = {dx}")
