@@ -58,8 +58,7 @@ class NeuralNetworkPDE:
                 # Calculate loss and gradient of loss.
                 loss_value, grads = self.grad(model)
                 # Update parameters in network.
-                self.optimizer.apply_gradients(
-                    zip(grads, model.trainable_variables))
+                self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 # Track Loss
                 self.tracker(loss_value, model)
                 tvals.set_description(f"Residual={loss_value:.3f}")
@@ -97,7 +96,8 @@ class NeuralNetworkPDE:
             g_x = tape2.gradient(g_trial, x)
             g_t = tape2.gradient(g_trial, t)
         g_xx = tape1.gradient(g_x, x)
-        del tape1; del tape2
+        del tape1
+        del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
         return MSE
