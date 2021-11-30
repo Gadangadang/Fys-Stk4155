@@ -53,7 +53,7 @@ class EigenVal(NeuralNetworkPDE):
 
     def track_EigenVal(self, loss):
         lmb = self()
-        self.print_string = f"Lambda = {lmb:.2f}"
+        self.print_string = f"Lambda = {lmb:.2e}"
         self.process[0].append(loss)
         self.process[1].append(lmb)
 
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     Q = np.random.rand(6, 6)
     A = (Q.T + Q) / 2
 
-    T = 1e30
-    Nt = 100
+    T = 1e10
+    Nt = 1000
     t = np.linspace(0, T, Nt).reshape(Nt, 1)
     epochs = 10000
     lr = 0.0001

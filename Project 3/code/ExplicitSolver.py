@@ -65,21 +65,7 @@ class ExplicitSolver:
     def exact_solution(self, i):
         return np.sin(np.pi * self.x) * np.exp(-np.pi ** 2 * self.t[i])
 
-    def plot_difference(self, solver, name=None, title_extension=""):
-        error = np.zeros(len(self.t))
 
-        for index, time in enumerate(self.t):
-            error[index] = np.mean(
-                np.abs(self.u_complete[index][1:-1] - self.exact_solution(index)[1:-1])
-                / self.exact_solution(index)[1:-1]
-            )
-
-        plt.plot(self.t, error, label="Error")
-        plt.xlabel("Time t")
-        plt.ylabel("Error")
-        plt.title(f"Mean Error {solver} vs Exact as function of time")
-        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-        plt.show()
 
     def plot_comparison(self, solver, name=None, title_extension=""):
 
@@ -90,10 +76,16 @@ class ExplicitSolver:
         for i in range(2):
             for j in range(3):
                 axes[i, j].set_title(f"t = {self.t[t_index[counter]]:.1f}", fontsize=15)
-                axes[i, j].plot(self.x, self.u_complete[t_index[counter]],
-                                lw=2, label=solver)
-                axes[i, j].plot(self.x,self.exact_solution(t_index[counter]),
-                                "--", lw=2, label="Exact")
+                axes[i, j].plot(
+                    self.x, self.u_complete[t_index[counter]], lw=2, label=solver
+                )
+                axes[i, j].plot(
+                    self.x,
+                    self.exact_solution(t_index[counter]),
+                    "--",
+                    lw=2,
+                    label="Exact",
+                )
                 axes[i, j].set_ylim([-0.1, 1.1])
                 counter += 1
         plt.subplots_adjust(hspace=2, wspace=0.11)
@@ -134,11 +126,40 @@ class ExplicitSolver:
         plt.show()
         return ani
 
+    def calc_err(self):
+
+        error = np.zeros(len(self.t))
+
+        for index, time in enumerate(self.t):
+            #print(len(self.t), len(self.target_data))
+            rel_err_ = np.abs((self.target_data[index, 1:-1] - self.exact_solution(index)[1:-1])/self.exact_solution(index)[1:-1])
+            error[index] = np.mean(rel_err_)
+
+        return error
+
+    def rel_err_plot(self, solver, time, other_data = None, other_name=""):
+        self.target_data = self.u_complete
+        error = self.calc_err()
+        plt.plot(self.t, error, label=f"{solver} error")
+
+        if isinstance(other_data, np.ndarray):
+            self.target_data = other_data
+            self.t = time
+            error_2 = self.calc_err()
+            plt.plot(time, error_2, label=f"{other_name} error")
+
+        plt.xlabel("Time t")
+        plt.ylabel("Error")
+        plt.title(f"Mean Error {solver} vs Exact as function of time")
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        plt.legend()
+        plt.show()
+
 
 if __name__ == "__main__":
     I = lambda x: np.sin(np.pi * x)
     L = 1
-    T = 0.5
+    T = 1#0.5
     dx = 1 / 100
     dt = 0.5 * dx ** 2
     c = 0
@@ -146,5 +167,5 @@ if __name__ == "__main__":
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
     # ES.animator("Explicit solver", "dx_001")
+    ES.rel_err_plot("Explicit solver")
     ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
-    ES.plot_difference("Explicit solver")

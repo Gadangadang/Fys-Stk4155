@@ -8,6 +8,7 @@ from tensorflow.keras import optimizers, regularizers
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.data import Dataset
 from tqdm import tqdm
+from Functions import *
 
 
 class NeuralNetworkPDE:
@@ -69,8 +70,8 @@ class NeuralNetworkPDE:
                 tvals.set_description(self.print_string)
                 self.model = model  # Save trained network.
             return self.process
-        except: #NameError:
-            #raise #Remove when code work.
+        except:  # NameError:
+            # raise #Remove when code work.
             return self.process
 
     @tf.function
@@ -113,7 +114,7 @@ class NeuralNetworkPDE:
         h2 = x * (1 - x) * t
         return h1 + h2 * tf.squeeze(model(XT, training=True))
 
-    def track_loss(self,loss):
+    def track_loss(self, loss):
         self.print_string = f"Residual={tf.reduce_mean(loss):.2e}"
         self.process.append(loss)
 
@@ -146,7 +147,7 @@ if __name__ == "__main__":
     dt = 0.01
     lr = 5e-2
 
-    epochs = int(5e4)
+    epochs = int(1e3)
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
@@ -156,35 +157,25 @@ if __name__ == "__main__":
         loss = ML.train()
         u_complete = ML()
 
-    min_loss = int(np.where(np.min(loss) == loss)[0][0])
+    u_complete = np.asarray(u_complete)
 
-    plt.plot(np.arange(len(loss)), loss, label="Loss")
-    plt.plot(
-        np.arange(len(loss))[min_loss],
-        loss[min_loss],
-        "ro",
-        label=f"Min loss {loss[min_loss]:.3e}",
-    )
-    plt.xlabel("Epochs")
-    plt.ylabel("MSE")
-    plt.title("MSE as function of epochs")
-    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.legend()
-    plt.show()
+    #loss_plot(loss)
 
     # Run animation against exact solution
+    dx = 1/100
+    dt = 0.5*dx**2
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
+    solution = ESS.run_simulation()
+    #ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
-    ESS.u_complete = u_complete
-    ESS.animator("Neural network")
-    ESS.plot_comparison("Neural network")
-    ESS.plot_difference("Neural network")
+    ESS.rel_err_plot("Explicit ", t, other_data = u_complete, other_name="NN")
 
-    ans = input("Save model? (y/n): ")
-    if ans == "y":
-        ML.save_model(f"{epochs}epoch")
-    elif ans == "n":
-        pass
+    #Animate
+    #ESS.u_complete = u_complete
+    #ESS.animator("Neural network")
 
+
+    #Save
+    #ML.save_model(f"{epochs}epoch")
     # ML.load_model("test")
     # u_complete = ML()
