@@ -90,16 +90,10 @@ class ExplicitSolver:
         for i in range(2):
             for j in range(3):
                 axes[i, j].set_title(f"t = {self.t[t_index[counter]]:.1f}", fontsize=15)
-                axes[i, j].plot(
-                    self.x, self.u_complete[t_index[counter]], lw=2, label=solver
-                )
-                axes[i, j].plot(
-                    self.x,
-                    self.exact_solution(t_index[counter]),
-                    "--",
-                    lw=2,
-                    label="Exact",
-                )
+                axes[i, j].plot(self.x, self.u_complete[t_index[counter]],
+                                lw=2, label=solver)
+                axes[i, j].plot(self.x,self.exact_solution(t_index[counter]),
+                                "--", lw=2, label="Exact")
                 axes[i, j].set_ylim([-0.1, 1.1])
                 counter += 1
         plt.subplots_adjust(hspace=2, wspace=0.11)
