@@ -65,8 +65,6 @@ class ExplicitSolver:
     def exact_solution(self, i):
         return np.sin(np.pi * self.x) * np.exp(-np.pi ** 2 * self.t[i])
 
-
-
     def plot_comparison(self, solver, name=None, title_extension=""):
 
         t_index = np.around(np.linspace(0, self.Nt - 1, 6)).astype(int)
@@ -131,13 +129,16 @@ class ExplicitSolver:
         error = np.zeros(len(self.t))
 
         for index, time in enumerate(self.t):
-            #print(len(self.t), len(self.target_data))
-            rel_err_ = np.abs((self.target_data[index, 1:-1] - self.exact_solution(index)[1:-1])/self.exact_solution(index)[1:-1])
+            # print(len(self.t), len(self.target_data))
+            rel_err_ = np.abs(
+                (self.target_data[index, 1:-1] - self.exact_solution(index)[1:-1])
+                / self.exact_solution(index)[1:-1]
+            )
             error[index] = np.mean(rel_err_)
 
         return error
 
-    def rel_err_plot(self, solver, time, other_data = None, other_name=""):
+    def rel_err_plot(self, solver, time, other_data=None, other_name=""):
         self.target_data = self.u_complete
         error = self.calc_err()
         plt.plot(self.t, error, label=f"{solver} error")
@@ -159,7 +160,7 @@ class ExplicitSolver:
 if __name__ == "__main__":
     I = lambda x: np.sin(np.pi * x)
     L = 1
-    T = 1#0.5
+    T = 1  # 0.5
     dx = 1 / 100
     dt = 0.5 * dx ** 2
     c = 0
@@ -168,4 +169,4 @@ if __name__ == "__main__":
     solution = ES.run_simulation()
     # ES.animator("Explicit solver", "dx_001")
     ES.rel_err_plot("Explicit solver")
-    ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
+    # ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
