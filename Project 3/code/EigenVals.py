@@ -53,7 +53,7 @@ class EigenVal(NeuralNetworkPDE):
 
     def track_EigenVal(self, loss):
         lmb = self()
-        self.print_string = f"Lambda = {lmb:.2f}"
+        self.print_string = f"Lambda = {lmb:.2e}"
         self.process[0].append(loss)
         self.process[1].append(lmb)
 
