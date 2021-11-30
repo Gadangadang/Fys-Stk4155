@@ -19,14 +19,13 @@ class NeuralNetworkPDE:
         self.I = I
         self.num_epochs = epochs
         self.learning_rate = lr
-        self.in_out = [2,1]
+        self.in_out = [2, 1]
 
         self.g_t_jacobian_func = jacobian(self.g_trial, 0)
         self.g_t_hessian_func = hessian(self.g_trial, 0)
 
         self.tracker = self.track_loss
         self.process = []
-
 
     def __call__(self):
         t, x = self.data[:, 0], self.data[:, 1]
@@ -40,10 +39,15 @@ class NeuralNetworkPDE:
 
     def get_model(self):
         model = tf.keras.Sequential(
-               [tf.keras.layers.Dense(20, activation="sigmoid", input_shape=(self.in_out[0],)),
+            [
+                tf.keras.layers.Dense(
+                    20, activation="sigmoid", input_shape=(self.in_out[0],)
+                ),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
                 tf.keras.layers.Dense(20, activation="sigmoid"),
-                tf.keras.layers.Dense(self.in_out[1]),])
+                tf.keras.layers.Dense(self.in_out[1]),
+            ]
+        )
         self.optimizer = optimizers.Adam(learning_rate=self.learning_rate)
         model.compile(optimizer=self.optimizer)
         model.summary()
@@ -98,8 +102,6 @@ class NeuralNetworkPDE:
         MSE = tf.reduce_mean(tf.square(residual))
         return MSE
 
-
-
     @tf.function
     def g_trial(self, model, x, t):
         """
@@ -116,21 +118,16 @@ class NeuralNetworkPDE:
         self.process.append(loss)
 
     def save_model(self, name):
-        self.model.save(f'tf_models/model_{name}.h5')
+        self.model.save(f"tf_models/model_{name}.h5")
 
     def load_model(self, name):
-        self.model = tf.keras.models.load_model(f'tf_models/model_{name}.h5')
+        self.model = tf.keras.models.load_model(f"tf_models/model_{name}.h5")
 
     def save_checkpoint(self, checkpoint_name):
-        self.model.save_weights(f'checkpoints/{checkpoint_name}')
-
-
-        ...
+        self.model.save_weights(f"checkpoints/{checkpoint_name}")
 
     def load_from_checkpoint(self, checkpoint_name):
         self.model.load_weights(f"tf_checkpoints/{checkpoint_name}")
-
-
 
 
 def I(x):
@@ -143,42 +140,51 @@ if __name__ == "__main__":
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
 
-
     L = 1
     T = 1
     dx = 0.01
     dt = 0.01
     lr = 5e-2
 
-    epochs = 1000
+    epochs = int(1e4)
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
-
     # Place tensors on the CPU
-    with tf.device('/CPU:0'): #Write '/GPU:0' for large networks
+    with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks
         ML = NeuralNetworkPDE(x, t, epochs, I, lr)
         loss = ML.train()
         u_complete = ML()
-        ML.save_model("test")
 
-    #ML.load_model("test")
-    #u_complete = ML()
+    min_loss = int(np.where(np.min(loss) == loss)[0][0])
 
-
-    """
     plt.plot(np.arange(len(loss)), loss, label="Loss")
+    plt.plot(
+        np.arange(len(loss))[min_loss],
+        loss[min_loss],
+        "ro",
+        label=f"Min loss {loss[min_loss]:.3e}",
+    )
     plt.xlabel("Epochs")
     plt.ylabel("MSE")
     plt.title("MSE as function of epochs")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.legend()
     plt.show()
-    """
+
     # Run animation against exact solution
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
-
 
     ESS.u_complete = u_complete
     ESS.animator("Neural network")
     ESS.plot_comparison("Neural network")
-    #ESS.plot_difference("Neural network")
+    ESS.plot_difference("Neural network")
+
+    ans = input("Save model? (y/n): ")
+    if ans == "y":
+        ML.save_model("1e4epoch")
+    elif ans == "n":
+        pass
+
+    # ML.load_model("test")
+    # u_complete = ML()
