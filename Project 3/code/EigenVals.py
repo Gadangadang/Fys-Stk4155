@@ -25,8 +25,8 @@ class EigenVal(NeuralNetworkPDE):
         X = self.model(self.t)[-1]
         X_T = tf.transpose(X)
         X_T_X = tf.reduce_sum(X_T * X)
-        AX = tf.linalg.matvec(tf.cast(A, tf.float32), X)
-        lmb = tf.reduce_sum(X_T * AX) / (X_T_X)
+        AX = tf.linalg.matvec(tf.cast(self.A,tf.float32), X)
+        lmb =  tf.reduce_sum(X_T * AX) / (X_T_X)
         return lmb
 
     @tf.function
@@ -37,7 +37,7 @@ class EigenVal(NeuralNetworkPDE):
             X = model(t, training=True)
         X_dt = tape.gradient(X, t)
         del tape
-
+        A = self.A
         X_T = tf.transpose(X)
         AX = tf.einsum("ij,kj->ki", A, X)
         LS = self.XX_0 * AX
@@ -64,11 +64,10 @@ if __name__ == "__main__":
     A = (Q.T + Q) / 2
 
     T = 1e10
-    Nt = 1000
+    Nt = 100
     t = np.linspace(0, T, Nt).reshape(Nt, 1)
     epochs = 10000
-    lr = 0.0001
-    # check out einsum.
+    lr = 0.001
 
     EV = EigenVal(t, epochs,  lr, A)
     loss, lmbds = EV.train()
