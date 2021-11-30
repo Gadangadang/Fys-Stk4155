@@ -36,14 +36,14 @@ class EigenVal(NeuralNetworkPDE):
             X =  model(t, training=True)
         X_dt = tape.gradient(X,t)
         del tape
+
         X_T = tf.transpose(X)
-        error = 0
-        for i in range(len(t)):
-            X_i = X[i]; X_T_i = X_T[:,i]
-            AX = tf.linalg.matvec(tf.cast(A,tf.float32), X_i)
-            f = self.XX_0* AX + (tf.reduce_sum(X_T_i * AX))*X_i
-            error += f  - X_dt[i]
-        MSE = tf.square(error)/len(t)
+        AX = tf.einsum("ij,kj->ki", A,X)
+        LS = self.XX_0 *AX
+        X_T_AX = tf.einsum("jk,kj -> k", X_T,AX)
+        RS = tf.einsum("k,kj -> kj", X_T_AX,X)
+
+        MSE = tf.reduce_mean(LS + RS - X_dt,0)
         return MSE
 
     def get_init_state(self):
@@ -51,21 +51,24 @@ class EigenVal(NeuralNetworkPDE):
         return X_0
 
     def track_EigenVal(self,loss):
+        lmb = self()
+        self.print_string = f"Lambda = {lmb:.2f}"
         self.process[0].append(loss)
-        self.process[1].append(self())
+        self.process[1].append(lmb)
 
 
 
 if __name__ == "__main__":
 
     Q = np.random.rand(6,6)
-    A = -(Q.T + Q)/2
+    A = (Q.T + Q)/2
 
-    T = 10000
-    Nt = 10
+    T = 1e30
+    Nt = 100
     t = np.linspace(0,T, Nt).reshape(Nt,1)
-    epochs = 300
-    lr = 0.01
+    epochs = 10000
+    lr = 0.0001
+    #check out einsum.
 
     EV = EigenVal(t, epochs,  lr, A)
     loss, lmbds = EV.train()
