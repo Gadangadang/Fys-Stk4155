@@ -69,8 +69,8 @@ class NeuralNetworkPDE:
                 tvals.set_description(f"Residual={tf.reduce_mean(loss_value):.2e}")
                 self.model = model  # Save trained network.
             return self.process
-        except :#NameError:
-            #raise #Remove when code work.
+        except:  # NameError:
+            # raise #Remove when code work.
             return self.process
 
     @tf.function
