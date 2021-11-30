@@ -129,5 +129,6 @@ if __name__ == "__main__":
     d = 0
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
-    ES.animator("Explicit solver", "dx_001")
+    #ES.animator("Explicit solver", "dx_001")
     ES.plot_comparison("Explicit solver", title_extension = f": dx = {dx}")
+    ES.plot_difference("Explicit solver")
