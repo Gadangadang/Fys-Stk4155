@@ -145,7 +145,7 @@ if __name__ == "__main__":
     dt = 0.01
     lr = 5e-2
 
-    epochs = int(1e4)
+    epochs = int(5e4)
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
@@ -181,7 +181,7 @@ if __name__ == "__main__":
 
     ans = input("Save model? (y/n): ")
     if ans == "y":
-        ML.save_model("1e4epoch")
+        ML.save_model(f"{epochs}epoch")
     elif ans == "n":
         pass
 
