@@ -24,9 +24,6 @@ class NeuralNetworkPDE:
         self.learning_rate = lr
         self.in_out = [2, 1]
 
-        self.g_t_jacobian_func = jacobian(self.g_trial, 0)
-        self.g_t_hessian_func = hessian(self.g_trial, 0)
-
         self.tracker = self.track_loss
         self.process = []
 
@@ -73,8 +70,8 @@ class NeuralNetworkPDE:
                 tvals.set_description(self.print_string)
                 self.model = model  # Save trained network.
             return self.process
-        except NameError:
-            raise  # Remove when code work.
+        except:
+            #raise #Remove when code work.
             return self.process
 
     @tf.function
@@ -100,8 +97,7 @@ class NeuralNetworkPDE:
             g_x = tape2.gradient(g_trial, x)
             g_t = tape2.gradient(g_trial, t)
         g_xx = tape1.gradient(g_x, x)
-        del tape1
-        del tape2
+        del tape1; del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
         return MSE
@@ -182,8 +178,9 @@ if __name__ == "__main__":
     ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
 
     # Animate
-    #ESS.u_complete = u_complete
-    #ESS.animator("Neural network")
+    ESS.u_complete = u_complete
+    ESS.animator("Neural network")
+    #ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
     # Save
     # ML.save_model(f"{epochs}epoch")
