@@ -15,9 +15,6 @@ class EigenVal(NeuralNetworkPDE):
         self.learning_rate = lr
         self.in_out = [1, 6]
 
-        self.g_t_jacobian_func = jacobian(self.g_trial, 0)
-        self.g_t_hessian_func = hessian(self.g_trial, 0)
-
         self.tracker = self.track_EigenVal
         self.process = [[], [], []]
 
@@ -62,17 +59,18 @@ class EigenVal(NeuralNetworkPDE):
         self.process[2].append(vec)
 
 
-
 if __name__ == "__main__":
+    seed = 1000
     np.random.seed(2)
+    tf.random.set_seed(seed)
     #seed  = 2 is best.
     Q = np.random.rand(6, 6)
     A = (Q.T + Q) / 2
-    T = 1e10
+    T = 1e15
     Nt = 100
     t = np.linspace(0, T, Nt).reshape(Nt, 1)
-    epochs = 1000
-    lr = 0.001
+    epochs = 200
+    lr = 5e-3
 
     EV = EigenVal(t, epochs,  lr, A)
     loss, lmbds, EigenVec = EV.train()
@@ -82,10 +80,11 @@ if __name__ == "__main__":
     w, v = LA.eig(A)
     x = np.linspace(0, len(lmbds), 10)
 
+
+    """ Plot of Eigen value """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.plot(np.arange(len(lmbds)), lmbds, label = "NN: "+ \
     r" $\lambda_{max}$" +f" = {lmbds[-1]:.2f}")
-
     for i in range(6):
         if w[i] == np.max(w):
             plt.plot(x, w[i] * np.ones(len(x)), "--", \
@@ -95,14 +94,33 @@ if __name__ == "__main__":
             plt.plot(x, w[i] * np.ones(len(x)), "--")
     plt.xlabel("# Epochs", fontsize=16)
     plt.ylabel("Value", fontsize=16)
+    plt.title("Eigenvalue" + r" $[\lambda$]")
     plt.legend(loc = "center right", fontsize = 16)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-
-    if abs(lmbds[-1]-np.max(w))<1e-1:
-        plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
+    plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
     plt.show()
 
+    """ Plot of Eigen vectors """
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     for i in range(6):
-        plt.plot(np.arange(len(EigenVec)), -EigenVec[:,i])
-        plt.plot(x, v[i, i_max]*np.ones(len(x)),"--")
+        label_str = f"i={i} "
+        plt.plot(np.arange(len(EigenVec)), -EigenVec[:,i], label = label_str)
+    plt.xlabel("# Epochs", fontsize=16)
+    plt.ylabel("Value", fontsize=16)
+    plt.legend(loc = "lower right", fontsize = 14)
+    plt.title("Eigenvectors"+r" [$v$]")
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/EigenVec.pdf", bbox_inches="tight")
+    plt.show()
+
+    """ Plot of Eigen vs Diag solution """
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.plot(np.arange(6), -EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$ =" + f"{np.mean(-EigenVec[-1,:]):.3f}")
+    plt.plot(np.arange(6), v[:,i_max],      label = "LA-Diag: "+r"$\langle v \rangle$ =" + f"{np.mean(v[:,i_max]):.3f}")
+    plt.xlabel("Index (i)", fontsize=16)
+    plt.ylabel("Value", fontsize=16)
+    plt.legend(loc = "upper right", fontsize = 14)
+    plt.title("Eigenvectors: Neurlal network vs LA-Diag "+"[$v$]")
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/NNvsDiagVec.pdf", bbox_inches="tight")
     plt.show()
