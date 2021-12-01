@@ -157,14 +157,14 @@ class ExplicitSolver:
             error_2 = self.calc_err()
             plt.plot(time, error_2, label=f"{other_name} error")
 
-        plt.xscale("log")
+        #plt.xscale("log")
         plt.yscale("log")
         plt.xlabel("Time t", fontsize=14)
         plt.ylabel("Error", fontsize=14)
-        plt.title(f"Mean Error {solver} vs Exact as function of time")
+        plt.title(f"Mean relative Error {solver} vs Exact as function of time")
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         plt.legend()
-        plt.savefig(f"../article/figures/rel_err_2e5_loglog.pdf")
+        plt.savefig(f"../article/figures/rel_err_1e3_log_tanh.pdf")
         plt.show()
 
 

@@ -7,6 +7,8 @@ import ExplicitSolver as ES
 from tensorflow.keras import optimizers, regularizers
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.data import Dataset
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import get_custom_objects
 from tqdm import tqdm
 from Functions import *
 
@@ -39,6 +41,7 @@ class NeuralNetworkPDE:
         return data
 
     def get_model(self):
+        get_custom_objects().update({'abs_activation': self.abs_activation})
         model = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(
@@ -131,6 +134,10 @@ class NeuralNetworkPDE:
         self.model.load_weights(f"tf_checkpoints/{checkpoint_name}")
 
 
+    def abs_activation(self, value):
+        #return K.switch(value >= 0, value, -value)
+        return tf.math.tanh(value)
+
 def I(x):
     # Initial condition
     return tf.sin(np.pi * x)
@@ -147,7 +154,7 @@ if __name__ == "__main__":
     dt = 0.01
     lr = 5e-2
 
-    epochs = int(2e5)
+    epochs = int(1e3)
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
@@ -157,9 +164,9 @@ if __name__ == "__main__":
         loss = ML.train()
         u_complete = ML()
 
-    ML.save_model(f"{epochs}epoch")
-    # ML.load_model("1e5epoch")
-    # u_complete = ML()
+    #ML.save_model(f"{epochs}epoch_sigmoid")
+    #ML.load_model("1000epoch_tanh")
+    #u_complete = ML()
 
     u_complete = np.asarray(u_complete)
 
@@ -175,8 +182,8 @@ if __name__ == "__main__":
     ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
 
     # Animate
-    # ESS.u_complete = u_complete
-    # ESS.animator("Neural network")
+    #ESS.u_complete = u_complete
+    #ESS.animator("Neural network")
 
     # Save
     # ML.save_model(f"{epochs}epoch")
