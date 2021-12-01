@@ -7,6 +7,8 @@ import ExplicitSolver as ES
 from tensorflow.keras import optimizers, regularizers
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.data import Dataset
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import get_custom_objects
 from tqdm import tqdm
 from Functions import *
 
@@ -22,9 +24,6 @@ class NeuralNetworkPDE:
         self.learning_rate = lr
         self.in_out = [2, 1]
 
-        self.g_t_jacobian_func = jacobian(self.g_trial, 0)
-        self.g_t_hessian_func = hessian(self.g_trial, 0)
-
         self.tracker = self.track_loss
         self.process = []
 
@@ -39,6 +38,7 @@ class NeuralNetworkPDE:
         return data
 
     def get_model(self):
+        get_custom_objects().update({'abs_activation': self.abs_activation})
         model = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(
@@ -70,8 +70,8 @@ class NeuralNetworkPDE:
                 tvals.set_description(self.print_string)
                 self.model = model  # Save trained network.
             return self.process
-        except NameError:
-            raise #Remove when code work.
+        except:
+            #raise #Remove when code work.
             return self.process
 
     @tf.function
@@ -97,8 +97,7 @@ class NeuralNetworkPDE:
             g_x = tape2.gradient(g_trial, x)
             g_t = tape2.gradient(g_trial, t)
         g_xx = tape1.gradient(g_x, x)
-        del tape1
-        del tape2
+        del tape1; del tape2
         residual = g_xx - g_t
         MSE = tf.reduce_mean(tf.square(residual))
         return MSE
@@ -131,6 +130,10 @@ class NeuralNetworkPDE:
         self.model.load_weights(f"tf_checkpoints/{checkpoint_name}")
 
 
+    def abs_activation(self, value):
+        #return K.switch(value >= 0, value, -value)
+        return tf.math.tanh(value)
+
 def I(x):
     # Initial condition
     return tf.sin(np.pi * x)
@@ -140,42 +143,44 @@ if __name__ == "__main__":
     # Check tensorflow version and eager execution
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
-
+    tf.random.set_seed(123)
     L = 1
     T = 1
     dx = 0.01
     dt = 0.01
     lr = 5e-2
 
-    epochs = int(1e3)
+    epochs = 1e4
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
     # Place tensors on the CPU
     with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks
-        ML = NeuralNetworkPDE(x, t, epochs, I, lr)
+        ML = NeuralNetworkPDE(x, t, int(epochs), I, lr)
         loss = ML.train()
         u_complete = ML()
 
-    #ML.load_model("1e5epoch")
+    ML.save_model(f"{epochs:.e}epoch_sigmoid")
+    #ML.load_model("100000epoch_sigmoid")
     #u_complete = ML()
 
-    #u_complete = np.asarray(u_complete)
+    u_complete = np.asarray(u_complete)
 
-    # loss_plot(loss)
+    #loss_plot(loss)
 
     # Run animation against exact solution
-    dx = 1 / 100
-    #dt = 0.5 * dx ** 2
-    ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
-    #solution = ESS.run_simulation()
-    # ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
-    #ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
+    dt = 0.1 * 0.5 * dx ** 2
+    ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
+    solution = ESS.run_simulation()
+    #ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
+
+    ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
 
     # Animate
     ESS.u_complete = u_complete
     ESS.animator("Neural network")
+    #ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
     # Save
     # ML.save_model(f"{epochs}epoch")

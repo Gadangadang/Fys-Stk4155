@@ -17,11 +17,19 @@ class ExplicitSolver:
         self.d = d  # boundary points x = Lx
 
         # Mesh points & dx, dy, dt
-        self.Nt = int(T / dt)
-        self.Nx = int(L / dx)
+
         self.dt = dt
         self.dx = dx
-        self.C = dt / dx ** 2
+        self.C = self.dt / self.dx ** 2
+
+        if self.C > 0.5:
+            self.dt = 0.5*self.dx**2
+            self.C = self.dt / self.dx ** 2
+            print("dt not satisfying Neuman stability criteria")
+            print(f"dt is now {self.dt}")
+
+        self.Nt = int(self.T / self.dt)
+        self.Nx = int(self.L / self.dx)
 
         self.x = np.linspace(0, self.L, self.Nx)
         self.t = np.linspace(0, self.T, self.Nt)
@@ -132,13 +140,13 @@ class ExplicitSolver:
             # print(len(self.t), len(self.target_data))
             rel_err_ = np.abs(
                 (self.target_data[index, 1:-1] - self.exact_solution(index)[1:-1])
-                / self.exact_solution(index)[1:-1]
+                #/ self.exact_solution(index)[1:-1]
             )
             error[index] = np.mean(rel_err_)
 
         return error
 
-    def rel_err_plot(self, solver, time, other_data=None, other_name=""):
+    def rel_err_plot(self, solver, time=None, other_data=None, other_name=""):
         self.target_data = self.u_complete
         error = self.calc_err()
         plt.plot(self.t, error, label=f"{solver} error")
@@ -149,11 +157,14 @@ class ExplicitSolver:
             error_2 = self.calc_err()
             plt.plot(time, error_2, label=f"{other_name} error")
 
-        plt.xlabel("Time t")
-        plt.ylabel("Error")
-        plt.title(f"Mean Error {solver} vs Exact as function of time")
+        #plt.xscale("log")
+        plt.yscale("log")
+        plt.xlabel("Time t", fontsize=14)
+        plt.ylabel("Error", fontsize=14)
+        plt.title(f"Mean absolute Error {solver} vs Exact as function of time")
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         plt.legend()
+        plt.savefig(f"../article/figures/abs_err_1e4_log_sigmoid.pdf")
         plt.show()
 
 
@@ -167,6 +178,6 @@ if __name__ == "__main__":
     d = 0
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
-    # ES.animator("Explicit solver", "dx_001")
-    ES.rel_err_plot("Explicit solver")
-    # ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
+    ES.animator("Explicit solver")
+    #ES.rel_err_plot("Explicit solver", T)
+    ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
