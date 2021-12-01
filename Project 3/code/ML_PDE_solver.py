@@ -71,7 +71,7 @@ class NeuralNetworkPDE:
                 self.model = model  # Save trained network.
             return self.process
         except NameError:
-            raise #Remove when code work.
+            raise  # Remove when code work.
             return self.process
 
     @tf.function
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     dt = 0.01
     lr = 5e-2
 
-    epochs = int(1e3)
+    epochs = int(2e5)
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
@@ -157,25 +157,26 @@ if __name__ == "__main__":
         loss = ML.train()
         u_complete = ML()
 
-    #ML.load_model("1e5epoch")
-    #u_complete = ML()
+    ML.save_model(f"{epochs}epoch")
+    # ML.load_model("1e5epoch")
+    # u_complete = ML()
 
-    #u_complete = np.asarray(u_complete)
+    u_complete = np.asarray(u_complete)
 
     # loss_plot(loss)
 
     # Run animation against exact solution
-    dx = 1 / 100
-    #dt = 0.5 * dx ** 2
+
+    dt = 0.1 * 0.5 * dx ** 2
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
-    #solution = ESS.run_simulation()
+    solution = ESS.run_simulation()
     # ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
-    #ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
+    ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
 
     # Animate
-    ESS.u_complete = u_complete
-    ESS.animator("Neural network")
+    # ESS.u_complete = u_complete
+    # ESS.animator("Neural network")
 
     # Save
     # ML.save_model(f"{epochs}epoch")
