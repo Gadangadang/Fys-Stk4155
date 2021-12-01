@@ -19,10 +19,10 @@ class EigenVal(NeuralNetworkPDE):
         self.g_t_hessian_func = hessian(self.g_trial, 0)
 
         self.tracker = self.track_EigenVal
-        self.process = [[], []]
+        self.process = [[], [], []]
 
     def __call__(self):
-        X = self.model(self.t)[-1]
+        X = self.model(tf.reshape(t[-1],[1,1]))
         X_T = tf.transpose(X)
         X_T_X = tf.reduce_sum(X_T * X)
         AX = tf.linalg.matvec(tf.cast(self.A,tf.float32), X)
@@ -53,32 +53,56 @@ class EigenVal(NeuralNetworkPDE):
 
     def track_EigenVal(self, loss):
         lmb = self()
+        vec = self.model(tf.reshape(t[-1],[1,1]))
+        vec = vec/tf.norm(vec)
+        #print(vec)
         self.print_string = f"Lambda = {lmb:.2e}"
         self.process[0].append(loss)
         self.process[1].append(lmb)
+        self.process[2].append(vec)
+
 
 
 if __name__ == "__main__":
-
+    np.random.seed(2)
+    #seed  = 2 is best.
     Q = np.random.rand(6, 6)
     A = (Q.T + Q) / 2
-
     T = 1e10
     Nt = 100
     t = np.linspace(0, T, Nt).reshape(Nt, 1)
-    epochs = 10000
+    epochs = 1000
     lr = 0.001
 
     EV = EigenVal(t, epochs,  lr, A)
-    loss, lmbds = EV.train()
+    loss, lmbds, EigenVec = EV.train()
+    EigenVec = np.asarray(EigenVec).reshape((len(EigenVec),6))
     loss = np.asarray(loss).ravel()
     lmbds = np.asarray(lmbds).ravel()
     w, v = LA.eig(A)
-
-    plt.plot(np.arange(len(lmbds)), lmbds)
     x = np.linspace(0, len(lmbds), 10)
 
+    plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.plot(np.arange(len(lmbds)), lmbds, label = "NN: "+ \
+    r" $\lambda_{max}$" +f" = {lmbds[-1]:.2f}")
+
     for i in range(6):
-        plt.plot(x, w[i] * np.ones(len(x)), "--")
+        if w[i] == np.max(w):
+            plt.plot(x, w[i] * np.ones(len(x)), "--", \
+            label = "LA-diag: "+ r"$\lambda_{max} = $"+f"{w[i]:.2f}")
+            i_max = i
+        else:
+            plt.plot(x, w[i] * np.ones(len(x)), "--")
+    plt.xlabel("# Epochs", fontsize=16)
+    plt.ylabel("Value", fontsize=16)
+    plt.legend(loc = "center right", fontsize = 16)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+
+    if abs(lmbds[-1]-np.max(w))<1e-1:
+        plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
     plt.show()
-    plt.plot(np.arange(len(loss)), loss)
+
+    for i in range(6):
+        plt.plot(np.arange(len(EigenVec)), -EigenVec[:,i])
+        plt.plot(x, v[i, i_max]*np.ones(len(x)),"--")
+    plt.show()

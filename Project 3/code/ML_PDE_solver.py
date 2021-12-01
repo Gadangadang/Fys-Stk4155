@@ -70,8 +70,8 @@ class NeuralNetworkPDE:
                 tvals.set_description(self.print_string)
                 self.model = model  # Save trained network.
             return self.process
-        except:  # NameError:
-            # raise #Remove when code work.
+        except NameError:
+            raise #Remove when code work.
             return self.process
 
     @tf.function
