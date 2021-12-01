@@ -140,7 +140,7 @@ class ExplicitSolver:
             # print(len(self.t), len(self.target_data))
             rel_err_ = np.abs(
                 (self.target_data[index, 1:-1] - self.exact_solution(index)[1:-1])
-                / self.exact_solution(index)[1:-1]
+                #/ self.exact_solution(index)[1:-1]
             )
             error[index] = np.mean(rel_err_)
 
@@ -161,10 +161,10 @@ class ExplicitSolver:
         plt.yscale("log")
         plt.xlabel("Time t", fontsize=14)
         plt.ylabel("Error", fontsize=14)
-        plt.title(f"Mean relative Error {solver} vs Exact as function of time")
+        plt.title(f"Mean absolute Error {solver} vs Exact as function of time")
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
         plt.legend()
-        plt.savefig(f"../article/figures/rel_err_1e3_log_tanh.pdf")
+        plt.savefig(f"../article/figures/abs_err_1e4_log_sigmoid.pdf")
         plt.show()
 
 
