@@ -1,4 +1,4 @@
-from ML_PDE_solver import NeuralNetworkPDE
+from ML_PDE_solver import *
 import tensorflow as tf
 import ExplicitSolver as ES
 import numpy as np
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     dt1 = dt * 2 / dx
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt1))
-    epochs = 150
+    epochs = 1e3
     lr = 5e-2
     c = 0
     d = 0
@@ -28,11 +28,13 @@ if __name__ == "__main__":
     tic1 = time.perf_counter()
     # Place tensors on the CPU
     with tf.device('/CPU:0'):
-        ML = NeuralNetworkPDE(x, t, epochs, I, lr)
+        ML = NeuralNetworkPDE(x, t, int(epochs), I, lr)
         loss = ML.train()
         u_complete = ML()
     toc1 = time.perf_counter()
     print("Runtime ML: {:.2f}s".format(toc1 - tic1))
+
+    #print(ML.g_trial(ML.model, np.array([0.1]).astype("float32"), np.array([0.5]).astype("float32")).numpy())
 
 # Timing results from Mikkels mac
 # Finite: 0.12 s
