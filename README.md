@@ -1,6 +1,6 @@
-__Fys-Stk4155__
+### Fys-Stk4155
 
-This is the project repository for the course Fys-Stk4155.
+This is the project repository for the course Fys-Stk4155. Grade: <br />
 
 Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst. <br />
 <br />
