@@ -9,10 +9,15 @@ William Hirst is doing a master thesis in Computational Physics on Supervised Le
 Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures. <br />
 <br />
 Project 1 explores three different linear regression models, OLS, Ridge and Lasso, and studies their accuracy approximating the famous 
-Franke Function. <br />
+Franke Function. Score: 100/100 points <br />
 <br />
 Project 2 explores neural networks, and compares self made ones to networks from Tensorflow, as well as linear and logistic 
-regression models on the Franke Function. <br />
+regression models on the Franke Function. Score -/100 points<br />
+<br />
+Project 3 explores using neural networks to solve PDE's and eigenvalue problems using Tensorflow infrastructure. It also 
+compares against explicit solvers and numerical eigenvalue computation. Score -/100 points<br />
+Extra: Uses boosting, decision trees and neural networks to look at Bias-Variance trade off <br />
+for housing data set.  Score -/30 points <br />
 
 <br />
 To install requirements do:
