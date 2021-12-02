@@ -165,22 +165,22 @@ if __name__ == "__main__":
     #ML.load_model("100000epoch_sigmoid")
     #u_complete = ML()
 
-    u_complete = np.asarray(u_complete)
+    #u_complete = np.asarray(u_complete)
 
-    loss_plot(loss)
+    #loss_plot(loss)
 
     # Run animation against exact solution
 
     #dt = 0.1 * 0.5 * dx ** 2
-    #ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0)
-    #solution = ESS.run_simulation()
+    ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0, False)
+    solution = ESS.run_simulation()
     #ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
     #ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
 
     # Animate
-    #ESS.u_complete = u_complete
-    #ESS.animator("Neural network")
+    ESS.u_complete = u_complete
+    ESS.animator("Neural network", "001")
     #ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
     # Save

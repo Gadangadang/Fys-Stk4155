@@ -7,7 +7,7 @@ import seaborn as sns
 
 
 class ExplicitSolver:
-    def __init__(self, I, L, T, dx, dt, c, d):
+    def __init__(self, I, L, T, dx, dt, c, d, choice=True):
         # Read class arguments
         self.I = I
         self.L = L
@@ -15,14 +15,14 @@ class ExplicitSolver:
         self.n = 0  # set current timestep = 0
         self.c = c  # boundary points x = 0
         self.d = d  # boundary points x = Lx
-
+        self.choice = choice
         # Mesh points & dx, dy, dt
 
         self.dt = dt
         self.dx = dx
         self.C = self.dt / self.dx ** 2
 
-        if self.C > 0.5:
+        if self.C > 0.5 and self.choice:
             self.dt = 0.5*self.dx**2
             self.C = self.dt / self.dx ** 2
             print("dt not satisfying Neuman stability criteria")
@@ -178,6 +178,6 @@ if __name__ == "__main__":
     d = 0
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
-    ES.animator("Explicit solver")
+    ES.animator("Explicit solver", "001")
     #ES.rel_err_plot("Explicit solver", T)
     ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
