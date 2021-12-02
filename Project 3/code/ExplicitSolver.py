@@ -7,7 +7,7 @@ import seaborn as sns
 
 
 class ExplicitSolver:
-    def __init__(self, I, L, T, dx, dt, c, d, choice=True):
+    def __init__(self, I, L, T, dx, dt, c, d, stability=True):
         # Read class arguments
         self.I = I
         self.L = L
@@ -15,14 +15,15 @@ class ExplicitSolver:
         self.n = 0  # set current timestep = 0
         self.c = c  # boundary points x = 0
         self.d = d  # boundary points x = Lx
-        self.choice = choice
+        self.stability = stability
+        self.alpha = 1
         # Mesh points & dx, dy, dt
 
         self.dt = dt
         self.dx = dx
-        self.C = self.dt / self.dx ** 2
+        self.C = self.alpha*self.dt / self.dx ** 2
 
-        if self.C > 0.5 and self.choice:
+        if self.C > 0.5 and self.stability:
             self.dt = 0.5 * self.dx ** 2
             self.C = self.dt / self.dx ** 2
             print("dt not satisfying Neuman stability criteria")
