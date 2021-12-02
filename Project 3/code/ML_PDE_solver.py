@@ -152,7 +152,7 @@ if __name__ == "__main__":
     dt = 0.01
     lr = 5e-2
 
-    epochs = 1e3
+    epochs = 3e3
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
@@ -181,7 +181,7 @@ if __name__ == "__main__":
 
     # Animate
     ESS.u_complete = u_complete
-    ESS.animator("Neural network", "001")
+    ESS.animator("Neural network", "001_2e3")
     # ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
 
     # Save
