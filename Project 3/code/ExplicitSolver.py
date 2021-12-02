@@ -7,7 +7,7 @@ import seaborn as sns
 
 
 class ExplicitSolver:
-    def __init__(self, I, L, T, dx, dt, c, d):
+    def __init__(self, I, L, T, dx, dt, c, d, stability=True):
         # Read class arguments
         self.I = I
         self.L = L
@@ -15,15 +15,16 @@ class ExplicitSolver:
         self.n = 0  # set current timestep = 0
         self.c = c  # boundary points x = 0
         self.d = d  # boundary points x = Lx
-
+        self.stability = stability
+        self.alpha = 1
         # Mesh points & dx, dy, dt
 
         self.dt = dt
         self.dx = dx
-        self.C = self.dt / self.dx ** 2
+        self.C = self.alpha*self.dt / self.dx ** 2
 
-        if self.C > 0.5:
-            self.dt = 0.5*self.dx**2
+        if self.C > 0.5 and self.stability:
+            self.dt = 0.5 * self.dx ** 2
             self.C = self.dt / self.dx ** 2
             print("dt not satisfying Neuman stability criteria")
             print(f"dt is now {self.dt}")
@@ -140,7 +141,7 @@ class ExplicitSolver:
             # print(len(self.t), len(self.target_data))
             rel_err_ = np.abs(
                 (self.target_data[index, 1:-1] - self.exact_solution(index)[1:-1])
-                #/ self.exact_solution(index)[1:-1]
+                # / self.exact_solution(index)[1:-1]
             )
             error[index] = np.mean(rel_err_)
 
@@ -157,7 +158,7 @@ class ExplicitSolver:
             error_2 = self.calc_err()
             plt.plot(time, error_2, label=f"{other_name} error")
 
-        #plt.xscale("log")
+        # plt.xscale("log")
         plt.yscale("log")
         plt.xlabel("Time t", fontsize=14)
         plt.ylabel("Error", fontsize=14)
@@ -178,6 +179,6 @@ if __name__ == "__main__":
     d = 0
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
-    ES.animator("Explicit solver")
-    #ES.rel_err_plot("Explicit solver", T)
+    ES.animator("Explicit solver", "001")
+    # ES.rel_err_plot("Explicit solver", T)
     ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")

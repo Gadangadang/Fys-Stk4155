@@ -88,7 +88,7 @@ if __name__ == "__main__":
     for i in range(6):
         if w[i] == np.max(w):
             plt.plot(x, w[i] * np.ones(len(x)), "--", \
-            label = "LA-diag: "+ r"$\lambda_{max} = $"+f"{w[i]:.2f}")
+            label = "Num-Diag: "+ r"$\lambda_{max} = $"+f"{w[i]:.2f}")
             i_max = i
         else:
             plt.plot(x, w[i] * np.ones(len(x)), "--")
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     plt.title("Eigenvalue" + r" $[\lambda$]")
     plt.legend(loc = "center right", fontsize = 16)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
+    #plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
     plt.show()
 
     """ Plot of Eigen vectors """
@@ -110,17 +110,17 @@ if __name__ == "__main__":
     plt.legend(loc = "lower right", fontsize = 14)
     plt.title("Eigenvectors"+r" [$v$]")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/EigenVec.pdf", bbox_inches="tight")
+    #plt.savefig("../article/figures/EigenVec.pdf", bbox_inches="tight")
     plt.show()
 
     """ Plot of Eigen vs Diag solution """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     plt.plot(np.arange(6), -EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$ =" + f"{np.mean(-EigenVec[-1,:]):.3f}")
-    plt.plot(np.arange(6), v[:,i_max],      label = "LA-Diag: "+r"$\langle v \rangle$ =" + f"{np.mean(v[:,i_max]):.3f}")
+    plt.plot(np.arange(6), v[:,i_max], label = "Num-Diag: "+r"$\langle v \rangle$ =" + f"{np.mean(v[:,i_max]):.3f}")
     plt.xlabel("Index (i)", fontsize=16)
     plt.ylabel("Value", fontsize=16)
     plt.legend(loc = "upper right", fontsize = 14)
-    plt.title("Eigenvectors: Neurlal network vs LA-Diag "+"[$v$]")
+    plt.title("Eigenvectors: Neurlal network vs Num-Diag "+"[$v$]")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.savefig("../article/figures/NNvsDiagVec.pdf", bbox_inches="tight")
     plt.show()

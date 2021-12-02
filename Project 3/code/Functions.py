@@ -13,8 +13,8 @@ def loss_plot(loss):
         "ro",
         label=f"Min loss {loss[min_loss]:.3e}",
     )
-    plt.xlabel("Epochs")
-    plt.ylabel("MSE")
+    plt.xlabel("Epochs", fontsize=14)
+    plt.ylabel("MSE", fontsize=14)
     plt.title("MSE as function of epochs")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.legend()
