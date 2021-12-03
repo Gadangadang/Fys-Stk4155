@@ -4,19 +4,21 @@ tf.config.run_functions_eagerly(True)
 
 
 class EigenVal(NeuralNetworkPDE):
-    """[summary]
+    """
+    Eigenvalue solver class
 
     Args:
-        NeuralNetworkPDE ([type]): [description]
+        NeuralNetworkPDE (class): superclass for the eigenvalue class
     """
     def __init__(self, t, epochs, lr, A):
-        """[summary]
+        """
+        Initializes the eigenvalue solver object.
 
         Args:
-            t ([type]): [description]
-            epochs ([type]): [description]
-            lr ([type]): [description]
-            A ([type]): [description]
+            t (ndarray): time array
+            epochs (int): number of epochs for training
+            lr (float): learning rate for training
+            A (ndarray): matrix to find the eigenvalues
         """
         self.t = tf.cast(tf.convert_to_tensor(t), tf.float32)
         self.X_0 = self.get_init_state()
@@ -32,10 +34,11 @@ class EigenVal(NeuralNetworkPDE):
         self.process = [[], [], []]
 
     def __call__(self):
-        """[summary]
+        """
+        Call function for object, to find the eigenvalue
 
         Returns:
-            [type]: [description]
+            float: eigenvalue
         """
         X = self.model(tf.reshape(t[-1],[1,1]))
         X_T = tf.transpose(X)
@@ -46,13 +49,14 @@ class EigenVal(NeuralNetworkPDE):
 
     @tf.function
     def cost_function(self, model):
-        """[summary]
+        """
+        cost function for the network
 
         Args:
-            model ([type]): [description]
+            model ([tensorflow_object): current model
 
         Returns:
-            [type]: [description]
+            tensor: MSE tensor to calculate gradient
         """
         with tf.GradientTape() as tape:
             t = self.t
@@ -70,19 +74,21 @@ class EigenVal(NeuralNetworkPDE):
         return MSE
 
     def get_init_state(self):
-        """[summary]
+        """
+        Calculate initial state
 
         Returns:
-            [type]: [description]
+            tensor: tensor of the initial state
         """
         X_0 = tf.cast(tf.convert_to_tensor(np.random.rand(1, 6)), tf.float32)
         return X_0
 
     def track_EigenVal(self, loss):
-        """[summary]
+        """
+        Tracks the eigenvalues
 
         Args:
-            loss ([type]): [description]
+            loss (tensor): loss tensor
         """
         lmb = self()
         vec = self.model(tf.reshape(t[-1],[1,1]))
