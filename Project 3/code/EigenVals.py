@@ -40,7 +40,6 @@ class EigenVal(NeuralNetworkPDE):
         LS = self.XX_0 * AX
         X_T_AX = tf.einsum("jk,kj -> k", X_T, AX)
         RS = tf.einsum("k,kj -> kj", X_T_AX, X)
-
         MSE = tf.reduce_mean(LS + RS - X_dt, 0)
         return MSE
 
@@ -52,7 +51,6 @@ class EigenVal(NeuralNetworkPDE):
         lmb = self()
         vec = self.model(tf.reshape(t[-1],[1,1]))
         vec = vec/tf.norm(vec)
-        #print(vec)
         self.print_string = f"Lambda = {lmb:.2e}"
         self.process[0].append(loss)
         self.process[1].append(lmb)
@@ -60,13 +58,13 @@ class EigenVal(NeuralNetworkPDE):
 
 
 if __name__ == "__main__":
-    seed = 1000
-    np.random.seed(2)
-    tf.random.set_seed(seed)
-    #seed  = 2 is best.
+    np_seed = 2
+    tf_seed = 1000
+    np.random.seed(np_seed)
+    tf.random.set_seed(tf_seed)
     Q = np.random.rand(6, 6)
     A = (Q.T + Q) / 2
-    T = 1e15
+    T = 1e4
     Nt = 100
     t = np.linspace(0, T, Nt).reshape(Nt, 1)
     epochs = 200
@@ -122,5 +120,5 @@ if __name__ == "__main__":
     plt.legend(loc = "upper right", fontsize = 14)
     plt.title("Eigenvectors: Neurlal network vs Num-Diag "+"[$v$]")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/NNvsDiagVec.pdf", bbox_inches="tight")
+    #plt.savefig("../article/figures/NNvsDiagVec.pdf", bbox_inches="tight")
     plt.show()
