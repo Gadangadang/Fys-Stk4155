@@ -8,14 +8,14 @@ import seaborn as sns
 
 class ExplicitSolver:
     """
-    Explicit solver for PDE's on the form 
+    Explicit solver for PDE's on the form
             d_t u(x, t) = Ad_xx u(x, t)
     """
     def __init__(self, I, L, T, dx, dt, c, d, stability=True):
         """
         Initialize the solver object. After constants are set,
-        the stability criteria is checked as long as stability=True. 
-        The solution arrays are initialized and the initial condition 
+        the stability criteria is checked as long as stability=True.
+        The solution arrays are initialized and the initial condition
         is implemented
 
         Args:
@@ -24,8 +24,8 @@ class ExplicitSolver:
             T                  (float): End time
             dx                 (float): step size in spacial direction
             dt                 (float): step size in spacial direction
-            c                  (float): boundary point for x = 0 
-            d                  (float): boundary condition for x = 1 
+            c                  (float): boundary point for x = 0
+            d                  (float): boundary condition for x = 1
             stability (bool, optional): Choice to check if chosen dt upholds the Neuman
                                         criteria, and corrects if it does not uphold. Defaults to True.
         """
@@ -88,7 +88,7 @@ class ExplicitSolver:
         Calculate solution for all t <= T
 
         Returns:
-            array : solution 
+            array : solution
         """
         self.u_complete = np.zeros((self.Nt, self.Nx))
         self.u_complete[0] = self.u_1
@@ -143,7 +143,7 @@ class ExplicitSolver:
 
         Args:
             solver (string): name of the solver used to calculate solution
-            name (string, optional): name for the animation, 
+            name (string, optional): name for the animation,
                                      if no name the animation is not saved. Defaults to None.
 
         Returns:
@@ -179,8 +179,8 @@ class ExplicitSolver:
 
     def calc_err(self):
         """
-        Calculates the error of the solution over time, by taking the 
-        difference over space and takes the mean of that error. 
+        Calculates the error of the solution over time, by taking the
+        difference over space and takes the mean of that error.
 
         Returns:
             array: contains the error per time step
