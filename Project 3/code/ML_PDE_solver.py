@@ -14,7 +14,23 @@ from Functions import *
 
 
 class NeuralNetworkPDE:
-    def __init__(self, x, t, epochs, I, lr):
+    """
+    Neural Network class for calculating PDE's. The loss function
+    is specialized to solve the 1D diffusion equation 
+            d_t u(x, t) = d_xx u(x, t)
+    """
+    def __init__(self, x, t, epochs, I, lr, in_out = [2, 1]):
+        """Initialize class ML object.
+
+        Args:
+            x            (ndarrray): x domain discretized as array
+            t             (ndarray): t domain discretized as array
+            epochs            (int): Number of training epochs
+            I                (func): Initial condition function
+            lr              (float): learning rate for training
+            in_out (list, optional): Structure of the input and output layers of the network
+        """
+        
         self.x = tf.cast(tf.convert_to_tensor(x), tf.float32)
         self.t = tf.cast(tf.convert_to_tensor(t), tf.float32)
         self.data = self.create_dataset()
@@ -22,12 +38,18 @@ class NeuralNetworkPDE:
         self.I = I
         self.num_epochs = epochs
         self.learning_rate = lr
-        self.in_out = [2, 1]
+        self.in_out = in_out
 
         self.tracker = self.track_loss
         self.process = []
 
     def __call__(self):
+        """
+        Call function for the ML object. 
+
+        Returns:
+            list: Splits trial function into the solution and the time array
+        """
         t, x = self.data[:, 0], self.data[:, 1]
         u = self.g_trial(self.model, t, x).numpy()
         return np.split(u, len(self.t))
@@ -38,6 +60,13 @@ class NeuralNetworkPDE:
         return data
 
     def get_model(self):
+        """
+        Initializes the model, setting up layers and compiles the model,
+        prepping for training.
+
+        Returns:
+            tensorflow_object: compiled model
+        """
         get_custom_objects().update({"abs_activation": self.abs_activation})
         model = tf.keras.Sequential(
             [
@@ -55,6 +84,12 @@ class NeuralNetworkPDE:
         return model
 
     def train(self):
+        """
+        Trains the model and tracks the metric you choose. 
+
+        Returns:
+            list: list comprising the saved values you choose
+        """
         train_loss_results = []
         self.model = self.get_model()
         model = self.model
@@ -77,6 +112,17 @@ class NeuralNetworkPDE:
 
     @tf.function
     def grad(self, model):
+        """
+        Calculates the gradient for the model. Calculates the loss of the model,
+        and then calculates a gradient to correct the model.
+
+        Args:
+            model (tensorflow_object): the current model
+
+        Returns:
+            tensor: the loss value for the given derivation
+            tensor: the gradient with respect to the trainable variables
+        """
         with tf.GradientTape() as tape:
             tape.watch(model.trainable_variables)
             loss_value = self.cost_function(model)
@@ -86,8 +132,13 @@ class NeuralNetworkPDE:
 
     @tf.function
     def cost_function(self, model):
-        """
-        Calculate derivatives.
+        """[summary]
+
+        Args:
+            model (tensorflow_object): the current model
+
+        Returns:
+            tensor: MSE tensor to use for correction in gradient calculation
         """
         with tf.GradientTape() as tape1:
             t, x = self.data[:, 0], self.data[:, 1]
@@ -107,8 +158,19 @@ class NeuralNetworkPDE:
     @tf.function
     def g_trial(self, model, x, t):
         """
+        Calculates the trial function given either two data points or two arrays
+        
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
         h_1 and h_2 are functions to control boundary and inital conditions.
+        
+
+        Args:
+            model (tensorflow_object): the current model
+            x (tensor): tensor of x data
+            t (tensor): tensor of t data
+
+        Returns:
+            tensor: returns tensorflow tensor. needs to be converted to numpy to be used
         """
         XT = tf.stack([t, x], axis=1)
         h1 = (1 - t) * self.I(x)
