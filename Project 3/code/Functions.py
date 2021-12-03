@@ -4,6 +4,12 @@ import numpy as np
 
 
 def loss_plot(loss):
+    """
+    Plot loss as function of epochs
+
+    Args:
+        loss (array): loss array
+    """
     min_loss = int(np.where(np.min(loss) == loss)[0][0])
 
     plt.plot(np.arange(len(loss)), loss, label="Loss")

@@ -7,8 +7,28 @@ import seaborn as sns
 
 
 class ExplicitSolver:
+    """
+    Explicit solver for PDE's on the form 
+            d_t u(x, t) = Ad_xx u(x, t)
+    """
     def __init__(self, I, L, T, dx, dt, c, d, stability=True):
-        # Read class arguments
+        """
+        Initialize the solver object. After constants are set,
+        the stability criteria is checked as long as stability=True. 
+        The solution arrays are initialized and the initial condition 
+        is implemented
+
+        Args:
+            I                   (func): Initial condition function
+            L                  (float): Length of the system
+            T                  (float): End time
+            dx                 (float): step size in spacial direction
+            dt                 (float): step size in spacial direction
+            c                  (float): boundary point for x = 0 
+            d                  (float): boundary condition for x = 1 
+            stability (bool, optional): Choice to check if chosen dt upholds the Neuman
+                                        criteria, and corrects if it does not uphold. Defaults to True.
+        """
         self.I = I
         self.L = L
         self.T = T
@@ -21,7 +41,7 @@ class ExplicitSolver:
 
         self.dt = dt
         self.dx = dx
-        self.C = self.alpha*self.dt / self.dx ** 2
+        self.C = self.alpha*self.dt / self.dx ** 2 #stability constant, must be <= 0.5
 
         if self.C > 0.5 and self.stability:
             self.dt = 0.5 * self.dx ** 2
@@ -64,6 +84,12 @@ class ExplicitSolver:
         self.u, self.u_1 = self.u_1, self.u  # move over solution array index
 
     def run_simulation(self):
+        """
+        Calculate solution for all t <= T
+
+        Returns:
+            array : solution 
+        """
         self.u_complete = np.zeros((self.Nt, self.Nx))
         self.u_complete[0] = self.u_1
         for i in trange(1, self.Nt):
@@ -75,6 +101,14 @@ class ExplicitSolver:
         return np.sin(np.pi * self.x) * np.exp(-np.pi ** 2 * self.t[i])
 
     def plot_comparison(self, solver, name=None, title_extension=""):
+        """Plots the calculated solution against the exact solution
+
+        Args:
+            solver (string): name of the type of solver
+            name (string, optional): name to use to save figure. If none
+                                     figure is not saved. Defaults to None.
+            title_extension (str, optional): Extension for title. Defaults to "".
+        """
 
         t_index = np.around(np.linspace(0, self.Nt - 1, 6)).astype(int)
         fig, axes = plt.subplots(2, 3, sharex="col", sharey="row")
@@ -105,6 +139,16 @@ class ExplicitSolver:
         plt.show()
 
     def animator(self, solver, name=None):
+        """Animates solution
+
+        Args:
+            solver (string): name of the solver used to calculate solution
+            name (string, optional): name for the animation, 
+                                     if no name the animation is not saved. Defaults to None.
+
+        Returns:
+            animation: the full animation
+        """
         fig, ax = plt.subplots()
         (line1,) = ax.plot(self.x, self.u_complete[0][:], label=solver, lw=2)
         (line2,) = ax.plot(self.x, self.exact_solution(0), "--", label="Exact", lw=2)
@@ -134,6 +178,13 @@ class ExplicitSolver:
         return ani
 
     def calc_err(self):
+        """
+        Calculates the error of the solution over time, by taking the 
+        difference over space and takes the mean of that error. 
+
+        Returns:
+            array: contains the error per time step
+        """
 
         error = np.zeros(len(self.t))
 
@@ -148,6 +199,15 @@ class ExplicitSolver:
         return error
 
     def rel_err_plot(self, solver, time=None, other_data=None, other_name=""):
+        """
+        Plots the absolute error for the solution, and possibly another data set aswell
+
+        Args:
+            solver (string): name of the first solver
+            time (array, optional): time for other data set. Defaults to None.
+            other_data (array, optional): data set from other solver. Defaults to None.
+            other_name (str, optional): name of other data solver. Defaults to "".
+        """
         self.target_data = self.u_complete
         error = self.calc_err()
         plt.plot(self.t, error, label=f"{solver} error")

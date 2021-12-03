@@ -16,8 +16,8 @@ from Functions import *
 class NeuralNetworkPDE:
     """
     Neural Network class for calculating PDE's. The loss function
-    is specialized to solve the 1D diffusion equation 
-            d_t u(x, t) = d_xx u(x, t)
+    is specialized to solve the 1D diffusion equation on the form
+            d_t u(x, t) = A d_xx u(x, t)
     """
     def __init__(self, x, t, epochs, I, lr, in_out = [2, 1]):
         """Initialize class ML object.

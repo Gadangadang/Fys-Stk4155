@@ -4,7 +4,20 @@ tf.config.run_functions_eagerly(True)
 
 
 class EigenVal(NeuralNetworkPDE):
+    """[summary]
+
+    Args:
+        NeuralNetworkPDE ([type]): [description]
+    """
     def __init__(self, t, epochs, lr, A):
+        """[summary]
+
+        Args:
+            t ([type]): [description]
+            epochs ([type]): [description]
+            lr ([type]): [description]
+            A ([type]): [description]
+        """
         self.t = tf.cast(tf.convert_to_tensor(t), tf.float32)
         self.X_0 = self.get_init_state()
         self.XX_0 = tf.reduce_sum(tf.transpose(self.X_0) * self.X_0)
@@ -19,6 +32,11 @@ class EigenVal(NeuralNetworkPDE):
         self.process = [[], [], []]
 
     def __call__(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         X = self.model(tf.reshape(t[-1],[1,1]))
         X_T = tf.transpose(X)
         X_T_X = tf.reduce_sum(X_T * X)
@@ -28,6 +46,14 @@ class EigenVal(NeuralNetworkPDE):
 
     @tf.function
     def cost_function(self, model):
+        """[summary]
+
+        Args:
+            model ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         with tf.GradientTape() as tape:
             t = self.t
             tape.watch(t)
@@ -44,10 +70,20 @@ class EigenVal(NeuralNetworkPDE):
         return MSE
 
     def get_init_state(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         X_0 = tf.cast(tf.convert_to_tensor(np.random.rand(1, 6)), tf.float32)
         return X_0
 
     def track_EigenVal(self, loss):
+        """[summary]
+
+        Args:
+            loss ([type]): [description]
+        """
         lmb = self()
         vec = self.model(tf.reshape(t[-1],[1,1]))
         vec = vec/tf.norm(vec)
