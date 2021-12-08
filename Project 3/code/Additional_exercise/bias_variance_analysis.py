@@ -10,6 +10,7 @@ currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 from plot_set import *
+from matplotlib.ticker import MaxNLocator
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Input
@@ -48,13 +49,13 @@ class bias_variance():
         return DecisionTreeRegressor(max_depth=complexity)
 
     def boosting_model(self, complexity):
-        return AdaBoostRegressor(random_state=0, n_estimators=complexity)
+        max_depth = self.args[0]
+        return AdaBoostRegressor(base_estimator = DecisionTreeRegressor(max_depth=max_depth),random_state=0, n_estimators=complexity)
 
     def NN_model_nodes(self, complexity):
         num_hidden_nodes = complexity
         num_hidden_layers = self.args[0]
         return self.feed_forward_network(num_hidden_nodes, num_hidden_layers)
-
 
     def NN_model_layers(self, complexity):
         num_hidden_nodes = self.args[0]
@@ -77,11 +78,11 @@ class bias_variance():
 
 
     def bootstrap(self, num_bootstraps):
-        y_pred = np.empty((y_test.shape[0], num_bootstraps))
+        y_pred = np.empty((self.y_test.shape[0], num_bootstraps))
         for b in range(num_bootstraps):
             X_, y_ = resample(self.X_train, self.y_train)
             self.fit(X_, y_.ravel())
-            y_pred[:, b] = self.model.predict(X_test).ravel()
+            y_pred[:, b] = self.model.predict(self.X_test).ravel()
         return y_pred
 
     def analyze(self, num_bootstraps = 200):
@@ -93,18 +94,27 @@ class bias_variance():
             self.MSE_test[i] = np.mean(np.mean((self.y_test - y_pred)**2, axis=1, keepdims=True))
 
 
-    def plot(self):
+    def plot(self, show = True, save = None, ymax = 0):
         plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+        ax = plt.gca()
         plt.plot(self.n_arr, self.bias, "o-", label= r"Bias$^2$")
         plt.plot(self.n_arr, self.variance, "o-", label= "Variance")
         plt.plot(self.n_arr, self.MSE_test, "o-", label= "MSE test")
 
         plt.xlabel(self.complexity_label, fontsize=14)
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         plt.ylabel(r"Error", fontsize=14)
         plt.legend(fontsize = 13)
+        if ymax != 0:
+            plt.ylim(top=ymax)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-        plt.show()
-        # plt.savefig("../article/figures/figure.pdf", bbox_inches="tight")
+        if isinstance(save,str):
+            plt.savefig(f"../../article/figures/Additional_Exercise/{save}.pdf", bbox_inches="tight")
+            print(save)
+        if show:
+            plt.show()
+        else:
+            plt.clf()
 
 
 

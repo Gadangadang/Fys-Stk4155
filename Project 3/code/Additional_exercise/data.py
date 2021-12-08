@@ -9,7 +9,6 @@ cwd = os.getcwd() # current working directory
 data_path = cwd + '/Ames_Housing_dataset'
 df = pd.read_csv (data_path + '/train.csv')
 
-
 features = ['LotFrontage', 'LotArea', 'OverallQual', 'OverallCond', 'YearBuilt', 'YearRemodAdd', 'YearRemodAdd', 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', '1stFlrSF', '2ndFlrSF', 'LowQualFinSF', 'GrLivArea', 'BsmtFullBath', 'BsmtHalfBath', 'FullBath', 'HalfBath', 'BedroomAbvGr', 'KitchenAbvGr', 'TotRmsAbvGrd', 'Fireplaces', 'GarageYrBlt', 'GarageCars', 'GarageArea', 'WoodDeckSF', 'OpenPorchSF', 'EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 'MiscVal', 'MoSold', 'YrSold',]
 target = ['SalePrice']
 
@@ -24,6 +23,8 @@ def fetch_data(top_features = 10, split = 0.2):
     order = np.argsort(corr)
     top = order[-top_features:]
     top_features = [features[i] for i in top]
+    print(top_features)
+    exit()
 
     X = df[top_features].to_numpy()
     y = df[target].to_numpy()
@@ -64,7 +65,5 @@ def watch_data():
 
 
 if __name__ == "__main__":
-
-
-    X, y = fetch_data(10)
+    X_train, X_test, y_train, y_test = fetch_data()
     # watch_data()
