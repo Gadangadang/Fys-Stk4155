@@ -1,7 +1,7 @@
 from bias_variance_analysis import *
 
 
-X_train, X_test, y_train, y_test = fetch_data()
+X_train, X_test, y_train, y_test = fetch_data(35)
 n_arr = np.arange(1, 15)
 
 bv_object = bias_variance(X_train, X_test, y_train, y_test)
