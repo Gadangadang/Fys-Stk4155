@@ -112,7 +112,7 @@ class ExplicitSolver:
 
         t_index = np.around(np.linspace(0, self.Nt - 1, 6)).astype(int)
         fig, axes = plt.subplots(2, 3, sharex="col", sharey="row")
-        fig.suptitle(f"{solver} vs Exact {title_extension}", fontsize=18)
+        # fig.suptitle(f"{solver} vs Exact {title_extension}", fontsize=18)
         counter = 0
         for i in range(2):
             for j in range(3):
@@ -127,14 +127,17 @@ class ExplicitSolver:
                     lw=2,
                     label="Exact",
                 )
+                MSE = np.mean((self.exact_solution(t_index[counter])- self.u_complete[t_index[counter]])**2)
+                MSE = np.where(MSE < 1e-20, 0, MSE)
+                axes[i,j].text(0.25,0.4, f"MSE = {MSE:0.1e} ")
                 axes[i, j].set_ylim([-0.1, 1.1])
                 counter += 1
-        plt.subplots_adjust(hspace=2, wspace=0.11)
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+        plt.subplots_adjust(hspace=0.22, wspace= 0.070)
         plt.legend()
         if name is not None:
             plt.savefig(
-                f"../article/figures/ExplicitPDE_dx{self.dx}.pdf", bbox_inches="tight"
+                f"../article/figures/{name}_dx{self.dx}.pdf", bbox_inches="tight"
             )
         plt.show()
 
@@ -165,7 +168,7 @@ class ExplicitSolver:
         def animate(i):
             plt.title(f"t = {self.t[i]:.1f}/{self.t[-1]:.1f}")
             text.set_text(
-                f"MSE: {np.abs(np.mean(self.u_complete[i][:]-self.exact_solution(i))):2.2e}"
+                f"MSE: {np.mean((self.u_complete[i][:]-self.exact_solution(i))**2):2.2e}"
             )
             line1.set_ydata(self.u_complete[i][:])
             line2.set_ydata(self.exact_solution(i))
@@ -233,7 +236,7 @@ if __name__ == "__main__":
     I = lambda x: np.sin(np.pi * x)
     L = 1
     T = 1  # 0.5
-    dx = 1 / 100
+    dx = 0.01
     dt = 0.5 * dx ** 2
     c = 0
     d = 0
@@ -241,4 +244,4 @@ if __name__ == "__main__":
     solution = ES.run_simulation()
     ES.animator("Explicit solver", "001")
     # ES.rel_err_plot("Explicit solver", T)
-    ES.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
+    # ES.plot_comparison("Explicit solver", name = "ExplicitPDE", title_extension=f": dx = {dx}")

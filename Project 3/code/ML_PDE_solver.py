@@ -30,7 +30,7 @@ class NeuralNetworkPDE:
             lr              (float): learning rate for training
             in_out (list, optional): Structure of the input and output layers of the network
         """
-        
+
         self.x = tf.cast(tf.convert_to_tensor(x), tf.float32)
         self.t = tf.cast(tf.convert_to_tensor(t), tf.float32)
         self.data = self.create_dataset()
@@ -45,7 +45,7 @@ class NeuralNetworkPDE:
 
     def __call__(self):
         """
-        Call function for the ML object. 
+        Call function for the ML object.
 
         Returns:
             list: Splits trial function into the solution and the time array
@@ -85,7 +85,7 @@ class NeuralNetworkPDE:
 
     def train(self):
         """
-        Trains the model and tracks the metric you choose. 
+        Trains the model and tracks the metric you choose.
 
         Returns:
             list: list comprising the saved values you choose
@@ -106,8 +106,7 @@ class NeuralNetworkPDE:
                 tvals.set_description(self.print_string)
                 self.model = model  # Save trained network.
             return self.process
-        except:
-            # raise #Remove when code work.
+        except KeyboardInterrupt:
             return self.process
 
     @tf.function
@@ -159,10 +158,10 @@ class NeuralNetworkPDE:
     def g_trial(self, model, x, t):
         """
         Calculates the trial function given either two data points or two arrays
-        
+
         g_trial(x, t) = h_1(x, t) + h_2(x,t)N(x,t,P)
         h_1 and h_2 are functions to control boundary and inital conditions.
-        
+
 
         Args:
             model (tensorflow_object): the current model
