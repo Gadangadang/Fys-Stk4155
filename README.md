@@ -12,7 +12,7 @@ Project 1 explores three different linear regression models, OLS, Ridge and Lass
 Franke Function. Score: 100/100 points <br />
 <br />
 Project 2 explores neural networks, and compares self made ones to networks from Tensorflow, as well as linear and logistic 
-regression models on the Franke Function. Score -/100 points<br />
+regression models on the Franke Function. Score 94/100 points<br />
 <br />
 Project 3 explores using neural networks to solve PDE's and eigenvalue problems using Tensorflow infrastructure. It also 
 compares against explicit solvers and numerical eigenvalue computation. Score -/100 points<br />
