@@ -130,7 +130,9 @@ def readfile(filename):
         for i, list in enumerate(data):
             list.append(float(words[i]))
     for i, list in enumerate(data):
-        list = np.array(list)
+        data[i] = np.array(list)
+
+
 
     return data
 
@@ -146,11 +148,14 @@ def bang_for_the_buck(filename):
 
     dx, dt, epochs, T, MSE, timing, avg_runs = readfile(filename)
 
-    fin_dif_index = np.argwhere(np.isnan(epochs) == True)
-    NN_index = np.argwhere(np.isnan(epochs) == False)
+    # fin_diff_index = np.concatenate( np.argwhere(np.isnan(epochs) == True))
+    fin_diff_index = np.argwhere(np.isnan(epochs) == True)
+    NN_index =  np.argwhere(np.isnan(epochs) == False)
 
+
+    # print(timing[fin_diff_index])
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-    plt.plot(timing[fin_dif_index], MSE[fin_dif_index], 'o', label = "Finite difference")
+    plt.plot(timing[fin_diff_index], MSE[fin_diff_index], 'o', label = "Finite difference")
     plt.plot(timing[NN_index], MSE[NN_index], 'o', label = "Neural network")
     plt.xlabel(r"Timing $[s]$", fontsize=14)
     plt.ylabel(r"MSE", fontsize=14)
@@ -170,11 +175,12 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
 
     MSE = np.zeros(avg_runs)
     timing = np.zeros(avg_runs)
-    for i in range(avg_runs):
-        print(f"\r Run: {i+1}/{avg_runs}, method: {method}, dx_list = {dx_list}, epochs = {epochs}", end="")
-        if method == "fin_diff":
-            epochs = np.nan
-            for dx in dx_list:
+
+    if method == "fin_diff":
+        epochs = np.nan
+        for dx in dx_list:
+            for i in range(avg_runs):
+                print(f"\r method: {method}, run: {i+1}/{avg_runs}, dx = {dx}, epochs = {epochs}", end="")
                 I = lambda x: np.sin(np.pi * x)
                 dt = 0.5 * dx**2
                 c = 0
@@ -192,13 +198,20 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
                 # Error
                 MSE[i] = calculate_MSE(x, T, u[-1])
 
+            print() # linebreak
+            append_to_file(dx, dt, epochs, T, np.mean(MSE), np.mean(timing), avg_runs, filename)
 
-        if method == "NN":
-            epochs = epochs
-            if np.isnan(epochs):
-                print("Please specify epochs (got nan)")
-                exit(0)
-            for dx in dx_list:
+
+
+
+    if method == "NN":
+        epochs = epochs
+        if np.isnan(epochs):
+            print("Please specify epochs (got nan)")
+            exit(0)
+        for dx in dx_list:
+            for i in range(avg_runs):
+                print(f"\r method: {method}, run: {i+1}/{avg_runs}, dx = {dx}, epochs = {epochs}", end="")
                 I = lambda x: tf.sin(np.pi * x)
                 dt = dx*T
 
@@ -217,13 +230,14 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
                     timing[i] = finish - start
                     u = ML()
 
-
                 # Error
                 MSE[i] = calculate_MSE(x, T, u[-1])
 
-    print() # linebreak
-    # Append to file
-    append_to_file(dx, dt, epochs, T, np.mean(MSE), np.mean(timing), avg_runs, filename)
+            print() # linebreak
+            append_to_file(dx, dt, epochs, T, np.mean(MSE), np.mean(timing), avg_runs, filename)
+
+    print("DONE")
+
 
 
 
@@ -233,27 +247,17 @@ if __name__ == "__main__":
     filename = "PDE_comparison_2.txt"
     # create_file(filename)
 
+    # bang_for_the_buck(filename)
 
-
-    # dx_list = [0.1, 0.01, 0.001, 0.0005] #finite difference
-    dx_list = [0.1, 0.01]
-
+    dx_list = [0.1, 0.01, 0.001, 0.0005] #finite difference
+    # dx_list = [0.1, 0.01, 0.001] # NN
     generate_data(filename, "fin_diff", dx_list, avg_runs = 5)
-    # generate_data(filename, "NN", dx_list, avg_runs = 5)
 
+
+    # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 10)
+    # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 100)
+    # generate_data(filename, "NN", dx_list, avg_runs = 5, epocs = 1000)
 
 
 
     exit()
-    # generate_data(filename, "NN", dx_list, epochs = 10000)
-
-
-
-    dx_list = [0.1, 0.01]
-
-    # dx_list = [0.01, 0.01, 0.01, 0.01]
-    # dx_list = [0.01]
-
-
-    # generate_data(filename, "NN", dx_list, epochs = 10000)
-    bang_for_the_buck(filename)
