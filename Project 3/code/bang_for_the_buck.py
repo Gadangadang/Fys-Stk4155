@@ -244,17 +244,15 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
 
 if __name__ == "__main__":
     # filename = "PDE_comparison.txt"
-    filename = "PDE_comparison_ex.txt"
+    filename = "PDE_comparison_2.txt"
     # create_file(filename)
 
-    #bang_for_the_buck(filename)
+    bang_for_the_buck(filename)
 
     # dx_list = [0.1, 0.01, 0.001, 0.0005] #finite difference
     dx_list = [0.0005] #finite difference
 
     # dx_list = [0.1, 0.01, 0.001] # NN
-    generate_data(filename, "fin_diff", dx_list, avg_runs = 1)
-
 
     # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 10)
     # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 100)
@@ -263,5 +261,7 @@ if __name__ == "__main__":
     # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 30000)
 
 
+    timer = np.array([4.6161650249e+01, 4.2008524063e+01, 2.3967606917e+01])
+    #print(f"{np.mean(timer):.10e}")
 
     exit()
