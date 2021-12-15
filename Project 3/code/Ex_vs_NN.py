@@ -36,7 +36,7 @@ def calc_MSE(x, t, u):
 
 if __name__ == "__main__":
     # Common settings
-    dx = 0.01
+    dx = 0.1
     L = 1
     T = 1
 
@@ -54,11 +54,12 @@ if __name__ == "__main__":
 
     # Neural network solver
     tf.random.set_seed(123)
+    I = lambda x: tf.sin(np.pi * x)
     dt = dx
     lr = 5e-2
     epochs = 2e3
-    x = np.linspace(0, L, int(L / dx))
-    t_NN = np.linspace(0, T, int(T / dt))
+    x = np.linspace(0, L, int(L / dx) + 1)
+    t_NN = np.linspace(0, T, int(T / dt) + 1)
 
     # Place tensors on the CPU
     with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks
@@ -74,4 +75,5 @@ if __name__ == "__main__":
 
 
 
-    err_comparison(x, [t_ex, t_NN, t_NN], [u_ex, u_NN_2k, u_NN_20k], ["Explicit", "Neural network, 2k epochs", "Neural network, 20k epochs"], name = "error_comparison")
+    err_comparison(x, [t_ex, t_NN, t_NN], [u_ex, u_NN_2k, u_NN_20k], ["Explicit", "Neural network, 2k epochs", "Neural network, 20k epochs"], name = "error_comparison_dx0.1")
+    # err_comparison(x, [t_ex, t_NN], [u_ex, u_NN_2k], ["Explicit", "Neural network, 2k epochs"], name = "error_comparison")

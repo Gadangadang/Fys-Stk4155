@@ -181,7 +181,7 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
         for dx in dx_list:
             for i in range(avg_runs):
                 print(f"\r method: {method}, run: {i+1}/{avg_runs}, dx = {dx}, epochs = {epochs}", end="")
-                I = lambda x: np.sin(np.pi * x)
+                I = lambda x: tf.sin(np.pi * x)
                 dt = 0.5 * dx**2
                 c = 0
                 d = 0

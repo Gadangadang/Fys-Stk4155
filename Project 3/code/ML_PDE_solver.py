@@ -214,12 +214,12 @@ if __name__ == "__main__":
     tf.random.set_seed(123)
     L = 1
     T = 1
-    dx = 0.01
+    dx = 0.1
     # dt = 0.5 * dx ** 2
     dt = dx
     lr = 5e-2
 
-    epochs = 2e3
+    epochs = 2e4
     x = np.linspace(0, L, round(L / dx) + 1)
     t = np.linspace(0, T, round(T / dt) + 1)
 
