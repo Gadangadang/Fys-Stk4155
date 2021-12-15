@@ -244,19 +244,21 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
 
 if __name__ == "__main__":
     # filename = "PDE_comparison.txt"
-    filename = "PDE_comparison_2.txt"
-    # create_file(filename)
+    filename = "PDE_comparison_3.txt"
+    create_file(filename)
 
-    # bang_for_the_buck(filename)
+    #bang_for_the_buck(filename)
 
-    dx_list = [0.1, 0.01, 0.001, 0.0005] #finite difference
+    dx_list = [0.005] #finite difference
     # dx_list = [0.1, 0.01, 0.001] # NN
-    generate_data(filename, "fin_diff", dx_list, avg_runs = 5)
+    generate_data(filename, "fin_diff", dx_list, avg_runs = 2)
 
 
     # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 10)
     # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 100)
-    # generate_data(filename, "NN", dx_list, avg_runs = 5, epocs = 1000)
+    # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 1000)
+    # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 10000)
+    # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 30000)
 
 
 
