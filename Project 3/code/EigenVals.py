@@ -40,12 +40,36 @@ class EigenVal(NeuralNetworkPDE):
         Returns:
             float: eigenvalue
         """
+
         X = self.model(tf.reshape(t[-1],[1,1]))
-        X_T = tf.transpose(X)
-        X_T_X = tf.reduce_sum(X_T * X)
-        AX = tf.linalg.matvec(tf.cast(self.A,tf.float32), X)
-        lmb =  tf.reduce_sum(X_T * AX) / (X_T_X)
+        X = tf.reshape(X,[6])
+        X_T_X = tf.einsum("j,j -> ", X, X)
+        AX = tf.einsum("kj,j -> k", self.A, X)
+        lmb =  tf.einsum("j,j -> ", X, AX) / (X_T_X)
         return lmb
+    def get_model(self):
+        """
+        Initializes the model, setting up layers and compiles the model,
+        prepping for training.
+
+        Returns:
+            tensorflow_object: compiled model
+        """
+        nodes = 50
+        get_custom_objects().update({"abs_activation": self.abs_activation})
+        model = tf.keras.Sequential(
+            [
+                tf.keras.layers.Dense(
+                    nodes, activation="sigmoid", input_shape=(self.in_out[0],)
+                ),
+                tf.keras.layers.Dense(nodes, activation="sigmoid"),
+                tf.keras.layers.Dense(self.in_out[1]),
+            ]
+        )
+        self.optimizer = optimizers.Adam(learning_rate=self.learning_rate)
+        model.compile(optimizer=self.optimizer)
+        model.summary()
+        return model
 
     @tf.function
     def cost_function(self, model):
@@ -67,9 +91,9 @@ class EigenVal(NeuralNetworkPDE):
         A = self.A
         X_T = tf.transpose(X)
         AX = tf.einsum("ij,kj->ki", A, X)
-        LS = self.XX_0 * AX
         X_T_AX = tf.einsum("jk,kj -> k", X_T, AX)
         RS = tf.einsum("k,kj -> kj", X_T_AX, X)
+        LS = self.XX_0 * AX
         MSE = tf.reduce_mean(LS + RS - X_dt, 0)
         return MSE
 
@@ -80,7 +104,7 @@ class EigenVal(NeuralNetworkPDE):
         Returns:
             tensor: tensor of the initial state
         """
-        X_0 = tf.cast(tf.convert_to_tensor(np.random.rand(1, 6)), tf.float32)
+        X_0 = tf.cast(tf.convert_to_tensor(np.random.randn(1, 6)), tf.float32)
         return X_0
 
     def track_EigenVal(self, loss):
@@ -100,17 +124,19 @@ class EigenVal(NeuralNetworkPDE):
 
 
 if __name__ == "__main__":
-    np_seed = 2
-    tf_seed = 1000
+    #np_seed = 2
+    #tf_seed = 1000
+    np_seed = 10
+    tf_seed = np_seed
     np.random.seed(np_seed)
     tf.random.set_seed(tf_seed)
-    Q = np.random.rand(6, 6)
+    Q = np.random.randn(6, 6)
     A = (Q.T + Q) / 2
     T = 1e4
-    Nt = 100
+    Nt = 1000
     t = np.linspace(0, T, Nt).reshape(Nt, 1)
-    epochs = 200
-    lr = 5e-3
+    epochs = 2500
+    lr = 1e-4
 
     EV = EigenVal(t, epochs,  lr, A)
     loss, lmbds, EigenVec = EV.train()
@@ -144,7 +170,7 @@ if __name__ == "__main__":
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
     for i in range(6):
         label_str = f"i={i} "
-        plt.plot(np.arange(len(EigenVec)), -EigenVec[:,i], label = label_str)
+        plt.plot(np.arange(len(EigenVec)), EigenVec[:,i], label = label_str)
     plt.xlabel("# Epochs", fontsize=16)
     plt.ylabel("Value", fontsize=16)
     plt.legend(loc = "lower right", fontsize = 14)
