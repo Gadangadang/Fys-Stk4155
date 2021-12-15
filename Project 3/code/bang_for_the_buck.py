@@ -90,7 +90,7 @@ import time
 
 
 def create_file(filename):
-    header = ["dx", "dt", "epochs", "t", "MSE", "timing[s]"]
+    header = ["dx", "dt", "epochs", "T", "MSE", "timing[s]", "avg_runs"]
     create = input(f"Are you sure you want to create {filename}?, y/n: ")
     if create == "y":
         file = open(filename, 'w')
@@ -105,8 +105,8 @@ def create_file(filename):
         print("Aborting")
         exit()
 
-def append_to_file(dx, dt, epochs, t, MSE, timing, filename):
-    data = [dx, dt, epochs, t, MSE, timing]
+def append_to_file(dx, dt, epochs, t, MSE, timing, avg_runs, filename):
+    data = [dx, dt, epochs, t, MSE, timing, avg_runs]
     file = open(filename, 'a')
     spacing = "                  "
     for i in range(len(data)):
@@ -121,34 +121,31 @@ def calculate_MSE(x, t, u):
 
     return MSE
 
-def bang_for_the_buck(filename):
+def readfile(filename):
     infile = open(filename, 'r')
     line = infile.readline()
-    dx = []
-    dt = []
-    epochs = []
-    t = []
-    MSE = []
-    timing = []
-
+    data = [[] for i in range(7)] #dx, dt, epochs, T, MSE, timing, avg_runs
     for line in infile:
         words = line.split()
-        dx.append(float(words[0]))
-        dt.append(float(words[1]))
-        epochs.append(float(words[2]))
-        t.append(float(words[3]))
-        MSE.append(float(words[4]))
-        timing.append(float(words[5]))
+        for i, list in enumerate(data):
+            list.append(float(words[i]))
+    for i, list in enumerate(data):
+        list = np.array(list)
 
-    dx = np.array(dx)
-    dt = np.array(dt)
-    epochs = np.array(epochs)
-    t = np.array(t)
-    MSE = np.array(MSE)
-    timing = np.array(timing)
+    return data
 
+
+
+
+
+
+
+def bang_for_the_buck(filename):
 
     # finite difference
+
+    dx, dt, epochs, T, MSE, timing, avg_runs = readfile(filename)
+
     fin_dif_index = np.argwhere(np.isnan(epochs) == True)
     NN_index = np.argwhere(np.isnan(epochs) == False)
 
@@ -165,92 +162,98 @@ def bang_for_the_buck(filename):
     plt.show()
 
 
-def generate_data(filename, method, dx_list, epochs = 0):
+def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
     # Common settings
-    T = 1
+    T = 0.2
     L = 1
+    epochs
 
-
-    if method == "fin_diff":
-        epochs = np.nan
-        for dx in dx_list:
-            I = lambda x: np.sin(np.pi * x)
-            dt = 0.5 * dx**2
-            c = 0
-            d = 0
-            ESS = ES.ExplicitSolver(I, L, T, dx, dt, c, d)
-            x = ESS.x
-            t = ESS.t
-
-            #Timing
-            start = time.perf_counter()
-            u = ESS.run_simulation()
-            finish = time.perf_counter()
-            timing = finish - start
-
-            # Error
-            MSE = calculate_MSE(x, T, u[-1])
-            # Append to file
-            append_to_file(dx, dt, epochs, T, MSE, timing, filename)
-
-    if method == "NN":
-        epochs = epochs
-        if epochs < 1:
-            print("Please specify epochs >= 1")
-            exit(0)
-        for dx in dx_list:
-            I = lambda x: tf.sin(np.pi * x)
-            dt = dx
-            lr = 5e-2
-            x = np.linspace(0, L, int(L / dx) + 1)
-            t = np.linspace(0, T, int(T / dt) + 1)
-
-            # Place tensors on the CPU
-            with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks
-                print(x[1]-x[0], t[1]-t[0])
-
-                ML = NeuralNetworkPDE(x, t, int(epochs), I, lr)
+    MSE = np.zeros(avg_runs)
+    timing = np.zeros(avg_runs)
+    for i in range(avg_runs):
+        print(f"\r Run: {i+1}/{avg_runs}, method: {method}, dx_list = {dx_list}, epochs = {epochs}", end="")
+        if method == "fin_diff":
+            epochs = np.nan
+            for dx in dx_list:
+                I = lambda x: np.sin(np.pi * x)
+                dt = 0.5 * dx**2
+                c = 0
+                d = 0
+                ESS = ES.ExplicitSolver(I, L, T, dx, dt, c, d)
+                x = ESS.x
+                t = ESS.t
 
                 #Timing
                 start = time.perf_counter()
-                loss = ML.train()
+                u = ESS.run_simulation()
                 finish = time.perf_counter()
-                timing = finish - start
-                u = ML()
+                timing[i] = finish - start
 
-            print(np.shape(u))
-            print(np.shape(x))
-            print(np.shape(t))
+                # Error
+                MSE[i] = calculate_MSE(x, T, u[-1])
 
 
+        if method == "NN":
+            epochs = epochs
+            if np.isnan(epochs):
+                print("Please specify epochs (got nan)")
+                exit(0)
+            for dx in dx_list:
+                I = lambda x: tf.sin(np.pi * x)
+                dt = dx*T
 
-            # Error
-            # MSE = calculate_MSE(x, T, u[-1])
+                lr = 5e-2
+                x = np.linspace(0, L, round(L / dx) + 1)
+                t = np.linspace(0, T, round(T / dt) + 1)
+
+                # Place tensors on the CPU
+                with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks
+                    ML = NeuralNetworkPDE(x, t, int(epochs), I, lr)
+
+                    #Timing
+                    start = time.perf_counter()
+                    loss = ML.train()
+                    finish = time.perf_counter()
+                    timing[i] = finish - start
+                    u = ML()
 
 
-            plt.plot(x,u[3])
-            plt.show()
-            # Append to file
-            exit()
-            append_to_file(dx, dt, epochs, T, MSE, timing, filename)
+                # Error
+                MSE[i] = calculate_MSE(x, T, u[-1])
+
+    print() # linebreak
+    # Append to file
+    append_to_file(dx, dt, epochs, T, np.mean(MSE), np.mean(timing), avg_runs, filename)
 
 
 
 
 if __name__ == "__main__":
-    filename = "PDE_comparison.txt"
+    # filename = "PDE_comparison.txt"
     filename = "PDE_comparison_2.txt"
-
     # create_file(filename)
 
 
 
+    # dx_list = [0.1, 0.01, 0.001, 0.0005] #finite difference
+    dx_list = [0.1, 0.01]
+
+    generate_data(filename, "fin_diff", dx_list, avg_runs = 5)
+    # generate_data(filename, "NN", dx_list, avg_runs = 5)
 
 
-    # dx_list = [0.1, 0.01, 0.001, 0.0005]
+
+
+    exit()
+    # generate_data(filename, "NN", dx_list, epochs = 10000)
+
+
+
+    dx_list = [0.1, 0.01]
+
     # dx_list = [0.01, 0.01, 0.01, 0.01]
-    dx_list = [0.01]
+    # dx_list = [0.01]
 
 
-    generate_data(filename, "NN", dx_list, epochs = 200)
-    # bang_for_the_buck(filename)
+    # generate_data(filename, "NN", dx_list, epochs = 10000)
+    bang_for_the_buck(filename)

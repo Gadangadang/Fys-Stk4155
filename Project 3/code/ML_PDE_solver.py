@@ -51,35 +51,16 @@ class NeuralNetworkPDE:
             list: Splits trial function into the solution and the time array
         """
         t, x = self.data[:, 0], self.data[:, 1]
-        print(t)
-        print(np.shape(t), np.shape(x))
         u = self.g_trial(self.model, x, t).numpy()
-
-        XT = tf.stack([t, x], axis=1)
-        print(np.shape(XT))
-        print(XT)
-        exit()
-        print(np.shape(u))
-        plt.plot(u)
-        plt.show()
-        exit()
-        print(np.shape(u))
-        split = np.split(u, 100, axis = 0)
-        print(np.shape(split))
-        print(len(self.t))
-        plt.plot(split[0])
-        plt.show()
-
-        exit()
-        print(np.shape(u))
-        print(np.shape(np.split(u, len(self.t))))
-
-        exit()
         return np.split(u, len(self.t))
 
     def create_dataset(self):
-        T, X = tf.meshgrid(self.t, self.x)
-        data = tf.stack([tf.reshape(T, [-1]), tf.reshape(X, [-1])], axis=1) # OLD
+        xx, tt = tf.meshgrid(self.x, self.t)
+
+        # data = tf.stack([tf.reshape(T, [-1]), tf.reshape(X, [-1])], axis=1) # OLD
+        data = tf.stack([tf.reshape(tt, [-1]), tf.reshape(xx, [-1])], axis=1) # NEW
+
+
         return data
 
     def get_model(self):
@@ -238,8 +219,8 @@ if __name__ == "__main__":
     lr = 5e-2
 
     epochs = 2e2
-    x = np.linspace(0, L, int(L / dx))
-    t = np.linspace(0, T, int(T / dt))
+    x = np.linspace(0, L, round(L / dx) + 1)
+    t = np.linspace(0, T, round(T / dt) + 1)
 
     # Place tensors on the CPU
     with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks

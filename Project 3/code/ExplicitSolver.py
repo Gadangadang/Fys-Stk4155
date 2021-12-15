@@ -92,7 +92,7 @@ class ExplicitSolver:
         """
         self.u_complete = np.zeros((self.Nt, self.Nx))
         self.u_complete[0] = self.u_1
-        for i in trange(1, self.Nt):
+        for i in range(1, self.Nt):
             self.advance_solution()
             self.u_complete[i] = self.u
         return self.u_complete
