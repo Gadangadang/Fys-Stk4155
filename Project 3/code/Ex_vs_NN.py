@@ -53,27 +53,30 @@ if __name__ == "__main__":
 
 
     # Neural network solver
-    tf.random.set_seed(123)
     I = lambda x: tf.sin(np.pi * x)
     dt = dx
     lr = 5e-2
     epochs = 2e3
-    x = np.linspace(0, L, int(L / dx) + 1)
-    t_NN = np.linspace(0, T, int(T / dt) + 1)
+    x = np.linspace(0, L, round(L / dx) + 1)
+    t_NN = np.linspace(0, T, round(T / dt) + 1)
 
     # Place tensors on the CPU
     with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks
+        tf.random.set_seed(123)
         ML = NeuralNetworkPDE(x, t_NN, int(epochs), I, lr)
         loss = ML.train()
         u_NN_2k = np.array(ML())
 
         epochs = 2e4
+        tf.random.set_seed(123)
         ML = NeuralNetworkPDE(x, t_NN, int(epochs), I, lr)
         loss = ML.train()
+        plt.plot(loss)
+        plt.show()
         u_NN_20k = np.array(ML())
 
 
 
 
-    err_comparison(x, [t_ex, t_NN, t_NN], [u_ex, u_NN_2k, u_NN_20k], ["Explicit", "Neural network, 2k epochs", "Neural network, 20k epochs"], name = "error_comparison_dx0.1")
+    err_comparison(x, [t_ex, t_NN, t_NN], [u_ex, u_NN_2k, u_NN_20k], ["Explicit", "Neural network, 2k epochs", "Neural network, 20k epochs"], name = f"error_comparison_dx{dx}")
     # err_comparison(x, [t_ex, t_NN], [u_ex, u_NN_2k], ["Explicit", "Neural network, 2k epochs"], name = "error_comparison")
