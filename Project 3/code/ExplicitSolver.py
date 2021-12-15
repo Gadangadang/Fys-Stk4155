@@ -49,8 +49,8 @@ class ExplicitSolver:
             print("dt not satisfying Neuman stability criteria")
             print(f"dt is now {self.dt}")
 
-        self.Nt = int(self.T / self.dt)
-        self.Nx = int(self.L / self.dx)
+        self.Nt = int(self.T / self.dt) + 1
+        self.Nx = int(self.L / self.dx) + 1
 
         self.x = np.linspace(0, self.L, self.Nx)
         self.t = np.linspace(0, self.T, self.Nt)
