@@ -51,12 +51,35 @@ class NeuralNetworkPDE:
             list: Splits trial function into the solution and the time array
         """
         t, x = self.data[:, 0], self.data[:, 1]
-        u = self.g_trial(self.model, t, x).numpy()
+        print(t)
+        print(np.shape(t), np.shape(x))
+        u = self.g_trial(self.model, x, t).numpy()
+
+        XT = tf.stack([t, x], axis=1)
+        print(np.shape(XT))
+        print(XT)
+        exit()
+        print(np.shape(u))
+        plt.plot(u)
+        plt.show()
+        exit()
+        print(np.shape(u))
+        split = np.split(u, 100, axis = 0)
+        print(np.shape(split))
+        print(len(self.t))
+        plt.plot(split[0])
+        plt.show()
+
+        exit()
+        print(np.shape(u))
+        print(np.shape(np.split(u, len(self.t))))
+
+        exit()
         return np.split(u, len(self.t))
 
     def create_dataset(self):
         T, X = tf.meshgrid(self.t, self.x)
-        data = tf.stack([tf.reshape(T, [-1]), tf.reshape(X, [-1])], axis=1)
+        data = tf.stack([tf.reshape(T, [-1]), tf.reshape(X, [-1])], axis=1) # OLD
         return data
 
     def get_model(self):
@@ -214,7 +237,7 @@ if __name__ == "__main__":
     # dt = 0.5 * dx ** 2 (doesn't like that)
     lr = 5e-2
 
-    epochs = 2e4
+    epochs = 2e2
     x = np.linspace(0, L, int(L / dx))
     t = np.linspace(0, T, int(T / dt))
 
@@ -227,10 +250,10 @@ if __name__ == "__main__":
 
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0, False)
     ESS.u_complete = u_complete
-    ESS.plot_comparison("Neural Network", name = "NN_PDE_extended", title_extension=f": dx = {dx}")
-    loss_plot(loss, name = f"NN_PDE_MSE_extended_dx_{dx}")
+    # ESS.plot_comparison("Neural Network", name = "NN_PDE_extended", title_extension=f": dx = {dx}")
+    # loss_plot(loss, name = f"NN_PDE_MSE_extended_dx_{dx}")
 
-    # ESS.plot_comparison("Neural Network", title_extension=f": dx = {dx}")
+    ESS.plot_comparison("Neural Network", title_extension=f": dx = {dx}")
 
 
 

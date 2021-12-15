@@ -165,35 +165,92 @@ def bang_for_the_buck(filename):
     plt.show()
 
 
+def generate_data(filename, method, dx_list, epochs = 0):
+    # Common settings
+    T = 1
+    L = 1
 
+
+    if method == "fin_diff":
+        epochs = np.nan
+        for dx in dx_list:
+            I = lambda x: np.sin(np.pi * x)
+            dt = 0.5 * dx**2
+            c = 0
+            d = 0
+            ESS = ES.ExplicitSolver(I, L, T, dx, dt, c, d)
+            x = ESS.x
+            t = ESS.t
+
+            #Timing
+            start = time.perf_counter()
+            u = ESS.run_simulation()
+            finish = time.perf_counter()
+            timing = finish - start
+
+            # Error
+            MSE = calculate_MSE(x, T, u[-1])
+            # Append to file
+            append_to_file(dx, dt, epochs, T, MSE, timing, filename)
+
+    if method == "NN":
+        epochs = epochs
+        if epochs < 1:
+            print("Please specify epochs >= 1")
+            exit(0)
+        for dx in dx_list:
+            I = lambda x: tf.sin(np.pi * x)
+            dt = dx
+            lr = 5e-2
+            x = np.linspace(0, L, int(L / dx) + 1)
+            t = np.linspace(0, T, int(T / dt) + 1)
+
+            # Place tensors on the CPU
+            with tf.device("/CPU:0"):  # Write '/GPU:0' for large networks
+                print(x[1]-x[0], t[1]-t[0])
+
+                ML = NeuralNetworkPDE(x, t, int(epochs), I, lr)
+
+                #Timing
+                start = time.perf_counter()
+                loss = ML.train()
+                finish = time.perf_counter()
+                timing = finish - start
+                u = ML()
+
+            print(np.shape(u))
+            print(np.shape(x))
+            print(np.shape(t))
+
+
+
+            # Error
+            # MSE = calculate_MSE(x, T, u[-1])
+
+
+            plt.plot(x,u[3])
+            plt.show()
+            # Append to file
+            exit()
+            append_to_file(dx, dt, epochs, T, MSE, timing, filename)
 
 
 
 
 if __name__ == "__main__":
     filename = "PDE_comparison.txt"
-    T = 0.2  # 0.5
+    filename = "PDE_comparison_2.txt"
+
     # create_file(filename)
-    bang_for_the_buck(filename)
-    exit()
-    dx_list = [0.1, 0.01, 0.001, 0.0005]
-    epochs = np.nan
-    for dx in dx_list:
-        I = lambda x: np.sin(np.pi * x)
-        L = 1
-        dt = 0.5 * dx**2
-        c = 0
-        d = 0
-        ESS = ES.ExplicitSolver(I, L, T, dx, dt, c, d)
-        x = ESS.x
-        t = ESS.t
 
-        #Timing
-        start = time.perf_counter()
-        u = ESS.run_simulation()
-        finish = time.perf_counter()
-        timing = finish - start
 
-        MSE = calculate_MSE(x, T, u[-1])
 
-        append_to_file(dx, dt, epochs, T, MSE, timing, filename)
+
+
+    # dx_list = [0.1, 0.01, 0.001, 0.0005]
+    # dx_list = [0.01, 0.01, 0.01, 0.01]
+    dx_list = [0.01]
+
+
+    generate_data(filename, "NN", dx_list, epochs = 200)
+    # bang_for_the_buck(filename)
