@@ -58,7 +58,6 @@ class NeuralNetworkPDE:
         xx, tt = tf.meshgrid(self.x, self.t)
         data = tf.stack([tf.reshape(tt, [-1]), tf.reshape(xx, [-1])], axis=1) # NEW
 
-
         return data
 
     def get_model(self):
