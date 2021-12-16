@@ -3,15 +3,18 @@ import tensorflow as tf
 import ExplicitSolver as ES
 import numpy as np
 import time
+import pandas as pd
+
 
 
 
 
 def create_file(filename):
-    """[summary]
+    """
+    Create file with format for collecting data.
 
     Args:
-        filename ([type]): [description]
+        filename (string): filename
     """
     header = ["dx", "dt", "epochs", "T", "MSE", "timing[s]", "avg_runs"]
     create = input(f"Are you sure you want to create {filename}?, y/n: ")
@@ -29,17 +32,18 @@ def create_file(filename):
         exit()
 
 def append_to_file(dx, dt, epochs, t, MSE, timing, avg_runs, filename):
-    """[summary]
+    """
+    Append data to file.
 
     Args:
-        dx ([type]): [description]
-        dt ([type]): [description]
-        epochs ([type]): [description]
-        t ([type]): [description]
-        MSE ([type]): [description]
-        timing ([type]): [description]
-        avg_runs ([type]): [description]
-        filename ([type]): [description]
+        dx (float): spacial step
+        dt (float): time step
+        epochs (int): number of epochs
+        t (float): time point
+        MSE (float): mean squared error
+        timing (float): computation time
+        avg_runs (int): number of runs to average over
+        filename (string): filename to append the data to
     """
     data = [dx, dt, epochs, t, MSE, timing, avg_runs]
     file = open(filename, 'a')
@@ -50,15 +54,16 @@ def append_to_file(dx, dt, epochs, t, MSE, timing, avg_runs, filename):
     file.write("\n")
 
 def calculate_MSE(x, t, u):
-    """[summary]
+    """
+    Calculate the MSE.
 
     Args:
-        x ([type]): [description]
-        t ([type]): [description]
-        u ([type]): [description]
+        x (array): spacial domain
+        t (array): time domain
+        u (array): solution array
 
     Returns:
-        [type]: [description]
+        [float]: mean square error
     """
     # Assumes solution at one given time
     u_exact = np.sin(np.pi * x) * np.exp(-np.pi**2 * t)
@@ -67,13 +72,14 @@ def calculate_MSE(x, t, u):
     return MSE
 
 def readfile(filename):
-    """[summary]
+    """
+    Fetch data from given file.
 
     Args:
-        filename ([type]): [description]
+        filename (string): name of the file to read
 
     Returns:
-        [type]: [description]
+        [array]: data collection read from file
     """
     infile = open(filename, 'r')
     line = infile.readline()
@@ -86,17 +92,17 @@ def readfile(filename):
         data[i] = np.array(list)
 
 
-
     return data
 
 
 
 
 def bang_for_the_buck(filename):
-    """[summary]
+    """
+    Plots the MSE error for the stored solutions vs computation time.
 
     Args:
-        filename ([type]): [description]
+        filename (string): name of file to read from
     """
     dx, dt, epochs, T, MSE, timing, avg_runs = readfile(filename)
     fin_diff_index = np.argwhere(np.isnan(epochs) == True)
@@ -105,11 +111,8 @@ def bang_for_the_buck(filename):
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
 
 
-    import pandas as pd
 
-    #Finite difference
     size = -200/np.log10(dx)
-
 
     # Linear fit
     a_fin, b_fin, a_err_fin, b_err_fin = lin_fit(np.log10(timing[fin_diff_index]), np.log10(MSE[fin_diff_index]))
@@ -120,6 +123,7 @@ def bang_for_the_buck(filename):
     x_NN = [np.min(timing[NN_index]), np.max(timing[NN_index])]
     plt.plot(x_NN, x_NN**a_NN*10**b_NN, linestyle = "--", color = color_cycle(1))
 
+    # Finite Difference
     fin_color = [color_cycle(0)]*len(fin_diff_index)
     df_fin = pd.DataFrame({
                         'X': timing[fin_diff_index].ravel(),
@@ -132,6 +136,8 @@ def bang_for_the_buck(filename):
              c ='colors',
              alpha=0.8 , data=df_fin, label = "Finite difference")
 
+
+    # Neural Network
     NN_color = epochs[NN_index].ravel()
 
     df_NN = pd.DataFrame({
@@ -147,12 +153,9 @@ def bang_for_the_buck(filename):
              cmap = cmap,
              alpha=0.8 , edgecolors='black', norm=matplotlib.colors.LogNorm(), data=df_NN, label = "Neural network")
 
+    # Plot settings
     cbar = plt.colorbar()
     cbar.set_label('Epochs', rotation=270, labelpad = 20, fontsize = 16)
-
-
-
-
 
     plt.xlabel(r"Avg. computation time $[s]$", fontsize=16)
     plt.ylabel(r"MSE", fontsize=16)
@@ -171,14 +174,15 @@ def bang_for_the_buck(filename):
 
 
 def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
-    """[summary]
+    """
+    Generate data and append to file.
 
     Args:
-        filename ([type]): [description]
-        method ([type]): [description]
-        dx_list ([type]): [description]
-        avg_runs (int, optional): [description]. Defaults to 1.
-        epochs ([type], optional): [description]. Defaults to np.nan.
+        filename (string): file to append data to
+        method (string): specify whether to use finite difference of neural network
+        dx_list (list): list of spacial steps dx
+        avg_runs (int): number of runs to average over
+        epochs (int): number of epochs to run for (nan for finite difference)
     """
     # Common settings
     T = 0.05
@@ -211,7 +215,6 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
 
             print() # linebreak
             append_to_file(dx, dt, epochs, T, np.mean(MSE), np.mean(timing), avg_runs, filename)
-
 
 
 
