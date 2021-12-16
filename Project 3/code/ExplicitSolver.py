@@ -253,7 +253,7 @@ if __name__ == "__main__":
     I = lambda x: np.sin(np.pi * x)
     L = 1
     T = 1  # 0.5
-    dx = 0.1
+    dx = 0.01
     dt = 0.5 * dx ** 2
     c = 0
     d = 0

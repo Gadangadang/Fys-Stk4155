@@ -17,6 +17,18 @@ def color_cycle(num_color):
     color = plt.rcParams['axes.prop_cycle'].by_key()['color']
     return color[num_color]
 
+import numpy as np
+import statsmodels.api as sm
+def lin_fit(x,y):
+    x = sm.add_constant(x)
+    model = sm.OLS(y, x)
+    res = model.fit()
+    b, a = res.params
+    b_err, a_err = res.bse
+    return a, b, a_err, b_err
+
+def decimals(val):
+    return  int(np.ceil(-np.log10(val)))
 
 #--- Plot commands ---#
 # plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
