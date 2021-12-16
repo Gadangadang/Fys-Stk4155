@@ -8,6 +8,11 @@ import time
 
 
 def create_file(filename):
+    """[summary]
+
+    Args:
+        filename ([type]): [description]
+    """
     header = ["dx", "dt", "epochs", "T", "MSE", "timing[s]", "avg_runs"]
     create = input(f"Are you sure you want to create {filename}?, y/n: ")
     if create == "y":
@@ -24,6 +29,18 @@ def create_file(filename):
         exit()
 
 def append_to_file(dx, dt, epochs, t, MSE, timing, avg_runs, filename):
+    """[summary]
+
+    Args:
+        dx ([type]): [description]
+        dt ([type]): [description]
+        epochs ([type]): [description]
+        t ([type]): [description]
+        MSE ([type]): [description]
+        timing ([type]): [description]
+        avg_runs ([type]): [description]
+        filename ([type]): [description]
+    """
     data = [dx, dt, epochs, t, MSE, timing, avg_runs]
     file = open(filename, 'a')
     spacing = "                  "
@@ -33,6 +50,16 @@ def append_to_file(dx, dt, epochs, t, MSE, timing, avg_runs, filename):
     file.write("\n")
 
 def calculate_MSE(x, t, u):
+    """[summary]
+
+    Args:
+        x ([type]): [description]
+        t ([type]): [description]
+        u ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     # Assumes solution at one given time
     u_exact = np.sin(np.pi * x) * np.exp(-np.pi**2 * t)
     MSE = np.mean((u_exact - u)**2)
@@ -40,6 +67,14 @@ def calculate_MSE(x, t, u):
     return MSE
 
 def readfile(filename):
+    """[summary]
+
+    Args:
+        filename ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     infile = open(filename, 'r')
     line = infile.readline()
     data = [[] for i in range(7)] #dx, dt, epochs, T, MSE, timing, avg_runs
@@ -58,6 +93,11 @@ def readfile(filename):
 
 
 def bang_for_the_buck(filename):
+    """[summary]
+
+    Args:
+        filename ([type]): [description]
+    """
     dx, dt, epochs, T, MSE, timing, avg_runs = readfile(filename)
     fin_diff_index = np.argwhere(np.isnan(epochs) == True)
     NN_index =  np.argwhere(np.isnan(epochs) == False)
@@ -131,6 +171,15 @@ def bang_for_the_buck(filename):
 
 
 def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
+    """[summary]
+
+    Args:
+        filename ([type]): [description]
+        method ([type]): [description]
+        dx_list ([type]): [description]
+        avg_runs (int, optional): [description]. Defaults to 1.
+        epochs ([type], optional): [description]. Defaults to np.nan.
+    """
     # Common settings
     T = 0.05
     L = 1
