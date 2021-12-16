@@ -79,4 +79,3 @@ if __name__ == "__main__":
 
 
     err_comparison(x, [t_ex, t_NN, t_NN], [u_ex, u_NN_2k, u_NN_20k], ["Explicit", "Neural network, 2k epochs", "Neural network, 20k epochs"], name = f"error_comparison_dx{dx}")
-    # err_comparison(x, [t_ex, t_NN], [u_ex, u_NN_2k], ["Explicit", "Neural network, 2k epochs"], name = "error_comparison")

@@ -260,5 +260,5 @@ if __name__ == "__main__":
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
     ES.animator("Explicit solver", "001")
-    # ES.rel_err_plot("Explicit solver", T)
-    #ES.plot_comparison("Explicit solver", name = "ExplicitPDE", title_extension=f": dx = {dx}")
+    ES.rel_err_plot("Explicit solver", T)
+    ES.plot_comparison("Explicit solver", name = "ExplicitPDE", title_extension=f": dx = {dx}")

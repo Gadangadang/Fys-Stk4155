@@ -7,7 +7,6 @@ import time
 
 
 
-
 def create_file(filename):
     header = ["dx", "dt", "epochs", "T", "MSE", "timing[s]", "avg_runs"]
     create = input(f"Are you sure you want to create {filename}?, y/n: ")
@@ -58,23 +57,14 @@ def readfile(filename):
 
 
 
-
-
-
 def bang_for_the_buck(filename):
-
-
     dx, dt, epochs, T, MSE, timing, avg_runs = readfile(filename)
     fin_diff_index = np.argwhere(np.isnan(epochs) == True)
     NN_index =  np.argwhere(np.isnan(epochs) == False)
 
-
-
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
 
-    # for i in range(len(dx)):
-    #     # plt.text(timing[i],MSE[i], f"dx={dx[i]:2.2e},epochs={epochs[i]:2.2e}", fontsize = "large")
-    #     plt.text(timing[i]+0.01,MSE[i], f"{i}", fontsize = "large")
+
     import pandas as pd
 
     #Finite difference
@@ -215,13 +205,11 @@ def generate_data(filename, method, dx_list, avg_runs = 1, epochs = np.nan):
 
 
 if __name__ == "__main__":
-    # filename = "PDE_comparison.txt"
-    filename = "PDE_comparison_t0.5_reduced.txt"
     filename = "PDE_comparison_t0.5.txt"
-
     # create_file(filename)
+
     bang_for_the_buck(filename)
-    exit()
+
 
 
     dx_list = [0.1, 0.05, 0.01, 0.005, 0.001]
@@ -240,16 +228,3 @@ if __name__ == "__main__":
 
     dx_list = [0.1]
     generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 100000)
-
-
-    exit()
-
-
-
-
-    # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 10000)
-    # generate_data(filename, "NN", dx_list, avg_runs = 5, epochs = 30000)
-
-
-    # timer = np.array([4.6161650249e+01, 4.2008524063e+01, 2.3967606917e+01])
-    #print(f"{np.mean(timer):.10e}")

@@ -211,7 +211,6 @@ if __name__ == "__main__":
     L = 1
     T = 1
     dx = 0.01
-    # dt = 0.5 * dx ** 2
     dt = dx
     lr = 5e-2
 
@@ -229,7 +228,5 @@ if __name__ == "__main__":
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0, False)
     ESS.u_complete = u_complete
     ESS.animator("NN solver", "001")
-    #ESS.plot_comparison("Neural Network", name = "NN_PDE_equal", title_extension=f": dx = {dx}")
-    #loss_plot(loss, name = f"NN_PDE_MSE_NN_PDE_equal_dx_{dx}")
-
-    # ESS.plot_comparison("Neural Network", title_extension=f": dx = {dx}")
+    ESS.plot_comparison("Neural Network", name = "NN_PDE_equal", title_extension=f": dx = {dx}")
+    loss_plot(loss, name = f"NN_PDE_MSE_NN_PDE_equal_dx_{dx}")

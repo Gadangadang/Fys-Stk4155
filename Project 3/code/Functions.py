@@ -22,7 +22,6 @@ def loss_plot(loss, name = None):
     plt.xlabel("Epochs", fontsize=14)
     plt.ylabel("MSE", fontsize=14)
     plt.yscale("log")
-    # plt.title("MSE as function of epochs")
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.legend()
     if name is not None:
