@@ -131,7 +131,6 @@ if __name__ == "__main__":
             plt.plot(x, w[i] * np.ones(len(x)), "--", label = "Num-Diag")
         else:
             plt.plot(x, w[i] * np.ones(len(x)), "--")
-    plt.ylim(-6.1,3)
     plt.xlabel("# Epochs", fontsize=16)
     plt.ylabel("Value", fontsize=16)
     plt.title("Eigenvalue" + r" $[\lambda$]", fontsize = 16)
