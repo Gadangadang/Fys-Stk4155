@@ -115,7 +115,7 @@ if __name__ == "__main__":
     lr = 5e-4#1e-31e-4
     EV = EigenVal(t, epochs,  lr, A)
     loss, lmbds, EigenVec = EV.train()
-    EigenVec = np.asarray(EigenVec).reshape((len(EigenVec),6))
+    EigenVec = -1*np.asarray(EigenVec).reshape((len(EigenVec),6))
     loss = np.asarray(loss).ravel()
     lmbds = np.asarray(lmbds).ravel()
     x = np.linspace(0, len(lmbds)-1, 10)
@@ -156,8 +156,8 @@ if __name__ == "__main__":
 
     """ Plot of Eigen vs Diag solution """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-    plt.plot(np.arange(6), EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(EigenVec[-1,:])):.7f}")
-    plt.plot(np.arange(6), -v[:,indx[0][0]],"--", label = "Num-Diag: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(v[:,i_max])):.7f}")
+    plt.plot(np.arange(6), -EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$  ")# + f"{abs(np.mean(EigenVec[-1,:])):.7f}")
+    plt.plot(np.arange(6), v[:,indx[0][0]],"--", label = "Num-Diag: "+r"$\langle v \rangle$  " )#+ f"{abs(np.mean(v[:,i_max])):.7f}")
     plt.xlabel("Index (i)", fontsize=16)
     plt.ylabel("Value", fontsize=16)
     plt.legend(loc = "upper right", fontsize = 14)
