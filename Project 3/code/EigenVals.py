@@ -70,7 +70,7 @@ class EigenVal(NeuralNetworkPDE):
         LS = self.XX_0 * AX
         X_T_AX = tf.einsum("jk,kj -> k", X_T, AX)
         RS = tf.einsum("k,kj -> kj", X_T_AX, X)
-        MSE = tf.reduce_mean(LS + RS - X_dt, 0)
+        MSE = tf.reduce_mean((LS - RS - X_dt)**2, 0)
         return MSE
 
     def get_init_state(self):
@@ -101,44 +101,46 @@ class EigenVal(NeuralNetworkPDE):
 
 if __name__ == "__main__":
     np_seed = 2
-    tf_seed = 1000
     np.random.seed(np_seed)
-    tf.random.set_seed(tf_seed)
     Q = np.random.rand(6, 6)
+    seed = 5
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
     A = (Q.T + Q) / 2
-    T = 1e4
+    w, v = LA.eig(A)
+    T = 1e6
     Nt = 100
     t = np.linspace(0, T, Nt).reshape(Nt, 1)
-    epochs = 200
-    lr = 5e-3
-
+    epochs = 2000
+    lr = 5e-4#1e-31e-4
     EV = EigenVal(t, epochs,  lr, A)
     loss, lmbds, EigenVec = EV.train()
     EigenVec = np.asarray(EigenVec).reshape((len(EigenVec),6))
     loss = np.asarray(loss).ravel()
     lmbds = np.asarray(lmbds).ravel()
-    w, v = LA.eig(A)
-    x = np.linspace(0, len(lmbds), 10)
-
+    x = np.linspace(0, len(lmbds)-1, 10)
+    indx = np.where(abs(w - lmbds[-1]) == np.min(abs(w - lmbds[-1]) ))
 
     """ Plot of Eigen value """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-    plt.plot(np.arange(len(lmbds)), lmbds, label = "NN: "+ \
-    r" $\lambda_{max}$" +f" = {lmbds[-1]:.2f}")
+    plt.plot(np.arange(len(lmbds)), lmbds, label = "Neural network")
     for i in range(6):
-        if w[i] == np.max(w):
-            plt.plot(x, w[i] * np.ones(len(x)), "--", \
-            label = "Num-Diag: "+ r"$\lambda_{max} = $"+f"{w[i]:.2f}")
+        if w[i] == w[indx[0][0]]:
             i_max = i
+            print(f"Error: {abs(w[i]-lmbds[-1]):.1e}")
+            plt.plot(x, w[i] * np.ones(len(x)), "--", label = "Num-Diag")
         else:
             plt.plot(x, w[i] * np.ones(len(x)), "--")
+    plt.ylim(-6.1,3)
     plt.xlabel("# Epochs", fontsize=16)
     plt.ylabel("Value", fontsize=16)
-    plt.title("Eigenvalue" + r" $[\lambda$]")
-    plt.legend(loc = "center right", fontsize = 16)
+    plt.title("Eigenvalue" + r" $[\lambda$]", fontsize = 16)
+    plt.legend(loc = "center right", fontsize=16)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     #plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
     plt.show()
+    print(EigenVec[-1,:])
+    print(v[:,indx[0][0]])
 
     """ Plot of Eigen vectors """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
@@ -148,19 +150,19 @@ if __name__ == "__main__":
     plt.xlabel("# Epochs", fontsize=16)
     plt.ylabel("Value", fontsize=16)
     plt.legend(loc = "lower right", fontsize = 14)
-    plt.title("Eigenvectors"+r" [$v$]")
+    plt.title("Eigenvectors"+r" [$v$]", fontsize = 14)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    #plt.savefig("../article/figures/EigenVec.pdf", bbox_inches="tight")
+    plt.savefig("../article/figures/EigenVec.pdf", bbox_inches="tight")
     plt.show()
 
     """ Plot of Eigen vs Diag solution """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-    plt.plot(np.arange(6), -EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$ =" + f"{np.mean(-EigenVec[-1,:]):.3f}")
-    plt.plot(np.arange(6), v[:,i_max], label = "Num-Diag: "+r"$\langle v \rangle$ =" + f"{np.mean(v[:,i_max]):.3f}")
+    plt.plot(np.arange(6), EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(EigenVec[-1,:])):.3f}")
+    plt.plot(np.arange(6), -v[:,indx[0][0]],"--", label = "Num-Diag: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(v[:,i_max])):.3f}")
     plt.xlabel("Index (i)", fontsize=16)
     plt.ylabel("Value", fontsize=16)
     plt.legend(loc = "upper right", fontsize = 14)
-    plt.title("Eigenvectors: Neurlal network vs Num-Diag "+"[$v$]")
+    plt.title("Eigenvectors: Neurlal network vs Num-Diag "+"[$v$]", fontsize = 16)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    #plt.savefig("../article/figures/NNvsDiagVec.pdf", bbox_inches="tight")
+    plt.savefig("../article/figures/NNvsDiagVec.pdf", bbox_inches="tight")
     plt.show()
