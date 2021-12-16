@@ -98,8 +98,8 @@ class NeuralNetworkPDE:
         self.model = self.get_model()
         model = self.model
         try:
-            # tvals = tqdm(range(self.num_epochs)) # disabled print temporary
-            tvals = range(self.num_epochs)
+            tvals = tqdm(range(self.num_epochs)) # disabled print temporary
+            #tvals = range(self.num_epochs)
             for epoch in tvals:
 
                 # Calculate loss and gradient of loss.
@@ -108,7 +108,7 @@ class NeuralNetworkPDE:
                 self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 # Track Loss
                 self.tracker(loss_value)
-                # tvals.set_description(self.print_string) # disabled print temporary
+                tvals.set_description(self.print_string) # disabled print temporary
                 self.model = model  # Save trained network.
             return self.process
         except KeyboardInterrupt:
@@ -214,12 +214,12 @@ if __name__ == "__main__":
     tf.random.set_seed(123)
     L = 1
     T = 1
-    dx = 0.1
+    dx = 0.01
     # dt = 0.5 * dx ** 2
     dt = dx
     lr = 5e-2
 
-    epochs = 2e4
+    epochs = 3e3
     x = np.linspace(0, L, round(L / dx) + 1)
     t = np.linspace(0, T, round(T / dt) + 1)
 
@@ -232,8 +232,9 @@ if __name__ == "__main__":
 
     ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0, False)
     ESS.u_complete = u_complete
-    ESS.plot_comparison("Neural Network", name = "NN_PDE_equal", title_extension=f": dx = {dx}")
-    loss_plot(loss, name = f"NN_PDE_MSE_NN_PDE_equal_dx_{dx}")
+    ESS.animator("NN solver", "001")
+    #ESS.plot_comparison("Neural Network", name = "NN_PDE_equal", title_extension=f": dx = {dx}")
+    #loss_plot(loss, name = f"NN_PDE_MSE_NN_PDE_equal_dx_{dx}")
 
     # ESS.plot_comparison("Neural Network", title_extension=f": dx = {dx}")
 
