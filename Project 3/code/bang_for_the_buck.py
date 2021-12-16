@@ -67,8 +67,6 @@ def bang_for_the_buck(filename):
     dx, dt, epochs, T, MSE, timing, avg_runs = readfile(filename)
     fin_diff_index = np.argwhere(np.isnan(epochs) == True)
     NN_index =  np.argwhere(np.isnan(epochs) == False)
-    fin_diff_color = 0
-    NN_color = 1
 
 
 
@@ -77,27 +75,65 @@ def bang_for_the_buck(filename):
     # for i in range(len(dx)):
     #     # plt.text(timing[i],MSE[i], f"dx={dx[i]:2.2e},epochs={epochs[i]:2.2e}", fontsize = "large")
     #     plt.text(timing[i]+0.01,MSE[i], f"{i}", fontsize = "large")
+    import pandas as pd
 
+    #Finite difference
+    size = -200/np.log10(dx)
 
-    # Data points
-    plt.plot(timing[fin_diff_index], MSE[fin_diff_index], 'o', color = color_cycle(fin_diff_color), label = "Finite difference")
-    plt.plot(timing[NN_index], MSE[NN_index], 'o', color = color_cycle(NN_color), label = "Neural network")
 
     # Linear fit
     a_fin, b_fin, a_err_fin, b_err_fin = lin_fit(np.log10(timing[fin_diff_index]), np.log10(MSE[fin_diff_index]))
     x_fin = [np.min(timing[fin_diff_index]), np.max(timing[fin_diff_index])]
-    plt.plot(x_fin, x_fin**a_fin*10**b_fin, linestyle = "--", color = color_cycle(fin_diff_color))
+    plt.plot(x_fin, x_fin**a_fin*10**b_fin, linestyle = "--", color = color_cycle(0))
 
     a_NN, b_NN, a_err_NN, b_err_NN = lin_fit(np.log10(timing[NN_index]), np.log10(MSE[NN_index]))
     x_NN = [np.min(timing[NN_index]), np.max(timing[NN_index])]
-    plt.plot(x_NN, x_NN**a_NN*10**b_NN, linestyle = "--", color = color_cycle(NN_color))
+    plt.plot(x_NN, x_NN**a_NN*10**b_NN, linestyle = "--", color = color_cycle(1))
+
+    fin_color = [color_cycle(0)]*len(fin_diff_index)
+    df_fin = pd.DataFrame({
+                        'X': timing[fin_diff_index].ravel(),
+                        'Y': MSE[fin_diff_index].ravel(),
+                        'colors': fin_color,
+                        "bubble_size": size[fin_diff_index].ravel()})
+
+    fin_scatter = plt.scatter('X', 'Y',
+             s='bubble_size',
+             c ='colors',
+             alpha=0.8 , data=df_fin, label = "Finite difference")
+
+    NN_color = epochs[NN_index].ravel()
+
+    df_NN = pd.DataFrame({
+                        'X': timing[NN_index].ravel(),
+                        'Y': MSE[NN_index].ravel(),
+                        'colors': NN_color,
+                        "bubble_size": size[NN_index].ravel()})
+
+    cmap = plt.get_cmap('Reds', 5)
+    NN_scatter = plt.scatter('X', 'Y',
+             s='bubble_size',
+             c ='colors',
+             cmap = cmap,
+             alpha=0.8 , edgecolors='black', norm=matplotlib.colors.LogNorm(), data=df_NN, label = "Neural network")
+
+    cbar = plt.colorbar()
+    cbar.set_label('Epochs', rotation=270, labelpad = 20, fontsize = 16)
 
 
-    plt.xlabel(r"Avg. computation time $[s]$", fontsize=14)
-    plt.ylabel(r"MSE", fontsize=14)
+
+
+
+    plt.xlabel(r"Avg. computation time $[s]$", fontsize=16)
+    plt.ylabel(r"MSE", fontsize=16)
     plt.xscale('log')
     plt.yscale('log')
-    plt.legend(fontsize = 13)
+    plt.legend(fontsize = 14)
+
+    ax = plt.gca()
+    leg = ax.get_legend()
+    leg.legendHandles[1].set_color(color_cycle(1))
+
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.savefig(
         f"../article/figures/bang_for_the_buck.pdf", bbox_inches="tight")
