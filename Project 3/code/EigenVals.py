@@ -139,8 +139,6 @@ if __name__ == "__main__":
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
     plt.show()
-    print(EigenVec[-1,:])
-    print(v[:,indx[0][0]])
 
 
     """ Plot of Eigen vectors """
@@ -158,8 +156,8 @@ if __name__ == "__main__":
 
     """ Plot of Eigen vs Diag solution """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-    plt.plot(np.arange(6), EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(EigenVec[-1,:])):.3f}")
-    plt.plot(np.arange(6), -v[:,indx[0][0]],"--", label = "Num-Diag: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(v[:,i_max])):.3f}")
+    plt.plot(np.arange(6), EigenVec[-1,:], label = "Neural network: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(EigenVec[-1,:])):.7f}")
+    plt.plot(np.arange(6), -v[:,indx[0][0]],"--", label = "Num-Diag: "+r"$\langle v \rangle$ = " + f"{abs(np.mean(v[:,i_max])):.7f}")
     plt.xlabel("Index (i)", fontsize=16)
     plt.ylabel("Value", fontsize=16)
     plt.legend(loc = "upper right", fontsize = 14)
@@ -167,3 +165,4 @@ if __name__ == "__main__":
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
     plt.savefig("../article/figures/NNvsDiagVec.pdf", bbox_inches="tight")
     plt.show()
+    print(f"MSE of the NN Eigenvalue: {np.mean(EigenVec[-1,:]+v[:,i_max])**2:.3e}")

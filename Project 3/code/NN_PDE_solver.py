@@ -56,8 +56,6 @@ class NeuralNetworkPDE:
 
     def create_dataset(self):
         xx, tt = tf.meshgrid(self.x, self.t)
-
-        # data = tf.stack([tf.reshape(T, [-1]), tf.reshape(X, [-1])], axis=1) # OLD
         data = tf.stack([tf.reshape(tt, [-1]), tf.reshape(xx, [-1])], axis=1) # NEW
 
 
@@ -98,8 +96,7 @@ class NeuralNetworkPDE:
         self.model = self.get_model()
         model = self.model
         try:
-            # tvals = tqdm(range(self.num_epochs)) # disabled print temporary
-            tvals = range(self.num_epochs)
+            tvals = tqdm(range(self.num_epochs))
             for epoch in tvals:
 
                 # Calculate loss and gradient of loss.
@@ -108,7 +105,7 @@ class NeuralNetworkPDE:
                 self.optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 # Track Loss
                 self.tracker(loss_value)
-                # tvals.set_description(self.print_string) # disabled print temporary
+                tvals.set_description(self.print_string)
                 self.model = model  # Save trained network.
             return self.process
         except KeyboardInterrupt:
