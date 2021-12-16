@@ -132,14 +132,16 @@ if __name__ == "__main__":
         else:
             plt.plot(x, w[i] * np.ones(len(x)), "--")
     plt.xlabel("# Epochs", fontsize=16)
+    plt.ylim([-1, 1])
     plt.ylabel("Value", fontsize=16)
     plt.title("Eigenvalue" + r" $[\lambda$]", fontsize = 16)
-    plt.legend(loc = "center right", fontsize=16)
+    plt.legend(fontsize=16)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    #plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
+    plt.savefig("../article/figures/NNEigVals.pdf", bbox_inches="tight")
     plt.show()
     print(EigenVec[-1,:])
     print(v[:,indx[0][0]])
+
 
     """ Plot of Eigen vectors """
     plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
