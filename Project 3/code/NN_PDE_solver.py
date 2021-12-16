@@ -233,32 +233,3 @@ if __name__ == "__main__":
     #loss_plot(loss, name = f"NN_PDE_MSE_NN_PDE_equal_dx_{dx}")
 
     # ESS.plot_comparison("Neural Network", title_extension=f": dx = {dx}")
-
-
-
-
-
-
-    # ML.save_model(f"{epochs:e}epoch_sigmoid")
-    # ML.load_model("100000epoch_sigmoid")
-    # u_complete = ML()
-
-    # u_complete = np.asarray(u_complete)
-
-
-    # Run animation against exact solution
-
-    # dt = 0.1 * 0.5 * dx ** 2
-    # ESS = ES.ExplicitSolver(I, L, T, dx, dt, 0, 0, False)
-    # solution = ESS.run_simulation()
-    # ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
-
-    # ESS.rel_err_plot("Explicit ", t, other_data=u_complete, other_name="NN")
-
-    # Animate
-    # ESS.u_complete = u_complete
-    # ESS.animator("Neural network", "001_2e3")
-    # ESS.plot_comparison("Explicit solver", title_extension=f": dx = {dx}")
-
-    # Save
-    # ML.save_model(f"{epochs}epoch")
