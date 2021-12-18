@@ -11,6 +11,7 @@ class ExplicitSolver:
     Explicit solver for PDE's on the form
             d_t u(x, t) = Ad_xx u(x, t)
     """
+
     def __init__(self, I, L, T, dx, dt, c, d, stability=True):
         """
         Initialize the solver object. After constants are set,
@@ -41,11 +42,14 @@ class ExplicitSolver:
 
         self.dt = dt
         self.dx = dx
-        self.C = self.alpha*self.dt / self.dx ** 2 #stability constant, must be <= 0.5
+        self.C = (
+            self.alpha * self.dt / self.dx ** 2
+        )  # stability constant, must be <= 0.5
 
         if self.C > 0.5 and self.stability:
-            self.dt = 0.5 * self.dx ** 2
-            self.C = self.dt / self.dx ** 2
+            self.C = 0.5
+            self.dt = self.C * self.dx ** 2 / self.alpha
+
             print("dt not satisfying Neuman stability criteria")
             print(f"dt is now {self.dt}")
 
@@ -127,28 +131,40 @@ class ExplicitSolver:
                     lw=2,
                     label="Exact",
                 )
-                MSE = np.mean((self.exact_solution(t_index[counter])- self.u_complete[t_index[counter]])**2)
+                MSE = np.mean(
+                    (
+                        self.exact_solution(t_index[counter])
+                        - self.u_complete[t_index[counter]]
+                    )
+                    ** 2
+                )
                 MSE = np.where(MSE < 1e-14, 0, MSE)
-                axes[i,j].text(0.15,0.25, f"MSE = {MSE:0.1e} ", fontsize = "large")
+                axes[i, j].text(0.15, 0.25, f"MSE = {MSE:0.1e} ", fontsize="large")
                 axes[i, j].set_ylim([-0.1, 1.1])
                 axes[i, j].set_xticks([0, 0.5, 1])
                 counter += 1
 
-        plt.legend(fontsize = 11)
+        plt.legend(fontsize=11)
         # add a big axis, hide frame
         fig.add_subplot(111, frameon=False)
         ax = plt.gca()
         ax.grid(False)
         # hide tick and tick label of the big axis
-        plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
-        plt.xlabel("$x$", fontsize = 14)
-        plt.ylabel("$u$", fontsize = 14)
+        plt.tick_params(
+            labelcolor="none",
+            which="both",
+            top=False,
+            bottom=False,
+            left=False,
+            right=False,
+        )
+        plt.xlabel("$x$", fontsize=14)
+        plt.ylabel("$u$", fontsize=14)
 
         # plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2, rect = (-0.05,-0.05,1,1))
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2, rect=(-0.05, -0.05, 1, 1))
 
-
-        plt.subplots_adjust(hspace=0.22, wspace= 0.070)
+        plt.subplots_adjust(hspace=0.22, wspace=0.070)
 
         if name is not None:
             plt.savefig(
@@ -216,7 +232,9 @@ class ExplicitSolver:
 
         return error
 
-    def rel_err_plot(self, solver, time=None, other_data=None, other_name="", save = None):
+    def rel_err_plot(
+        self, solver, time=None, other_data=None, other_name="", save=None
+    ):
         """
         Plots the absolute error for the solution, and possibly another data set aswell
 
@@ -228,7 +246,7 @@ class ExplicitSolver:
         """
         self.target_data = self.u_complete
         error = self.calc_err()
-        plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+        plt.figure(num=0, dpi=80, facecolor="w", edgecolor="k")
         plt.plot(self.t, error, label=f"{solver} error")
 
         if isinstance(other_data, np.ndarray):
@@ -243,9 +261,11 @@ class ExplicitSolver:
         plt.ylabel("MSE", fontsize=14)
         # plt.title(f"Mean absolute Error {solver} vs Exact as function of time")
         plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-        plt.legend(fontsize = 13)
+        plt.legend(fontsize=13)
         if save is not None:
-            plt.savefig(f"../article/figures/{save}_dx{self.dx}.pdf", bbox_inches="tight")
+            plt.savefig(
+                f"../article/figures/{save}_dx{self.dx}.pdf", bbox_inches="tight"
+            )
         plt.show()
 
 
@@ -253,12 +273,14 @@ if __name__ == "__main__":
     I = lambda x: np.sin(np.pi * x)
     L = 1
     T = 1  # 0.5
-    dx = 0.01
-    dt = 0.5 * dx ** 2
+    dx = 0.1
+    dt = dx ** 2
     c = 0
     d = 0
     ES = ExplicitSolver(I, L, T, dx, dt, c, d)
     solution = ES.run_simulation()
     ES.animator("Explicit solver", "001")
     ES.rel_err_plot("Explicit solver", T)
-    ES.plot_comparison("Explicit solver", name = "ExplicitPDE", title_extension=f": dx = {dx}")
+    ES.plot_comparison(
+        "Explicit solver", name="ExplicitPDE", title_extension=f": dx = {dx}"
+    )

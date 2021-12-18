@@ -210,7 +210,7 @@ if __name__ == "__main__":
     tf.random.set_seed(123)
     L = 1
     T = 1
-    dx = 0.01
+    dx = 0.1
     dt = dx
     lr = 5e-2
 
