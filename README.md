@@ -15,9 +15,9 @@ Project 2 explores neural networks, and compares self made ones to networks from
 regression models on the Franke Function. Score 94/100 points<br />
 <br />
 Project 3 explores using neural networks to solve PDE's and eigenvalue problems using Tensorflow infrastructure. It also 
-compares against explicit solvers and numerical eigenvalue computation. Score -/100 points<br />
+compares against explicit solvers and numerical eigenvalue computation. Score 99/100 points<br />
 Extra: Uses boosting, decision trees and neural networks to look at Bias-Variance trade off <br />
-for housing data set.  Score -/30 points <br />
+for housing data set.  Score 27/30 points <br />
 
 <br />
 To install requirements do:
