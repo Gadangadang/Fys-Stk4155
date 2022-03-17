@@ -6,7 +6,7 @@ Collaborators are Sakarias Frette, Mikkel Metzsch Jensen and William Hirst. <br 
 <br />
 * Sakarias Frette is doing a master thesis in Computational Physics on Unsupervised Learning on particle collision data. <br />
 * William Hirst is doing a master thesis in Computational Physics on Supervised Learning on particle collision data. <br />
-* Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on lattice structures. <br />
+* Mikkel Metzch Jensen is doing a master thesis in Computational Material Science on Machine learning on karegami for study of material properties <br />
 <br />
 Project 1 explores three different linear regression models, OLS, Ridge and Lasso, and studies their accuracy approximating the famous 
 Franke Function. Score: 100/100 points <br />
